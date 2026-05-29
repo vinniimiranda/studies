@@ -1,0 +1,4636 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+      
+        <link rel="prev" href="../06-crdts/">
+      
+      
+        <link rel="next" href="../08-api-gateway-vs-bff/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Service Discovery e Load Balancing - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#service-discovery-e-load-balancing" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Service Discovery e Load Balancing
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Abas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Início
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Bibliografia
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  01 · Fundamentos
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  02 · Estilos e padrões
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  03 · Design tático (DDD)
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../01-teorema-cap-e-pacelc/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  04 · Sistemas distribuídos
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  05 · Dados e persistência
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  06 · Mensageria e streaming
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  07 · Performance e escalabilidade
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  08 · Segurança arquitetural
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  09 · Observabilidade
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  10 · Evolução e práticas
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    01 · Fundamentos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Atributos de qualidade
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/02-architecture-decision-records-adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decision Records (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/03-fitness-functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fitness Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/04-conway-law-e-inverse-conway-maneuver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conway's Law e Inverse Conway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/05-c4-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C4 Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    02 · Estilos e padrões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Layered / N-Tier
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/02-hexagonal-ports-and-adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hexagonal (Ports & Adapters)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/03-clean-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clean Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/04-onion-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Onion Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/05-vertical-slice-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vertical Slice Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/06-modular-monolith/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modular Monolith
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/07-microservices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microservices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/08-service-oriented-architecture-soa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/09-event-driven-architecture-eda/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event-Driven Architecture (EDA)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/10-space-based-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Space-Based Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/11-pipes-and-filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipes and Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/12-serverless-faas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Serverless / FaaS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    03 · Design tático (DDD)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bounded Contexts, Context Mapping, Ubiquitous Language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/02-ddd-aggregates-entities-value-objects-domain-events/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aggregates, Entities, Value Objects, Domain Events
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/03-ddd-context-mapping-patterns-acl-shared-kernel-customer-supplier/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Context Mapping (ACL, Shared Kernel, Customer-Supplier)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/04-cqrs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CQRS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/05-event-sourcing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event Sourcing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/06-saga-pattern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Saga Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/07-outbox-e-inbox-pattern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Outbox e Inbox Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    04 · Sistemas distribuídos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-teorema-cap-e-pacelc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Teorema CAP e PACELC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-modelos-de-consistencia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelos de consistência
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-consenso-distribuido-paxos-raft-2pc-3pc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Consenso distribuído (Paxos, Raft, 2PC, 3PC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-idempotencia-e-semanticas-de-entrega/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Idempotência e semânticas de entrega
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-vector-clocks-e-lamport-timestamps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vector Clocks e Lamport Timestamps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-crdts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CRDTs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Discovery e Load Balancing
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Discovery e Load Balancing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O problema que resolve">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#por-que-a-topologia-deixou-de-ser-estatica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que a topologia deixou de ser estática
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#os-tres-atores-e-o-ciclo-de-vida" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Os três atores e o ciclo de vida
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#client-side-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Client-side discovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#server-side-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Server-side discovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fluxo-client-side-eureka-ribbon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fluxo client-side (Eureka + Ribbon)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluxo-server-side-kubernetes-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fluxo server-side (Kubernetes Service)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-caso-do-service-mesh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O caso do service mesh
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#health-checking-o-coracao-da-disponibilidade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Health checking: o coração da disponibilidade
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-trade-off-cap-do-service-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O trade-off CAP do service registry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algoritmos-de-balanceamento-em-profundidade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Algoritmos de balanceamento em profundidade
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Exemplo prático / caso real">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#panorama-de-registries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Panorama de registries
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-comparativa-client-side-vs-server-side" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela comparativa: client-side vs server-side
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#consideracoes-operacionais-frequentemente-esquecidas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Considerações operacionais frequentemente esquecidas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#por-que-dns-puro-nao-basta-e-quando-basta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que DNS puro não basta (e quando basta)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#self-registration-vs-third-party-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-registration vs third-party registration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quando usar / Quando evitar">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caso-real-expandido-o-que-da-errado-na-pratica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caso real expandido: o que dá errado na prática
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Anti-padrões e armadilhas comuns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-interacao-staleness-resiliencia-por-que-discovery-sozinho-nao-basta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A interação staleness ↔ resiliência (por que discovery sozinho não basta)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migracao-de-modelo-armadilhas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migração de modelo: armadilhas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-api-gateway-vs-bff/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Gateway vs BFF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-service-mesh-sidecar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Mesh (sidecar)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-padroes-de-resiliencia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Padrões de resiliência
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-leader-election-sharding-consistent-hashing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Leader Election, Sharding, Consistent Hashing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    05 · Dados e persistência
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Polyglot Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/02-database-per-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Database per Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/03-read-replicas-sharding-particionamento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read Replicas, Sharding, Particionamento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/04-materialized-views-e-projecoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Materialized Views e projeções
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/05-cdc-change-data-capture-debezium/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CDC com Debezium
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/06-data-lake-warehouse-mesh-lakehouse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Lake, Warehouse, Mesh, Lakehouse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/07-oltp-vs-olap-lambda-kappa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OLTP vs OLAP (Lambda, Kappa)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/08-cache-patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cache patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/09-acid-vs-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ACID vs BASE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    06 · Mensageria e streaming
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Brokers vs log-based streaming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/02-pubsub-queue-topic-partition-consumer-groups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pub/Sub, Queue, Topic, Partition, Consumer Groups
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/03-backpressure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backpressure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/04-dead-letter-queue-e-poison-messages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dead Letter Queue e Poison Messages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/05-stream-processing-kafka-streams-flink-janelas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream Processing (Kafka Streams, Flink, janelas)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/06-event-carried-state-transfer-vs-event-notification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event-carried State Transfer vs Event Notification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    07 · Performance e escalabilidade
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Escalabilidade horizontal vs vertical
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Latência vs Throughput (percentis)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/03-use-red-four-golden-signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    USE, RED, Four Golden Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/04-caching-em-multiplas-camadas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Caching em múltiplas camadas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/05-connection-pooling-thread-pooling-async-io-reactive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connection/thread pooling, async I/O, reactive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/06-leis-little-amdahl-universal-scalability-law/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Leis de Little, Amdahl e USL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    08 · Segurança arquitetural
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zero Trust Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/02-oauth2-oidc-saml-jwt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OAuth 2.0, OIDC, SAML, JWT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/03-mtls-entre-servicos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mTLS entre serviços
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/04-defense-in-depth-least-privilege-secure-by-default/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Defense in Depth, Least Privilege, Secure by Default
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/05-secrets-management-vault-kms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secrets Management (Vault, KMS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/06-threat-modeling-stride-pasta/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Threat Modeling (STRIDE, PASTA)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    09 · Observabilidade
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Três pilares (+ eventos)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/02-distributed-tracing-opentelemetry-jaeger-zipkin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Tracing (OpenTelemetry, Jaeger, Zipkin)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/03-correlation-ids-e-propagacao-de-contexto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correlation IDs e propagação de contexto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/04-sli-slo-sla-error-budgets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLI, SLO, SLA e Error Budgets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    10 · Evolução e práticas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strangler Fig Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/02-branch-by-abstraction-parallel-run-feature-toggles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Branch by Abstraction, Parallel Run, Feature Toggles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/03-anti-corruption-layer-em-migracoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anti-Corruption Layer em migrações
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/04-trunk-based-development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trunk-Based Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/05-gitops-iac-immutable-infrastructure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitOps, IaC, Immutable Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/06-platform-engineering-e-idps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform Engineering e IDPs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O problema que resolve">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#por-que-a-topologia-deixou-de-ser-estatica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que a topologia deixou de ser estática
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#os-tres-atores-e-o-ciclo-de-vida" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Os três atores e o ciclo de vida
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#client-side-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Client-side discovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#server-side-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Server-side discovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fluxo-client-side-eureka-ribbon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fluxo client-side (Eureka + Ribbon)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluxo-server-side-kubernetes-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fluxo server-side (Kubernetes Service)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-caso-do-service-mesh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O caso do service mesh
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#health-checking-o-coracao-da-disponibilidade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Health checking: o coração da disponibilidade
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-trade-off-cap-do-service-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O trade-off CAP do service registry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algoritmos-de-balanceamento-em-profundidade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Algoritmos de balanceamento em profundidade
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Exemplo prático / caso real">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#panorama-de-registries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Panorama de registries
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-comparativa-client-side-vs-server-side" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela comparativa: client-side vs server-side
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#consideracoes-operacionais-frequentemente-esquecidas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Considerações operacionais frequentemente esquecidas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#por-que-dns-puro-nao-basta-e-quando-basta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que DNS puro não basta (e quando basta)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#self-registration-vs-third-party-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-registration vs third-party registration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quando usar / Quando evitar">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caso-real-expandido-o-que-da-errado-na-pratica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caso real expandido: o que dá errado na prática
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Anti-padrões e armadilhas comuns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-interacao-staleness-resiliencia-por-que-discovery-sozinho-nao-basta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A interação staleness ↔ resiliência (por que discovery sozinho não basta)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migracao-de-modelo-armadilhas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migração de modelo: armadilhas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="service-discovery-e-load-balancing">Service Discovery e Load Balancing<a class="headerlink" href="#service-discovery-e-load-balancing" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Sistemas distribuídos · <strong>Nível:</strong> Avançado · <strong>Tempo de leitura:</strong> ~24 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>Em arquiteturas de microsserviços rodando sobre infraestrutura dinâmica (containers, autoscaling, instâncias efêmeras), os endereços de rede das instâncias mudam constantemente. <strong>Service Discovery</strong> é o mecanismo que resolve "qual é o conjunto de instâncias saudáveis do serviço X e onde elas estão agora". <strong>Load Balancing</strong> é a decisão complementar: "para qual dessas instâncias eu mando esta requisição". Existem dois grandes modelos de distribuição dessa responsabilidade: <strong>client-side</strong> (o cliente consulta um registry, mantém a lista de instâncias e escolhe ele mesmo o destino — ex.: Netflix Eureka + Ribbon) e <strong>server-side</strong> (o cliente fala com um endereço estável de um balanceador/router que faz a descoberta e o roteamento — ex.: NGINX, AWS ELB, Kubernetes Service + kube-proxy). A escolha tem implicações profundas em latência, acoplamento, suporte multi-linguagem, política de balanceamento e onde mora a complexidade operacional. Service mesh (Istio/Linkerd) é, em essência, uma forma de mover a inteligência de client-side LB para um sidecar, combinando o melhor dos dois mundos.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<h3 id="por-que-a-topologia-deixou-de-ser-estatica">Por que a topologia deixou de ser estática<a class="headerlink" href="#por-que-a-topologia-deixou-de-ser-estatica" title="Permanent link">&para;</a></h3>
+<p>Antes de detalhar, vale fixar a mudança de paradigma que torna o discovery necessário. Três forças tornaram a topologia de rede uma função do tempo:</p>
+<ul>
+<li><strong>Containerização e orquestração.</strong> Containers são efêmeros por design. Um orquestrador (Kubernetes) cria, mata e recria Pods constantemente — por deploys, por falhas de nó, por reescalonamento. Cada Pod recebe um IP novo de uma rede de overlay. Não há "o servidor de pagamento"; há um conjunto mutável de Pods.</li>
+<li><strong>Elasticidade / autoscaling.</strong> A capacidade responde à carga em tempo real. O número de instâncias de um serviço é uma variável, não uma constante de configuração.</li>
+<li><strong>Imutabilidade e entrega contínua.</strong> Em vez de atualizar servidores in-place, sobe-se instâncias novas e derruba-se as antigas (immutable infrastructure). Cada deploy é uma rotação completa de endpoints.</li>
+</ul>
+<p>A consequência: a configuração estática (arquivos de propriedades com IPs, DNS de TTL alto) tornou-se incompatível com a realidade operacional. Discovery dinâmico deixou de ser luxo e virou pré-requisito de qualquer arquitetura de microsserviços moderna.</p>
+<p>Em arquiteturas monolíticas ou em sistemas distribuídos "clássicos" com topologia estática, a localização dos serviços era trivial: você tinha um número fixo de servidores, com IPs e portas conhecidos, configurados num arquivo de propriedades ou num DNS estável. Um cliente que precisava chamar o serviço de pagamento sabia que ele estava em <code>10.0.3.12:8443</code>, e ponto. Quando muito, havia um balanceador de hardware (F5, Citrix NetScaler) na frente, também com endereço fixo.</p>
+<p>Esse modelo desmorona com <strong>microsserviços sobre infraestrutura elástica</strong>. Considere o que muda:</p>
+<ul>
+<li><strong>Endereçamento dinâmico.</strong> Instâncias são criadas e destruídas continuamente por orquestradores (Kubernetes), por autoscaling groups (AWS ASG) ou por deploys. Cada nova instância recebe um IP diferente, frequentemente de um range de rede de sobreposição (overlay network). O IP de ontem não é o IP de hoje.</li>
+<li><strong>Cardinalidade variável.</strong> O número de instâncias de um serviço varia conforme a carga. Na Black Friday, o serviço de checkout pode ter 200 réplicas; às 4h da manhã, 8. A topologia é uma função do tempo.</li>
+<li><strong>Falhas parciais.</strong> Instâncias morrem (OOM, crash, node failure) sem aviso. O cliente precisa parar de enviar tráfego para instâncias mortas em segundos, não em minutos.</li>
+<li><strong>Multiplicidade de consumidores.</strong> Um mesmo serviço é chamado por dezenas de outros serviços, cada um precisando da lista atualizada de endpoints.</li>
+</ul>
+<p>A pergunta central que Service Discovery responde é: <strong>"Dado o nome lógico de um serviço (ex.: <code>payments-service</code>), qual é o conjunto de endpoints de rede (IP:porta) das instâncias atualmente saudáveis e disponíveis?"</strong> Sem um mecanismo automático, você cairia em alternativas inviáveis: hardcode de IPs (impossível com IPs dinâmicos), reconfiguração manual a cada deploy (não escala) ou DNS round-robin puro (TTL alto demais para topologia dinâmica, sem health checking real, sem controle de política).</p>
+<p>O problema de <strong>Load Balancing</strong> é correlato mas distinto: uma vez que você sabe <em>quais</em> são as instâncias saudáveis, <em>qual</em> delas deve receber a próxima requisição? A escolha errada concentra carga, ignora latência diferencial entre instâncias (algumas em zonas de disponibilidade mais próximas, algumas com GC pause em andamento) e desperdiça capacidade.</p>
+<p>A origem prática desses padrões está fortemente ligada à Netflix, que ao migrar para microsserviços na AWS por volta de 2010-2012 construiu o <strong>Eureka</strong> (service registry) e o <strong>Ribbon</strong> (client-side load balancer IPC), tornando-os referência da indústria. O catálogo de padrões de Chris Richardson em microservices.io formalizou a taxonomia client-side vs server-side discovery.</p>
+<h3 id="os-tres-atores-e-o-ciclo-de-vida">Os três atores e o ciclo de vida<a class="headerlink" href="#os-tres-atores-e-o-ciclo-de-vida" title="Permanent link">&para;</a></h3>
+<p>Antes da definição formal, fixe o vocabulário em três atores e o ciclo que os liga:</p>
+<ul>
+<li><strong>Provedor (provider):</strong> o serviço cujas instâncias precisam ser encontradas. Ele <em>aparece</em> (sobe), <em>se anuncia</em> (registra), <em>prova que está vivo</em> (heartbeat/probe) e eventualmente <em>desaparece</em> (morre ou é desligado).</li>
+<li><strong>Registry:</strong> o repositório que sabe, a qualquer instante, o conjunto de instâncias do provedor e seu estado de saúde. É a fonte de verdade da topologia.</li>
+<li><strong>Consumidor (consumer):</strong> o serviço que precisa chamar o provedor. Ele <em>pergunta</em> ao registry (ou a um intermediário) onde estão as instâncias e <em>escolhe</em> uma (load balancing).</li>
+</ul>
+<p>O ciclo de vida que costura tudo: <strong>instância sobe → registra (self ou third-party) → fica healthy → entra no pool servível → recebe tráfego → degrada/morre → é detectada (heartbeat expira ou probe falha) → sai do pool → tráfego para de fluir</strong>. Cada transição tem uma latência (a <em>staleness</em>) e um mecanismo (heartbeat, probe, watch). Entender esse ciclo é entender onde estão os riscos: tráfego para uma instância que já morreu mas ainda não saiu do pool, ou tráfego negado para uma que subiu mas ainda não entrou.</p>
+<h3 id="glossario-rapido">Glossário rápido<a class="headerlink" href="#glossario-rapido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Service Registry:</strong> banco de dados de instâncias e seu estado de saúde; a fonte de verdade da topologia.</li>
+<li><strong>Registration:</strong> como instâncias entram no registry (self ou third-party).</li>
+<li><strong>Lookup / Resolution:</strong> como consumidores obtêm a lista de instâncias.</li>
+<li><strong>Heartbeat:</strong> sinal periódico de "estou vivo" enviado pela instância (modelo push).</li>
+<li><strong>Probe / active health check:</strong> sondagem ativa de um endpoint de saúde (modelo pull).</li>
+<li><strong>Readiness vs Liveness:</strong> pronto para tráfego vs processo vivo (Kubernetes).</li>
+<li><strong>Staleness:</strong> atraso entre uma mudança real de topologia e sua reflexão na lista usada pelos clientes.</li>
+<li><strong>Client-side discovery:</strong> o cliente descobre e balanceia (Eureka+Ribbon).</li>
+<li><strong>Server-side discovery:</strong> um intermediário descobre e balanceia (ELB, kube-proxy).</li>
+<li><strong>EWMA / P2C:</strong> algoritmos de LB modernos (latência ponderada / power of two choices).</li>
+</ul>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<p><strong>Service Discovery</strong> é o processo pelo qual um cliente (consumidor) descobre, em tempo de execução, a localização de rede das instâncias de um serviço-alvo (provedor). Ele se decompõe em dois subprocessos:</p>
+<ul>
+<li><strong>Service Registration:</strong> como as instâncias do provedor anunciam sua existência e estado de saúde a um repositório central. Pode ser <strong>self-registration</strong> (a própria instância chama uma API do registry ao subir e envia heartbeats periódicos — modelo do Eureka) ou <strong>third-party registration</strong> (um componente externo, o <em>registrar</em>, observa o orquestrador/plataforma e registra/desregistra instâncias em nome delas — ex.: Registrator com Consul, ou o próprio control plane do Kubernetes populando Endpoints).</li>
+<li><strong>Service Lookup / Resolution:</strong> como o consumidor consulta o registry para obter a lista de instâncias.</li>
+</ul>
+<p>O componente central é o <strong>Service Registry</strong>: um banco de dados de instâncias de serviços e seus metadados (IP, porta, status de saúde, versão, zona, peso). Por ser infraestrutura crítica — se ele cai, ninguém acha ninguém — o registry precisa ser <strong>altamente disponível</strong> e tipicamente é construído sobre um sistema de consenso ou replicação: <strong>Consul</strong> e <strong>etcd</strong> usam Raft; <strong>ZooKeeper</strong> usa ZAB; o <strong>Eureka</strong> abdica deliberadamente de consistência forte em favor de disponibilidade (escolha <strong>AP</strong> no espectro CAP), aceitando ler dados potencialmente stale para nunca ficar indisponível.</p>
+<p><strong>Load Balancing</strong> é a política de seleção de uma instância dentre as candidatas. Algoritmos comuns:</p>
+<ul>
+<li><strong>Round-robin:</strong> distribui sequencialmente. Simples, ignora estado.</li>
+<li><strong>Weighted round-robin:</strong> instâncias com mais capacidade recebem peso maior.</li>
+<li><strong>Least connections / least requests:</strong> envia para a instância com menos conexões/requisições ativas. Adapta-se melhor a requisições de duração heterogênea.</li>
+<li><strong>Latency-aware / EWMA (exponentially weighted moving average):</strong> prioriza instâncias com menor latência observada recentemente — usado pelo Linkerd ("latency-aware load balancing") e pelo Envoy.</li>
+<li><strong>Power of two choices (P2C):</strong> escolhe duas instâncias aleatórias e fica com a de menor carga. Aproxima o least-connections com custo computacional O(1) e excelente distribuição estatística — padrão moderno em Envoy e Linkerd.</li>
+<li><strong>Consistent hashing:</strong> mapeia requisições para instâncias de forma estável (usado quando se quer afinidade de sessão ou cache locality — ver documento sobre Consistent Hashing).</li>
+</ul>
+<p>A distinção arquitetural central é <strong>onde</strong> a lógica de discovery + LB executa:</p>
+<h3 id="client-side-discovery">Client-side discovery<a class="headerlink" href="#client-side-discovery" title="Permanent link">&para;</a></h3>
+<p>O <strong>cliente é responsável</strong> por consultar o service registry, manter (em cache local) a lista de instâncias e aplicar o algoritmo de balanceamento para escolher o destino, fazendo então a chamada direta à instância selecionada. Não há intermediário no caminho de dados (data path).</p>
+<ul>
+<li><strong>Implementações:</strong> Netflix <strong>Eureka</strong> (registry) + <strong>Ribbon</strong> (LB client lib); Spring Cloud LoadBalancer; gRPC com resolver customizado.</li>
+<li><strong>Vantagens:</strong> menos um hop de rede (menor latência); o cliente conhece a topologia e pode aplicar balanceamento inteligente e específico (latency-aware por instância); sem ponto único de gargalo no caminho de dados.</li>
+<li><strong>Desvantagens:</strong> <strong>acoplamento ao registry</strong> e necessidade de uma biblioteca client-side por linguagem/framework (poliglotismo vira problema operacional sério); lógica de discovery duplicada e versionada em todos os consumidores.</li>
+</ul>
+<h3 id="server-side-discovery">Server-side discovery<a class="headerlink" href="#server-side-discovery" title="Permanent link">&para;</a></h3>
+<p>O cliente faz a requisição a um <strong>endereço estável de um roteador/balanceador</strong> (DNS bem conhecido, VIP). Esse intermediário consulta o registry, escolhe a instância e encaminha a requisição. O cliente não sabe e não se importa com a topologia.</p>
+<ul>
+<li><strong>Implementações:</strong> AWS <strong>Elastic Load Balancer (ALB/NLB)</strong>; <strong>NGINX</strong> / NGINX Plus; <strong>Envoy</strong> como edge proxy; <strong>Kubernetes Service</strong> (o <code>ClusterIP</code> + kube-proxy/iptables/IPVS faz server-side LB transparente, com o control plane populando os Endpoints como registry de facto).</li>
+<li><strong>Vantagens:</strong> <strong>agnóstico a linguagem e framework</strong> — qualquer cliente que fale HTTP/TCP funciona; lógica de discovery centralizada e operada por um time de plataforma; cliente trivialmente simples.</li>
+<li><strong>Desvantagens:</strong> <strong>hop extra</strong> no caminho de dados (latência adicional); o balanceador é infraestrutura adicional que precisa ser altamente disponível e ela mesma escalável (pode virar gargalo); menos visibilidade fim-a-fim para o cliente.</li>
+</ul>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<h3 id="fluxo-client-side-eureka-ribbon">Fluxo client-side (Eureka + Ribbon)<a class="headerlink" href="#fluxo-client-side-eureka-ribbon" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Registro.</strong> Ao iniciar, cada instância de <code>payments-service</code> chama a API REST do Eureka Server registrando seu IP, porta, e metadados. Em seguida envia <strong>heartbeats</strong> (renovações de lease) a cada 30s (default).</li>
+<li><strong>Expiração.</strong> Se o Eureka não recebe heartbeats por um período (default 90s), considera a instância morta e a remove do registry. (Há também o "self-preservation mode": se muitos heartbeats falham de uma vez — sugerindo problema de rede do próprio Eureka, não morte real das instâncias —, ele para de expirar para não derrubar tudo. Comportamento AP clássico.)</li>
+<li><strong>Fetch do registry.</strong> O cliente (com Ribbon) baixa periodicamente (default 30s) a lista completa de instâncias e a mantém em cache local. Aqui mora a <em>staleness</em>: a lista pode estar até ~30s desatualizada.</li>
+<li><strong>Balanceamento e chamada.</strong> Ao chamar <code>payments-service</code>, o Ribbon aplica seu algoritmo (round-robin, weighted response time, etc.) sobre o cache local, escolhe um IP:porta e faz a chamada HTTP direta.</li>
+<li><strong>Resiliência local.</strong> Se a instância escolhida falhar, o Ribbon pode tentar outra da lista (retry) e marcar a instância como suspeita (circuit breaking local, frequentemente integrado com Hystrix).</li>
+</ol>
+<h3 id="fluxo-server-side-kubernetes-service">Fluxo server-side (Kubernetes Service)<a class="headerlink" href="#fluxo-server-side-kubernetes-service" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Registro implícito.</strong> Pods sobem; o kubelet reporta o status ao API server. Quando um Pod fica <code>Ready</code> (passa nos readiness probes), o <strong>EndpointSlice controller</strong> adiciona o IP do Pod ao EndpointSlice associado ao Service. O registry aqui é o etcd, populado pelo control plane (third-party registration).</li>
+<li><strong>Resolução de nome.</strong> O cliente resolve <code>payments-service.namespace.svc.cluster.local</code> via CoreDNS para o <code>ClusterIP</code> (um IP virtual estável).</li>
+<li><strong>Roteamento.</strong> O tráfego para o ClusterIP é interceptado por <strong>kube-proxy</strong> (modo iptables ou IPVS) no nó de origem, que faz DNAT distribuindo a conexão entre os IPs dos Pods saudáveis (geralmente round-robin/randômico em iptables; algoritmos mais ricos em IPVS).</li>
+<li><strong>Health.</strong> Readiness probes que falham fazem o controller remover o Pod do EndpointSlice automaticamente; o tráfego para de fluir em segundos.</li>
+</ol>
+<h3 id="o-caso-do-service-mesh">O caso do service mesh<a class="headerlink" href="#o-caso-do-service-mesh" title="Permanent link">&para;</a></h3>
+<p>O service mesh (Istio com Envoy, Linkerd) é um modelo híbrido elegante: a inteligência de <strong>client-side LB</strong> (latency-aware, P2C, circuit breaking, retry) executa num <strong>sidecar proxy</strong> colado ao cliente, <em>fora</em> do código de aplicação. O control plane (istiod) descobre as instâncias (a partir do registry do Kubernetes) e empurra a configuração de endpoints para os sidecars via xDS. Você obtém o balanceamento inteligente do client-side sem a biblioteca por linguagem — o sidecar é a "biblioteca" universal. Ver o documento sobre Service Mesh para o detalhamento.</p>
+<h3 id="health-checking-o-coracao-da-disponibilidade">Health checking: o coração da disponibilidade<a class="headerlink" href="#health-checking-o-coracao-da-disponibilidade" title="Permanent link">&para;</a></h3>
+<p>Discovery sem health checking é discovery quebrado: de nada adianta saber que uma instância <em>existe</em> se ela não consegue <em>servir</em>. Há três modelos:</p>
+<ul>
+<li><strong>Heartbeat / push (self-reporting):</strong> a instância envia sinais periódicos ao registry ("estou viva"). É o modelo do Eureka. Barato e escalável (o registry não precisa sondar ninguém), mas detecta apenas "o processo está vivo e consegue falar com o registry" — não garante que ele consegue servir requisições reais. Uma instância com o banco caído pode continuar mandando heartbeats.</li>
+<li><strong>Active health check / pull (probing):</strong> o registry ou balanceador <strong>sonda ativamente</strong> um endpoint de saúde (<code>GET /health</code>) de cada instância. É o modelo de Consul, NGINX e dos health checks de ELB. Detecta melhor a capacidade real de servir (se o <code>/health</code> for profundo), mas tem custo de O(instâncias) sondas e adiciona carga.</li>
+<li><strong>Readiness vs liveness (Kubernetes):</strong> o Kubernetes separa <strong>liveness</strong> (o processo está vivo? se não, reinicia) de <strong>readiness</strong> (está pronto para receber tráfego? se não, remove dos endpoints sem matar). Essa separação é crucial: durante um warm-up (carregar cache, abrir pool de conexões), a instância está <em>viva</em> mas <em>não pronta</em> — readiness evita mandar tráfego para ela cedo demais.</li>
+</ul>
+<p>A profundidade do health check é uma decisão de engenharia delicada. Um check <strong>raso</strong> (porta abre, retorna 200) é barato mas mente — não detecta dependências quebradas. Um check <strong>profundo</strong> (verifica banco, fila, dependências críticas) detecta mais problemas, mas cria <strong>acoplamento de falha</strong>: se o banco fica lento, <em>todas</em> as instâncias falham o health check simultaneamente e somem do registry de uma vez, mesmo que ainda conseguissem servir cache. A boa prática é um meio-termo: check que reflita capacidade local de servir, sem propagar a saúde de dependências externas compartilhadas (que devem ser tratadas por circuit breaking, não por remoção do registry).</p>
+<h3 id="o-trade-off-cap-do-service-registry">O trade-off CAP do service registry<a class="headerlink" href="#o-trade-off-cap-do-service-registry" title="Permanent link">&para;</a></h3>
+<p>O registry é um sistema distribuído replicado, e portanto sujeito ao teorema CAP. A escolha tem consequências operacionais opostas e contraintuitivas:</p>
+<ul>
+<li><strong>Registries CP (Consul, etcd, ZooKeeper):</strong> priorizam consistência. Usam consenso (Raft/ZAB) com quórum. Numa partição de rede, a minoria fica <strong>indisponível</strong> (não serve leituras/escritas) para nunca retornar dados divergentes. Implicação: numa partição, parte dos clientes pode não conseguir fazer lookup — discovery para. A vantagem é que você nunca recebe uma lista de instâncias "fantasma" inconsistente.</li>
+<li><strong>Registries AP (Eureka):</strong> priorizam disponibilidade. Em partição ou falha, <strong>continuam servindo</strong> dados possivelmente stale (instâncias que já morreram ainda na lista, ou que subiram e ainda não apareceram). O Eureka leva isso ao extremo com o <strong>self-preservation mode</strong>: se uma fração grande de heartbeats falha de uma vez (sinal de problema de rede do <em>próprio</em> Eureka, não morte real das instâncias), ele <strong>para de expirar</strong> as instâncias — preferindo servir dados potencialmente stale a esvaziar o registry e derrubar tudo. A premissa: é melhor o cliente tentar uma instância morta (e cair no retry/circuit breaker) do que não ter <em>nenhuma</em> instância para tentar.</li>
+</ul>
+<p>Não há resposta universal. A Netflix escolheu AP (Eureka) porque, na escala deles, uma partição de rede que tornasse o discovery indisponível seria pior que servir dados ocasionalmente stale — e a camada de resiliência (Hystrix/Ribbon) lida com instâncias mortas via retry e circuit breaking. Sistemas que precisam de coordenação forte (eleição de líder, locks) tendem a CP. A regra prática: a <em>staleness</em> tolerável do AP precisa ser compensada por resiliência local robusta no cliente.</p>
+<h3 id="algoritmos-de-balanceamento-em-profundidade">Algoritmos de balanceamento em profundidade<a class="headerlink" href="#algoritmos-de-balanceamento-em-profundidade" title="Permanent link">&para;</a></h3>
+<p>A escolha do algoritmo determina como a carga e a latência de cauda (p99) se comportam:</p>
+<ul>
+<li><strong>Round-robin:</strong> distribui em sequência. Simples e justo <em>se</em> as instâncias forem idênticas e as requisições homogêneas. Falha sob heterogeneidade: ignora que uma instância está em GC pause ou numa AZ distante, e mesmo assim manda tráfego para ela, inflando o p99.</li>
+<li><strong>Least connections / least requests:</strong> envia para quem tem menos trabalho em voo. Adapta-se a requisições de duração variável (uma requisição longa "ocupa" a instância e ela para de receber novas). Requer estado compartilhado ou conhecimento local das conexões.</li>
+<li><strong>Power of two choices (P2C):</strong> escolhe <strong>duas</strong> instâncias aleatórias e fica com a menos carregada das duas. É o resultado teórico elegante: com custo O(1) e sem coordenação global, P2C aproxima muito bem o least-connections e evita o "efeito manada" do least-connections puro (onde todos correm para a <em>mesma</em> instância recém-liberada). Padrão moderno em Envoy e Linkerd.</li>
+<li><strong>Latency-aware / EWMA:</strong> mantém uma média móvel exponencialmente ponderada da latência observada de cada instância e prioriza as mais rápidas. O Linkerd combina P2C com EWMA: escolhe duas aleatórias e fica com a de menor latência recente. Excelente para conter o p99 quando instâncias degradam temporariamente.</li>
+<li><strong>Consistent hashing:</strong> rota a mesma chave sempre para a mesma instância (afinidade de sessão, cache locality). Ver documento dedicado.</li>
+<li><strong>Weighted:</strong> atribui pesos (por capacidade da instância, por versão em canary). Combinável com os anteriores.</li>
+</ul>
+<p>Eixo ortogonal: <strong>onde</strong> o algoritmo roda. Em server-side via kube-proxy/iptables, você fica limitado a round-robin/random (iptables é burro); IPVS oferece mais. Em client-side / mesh (Envoy, Linkerd), você acessa P2C e EWMA — outra razão para o mesh ser atraente quando a latência de cauda importa.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TB
+    subgraph CS["Client-side discovery"]
+        direction TB
+        C1["Cliente&lt;br/&gt;(Ribbon / lib LB)"]
+        R1[("Service Registry&lt;br/&gt;Eureka")]
+        I1["instância A"]
+        I2["instância B"]
+        I3["instância C"]
+        C1 --&gt;|"1. fetch lista de instâncias"| R1
+        R1 -.-&gt;|"lista IP:porta"| C1
+        C1 --&gt;|"2. escolhe + chama direto"| I2
+        I1 --&gt;|"heartbeat / register"| R1
+        I2 --&gt;|"heartbeat / register"| R1
+        I3 --&gt;|"heartbeat / register"| R1
+    end
+
+    subgraph SS["Server-side discovery"]
+        direction TB
+        C2["Cliente&lt;br/&gt;(simples)"]
+        LB["Router / Load Balancer&lt;br/&gt;NGINX / ELB / kube-proxy"]
+        R2[("Service Registry&lt;br/&gt;Consul / etcd")]
+        J1["instância X"]
+        J2["instância Y"]
+        J3["instância Z"]
+        C2 --&gt;|"1. requisição p/ endereço estável"| LB
+        LB --&gt;|"2. consulta registry"| R2
+        R2 -.-&gt;|"endpoints saudáveis"| LB
+        LB --&gt;|"3. encaminha"| J2
+        J1 --&gt;|"register"| R2
+        J2 --&gt;|"register"| R2
+        J3 --&gt;|"register"| R2
+    end</code></pre>
+<pre class="mermaid"><code>sequenceDiagram
+    participant App as Cliente (server-side)
+    participant DNS as CoreDNS
+    participant KP as kube-proxy (iptables/IPVS)
+    participant Pod as Pod payments
+    App-&gt;&gt;DNS: resolve payments-service.ns.svc.cluster.local
+    DNS--&gt;&gt;App: ClusterIP (VIP estável)
+    App-&gt;&gt;KP: conecta no ClusterIP
+    Note over KP: DNAT para um Pod saudável&lt;br/&gt;do EndpointSlice
+    KP-&gt;&gt;Pod: encaminha conexão
+    Pod--&gt;&gt;App: resposta</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p>Considere um <strong>marketplace brasileiro</strong> estilo grande varejista, rodando ~120 microsserviços em Kubernetes na AWS, com picos brutais em datas como Black Friday e Dia das Mães.</p>
+<p><strong>Cenário 1 — discovery interno via service mesh (híbrido client-side).</strong> Os serviços de domínio (<code>catalog</code>, <code>pricing</code>, <code>cart</code>, <code>checkout</code>, <code>payments</code>, <code>inventory</code>) se comunicam intra-cluster. O time adota <strong>Linkerd</strong> como mesh. Cada Pod recebe um micro-proxy sidecar. Quando <code>checkout</code> chama <code>inventory</code>, a chamada sai do container de aplicação, é interceptada pelo proxy de saída do <code>checkout</code>, que aplica <strong>latency-aware load balancing (EWMA)</strong> sobre os endpoints de <code>inventory</code> descobertos pelo control plane via API do Kubernetes. Durante a Black Friday, algumas réplicas de <code>inventory</code> ficam mais lentas por GC pause; o EWMA do Linkerd automaticamente desvia tráfego para as réplicas rápidas — algo que round-robin puro do kube-proxy não faria. O P2C garante distribuição estatisticamente uniforme sem coordenação global.</p>
+<p><strong>Cenário 2 — edge / borda (server-side).</strong> O tráfego externo (apps mobile, web) entra por um <strong>API Gateway</strong> atrás de um <strong>AWS ALB</strong> (Application Load Balancer). O ALB é server-side discovery clássico: endereço DNS estável, health checks ativos, distribuição entre os Pods do gateway. Aqui server-side é a escolha óbvia: os clientes são heterogêneos (apps em Swift, Kotlin, navegadores) e não há como (nem por que) embarcar uma biblioteca de discovery neles.</p>
+<p><strong>Cenário 3 — sistema legado JVM com Eureka.</strong> Um conjunto de serviços mais antigos, todos em Spring Boot/JVM, herdou <strong>Eureka + Ribbon</strong> de uma fase anterior. Como são homogêneos (tudo JVM), o custo de "biblioteca por linguagem" não dói, e o time ganha latência (sem hop extra) e balanceamento integrado com Hystrix para circuit breaking. O incômodo aparece quando o time de dados quer chamar esses serviços a partir de um job em <strong>Python</strong>: agora precisaria reimplementar o cliente Eureka em Python — exatamente a dor do client-side poliglota. A decisão tática foi expor esses serviços também via um Service do Kubernetes (server-side) para consumidores não-JVM.</p>
+<p>Pseudocódigo leve do lookup client-side:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>// Resolução + balanceamento no cliente (estilo Ribbon)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>instancias = registryCache.get(&quot;payments-service&quot;)   // cache atualizado a cada 30s
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>saudaveis  = instancias.filter(i -&gt; i.status == UP)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>alvo       = loadBalancer.choose(saudaveis)           // ex.: P2C ou weighted response time
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>resposta   = http.get(&quot;https://&quot; + alvo.ip + &quot;:&quot; + alvo.porta + &quot;/charge&quot;)
+</code></pre></div>
+<p>Ferramentas reais a conhecer: <strong>Consul</strong> e <strong>etcd</strong> (registries baseados em Raft), <strong>Netflix Eureka</strong> (registry AP), <strong>Netflix Ribbon</strong> (client LB, hoje em manutenção/aposentadoria), <strong>Spring Cloud LoadBalancer</strong> (substituto do Ribbon), <strong>NGINX</strong>/<strong>Envoy</strong> (server-side proxies), <strong>CoreDNS</strong> + <strong>kube-proxy</strong> (discovery+LB nativo do Kubernetes), <strong>Istio</strong>/<strong>Linkerd</strong> (mesh).</p>
+<h3 id="panorama-de-registries">Panorama de registries<a class="headerlink" href="#panorama-de-registries" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Registry</th>
+<th>Modelo CAP</th>
+<th>Consenso</th>
+<th>Registro</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Consul</strong></td>
+<td>CP</td>
+<td>Raft</td>
+<td>health checks ativos + serviço</td>
+<td>Service mesh integrado (Connect), multi-DC, KV store</td>
+</tr>
+<tr>
+<td><strong>etcd</strong></td>
+<td>CP</td>
+<td>Raft</td>
+<td>API/leases</td>
+<td>Base do Kubernetes; KV consistente, watches</td>
+</tr>
+<tr>
+<td><strong>ZooKeeper</strong></td>
+<td>CP</td>
+<td>ZAB</td>
+<td>znodes efêmeros</td>
+<td>Veterano; coordenação + discovery; usado por Kafka clássico</td>
+</tr>
+<tr>
+<td><strong>Eureka</strong></td>
+<td>AP</td>
+<td>replicação peer-to-peer</td>
+<td>self-registration + heartbeat</td>
+<td>Netflix; self-preservation; serve dados stale para nunca cair</td>
+</tr>
+<tr>
+<td><strong>Kubernetes (etcd + Endpoints)</strong></td>
+<td>CP (etcd)</td>
+<td>Raft</td>
+<td>readiness probes (third-party)</td>
+<td>Discovery nativo via Service/EndpointSlice + CoreDNS</td>
+</tr>
+</tbody>
+</table>
+<p>A escolha do registry não é só preferência: ela define o comportamento sob partição (CP fica indisponível na minoria; AP serve stale), o modelo de registro (self vs third-party), e o acoplamento operacional. Em Kubernetes, a decisão já está tomada (etcd, CP); fora dele, ela é explícita e consequente.</p>
+<h3 id="tabela-comparativa-client-side-vs-server-side">Tabela comparativa: client-side vs server-side<a class="headerlink" href="#tabela-comparativa-client-side-vs-server-side" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Dimensão</th>
+<th>Client-side discovery</th>
+<th>Server-side discovery</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Quem descobre/balanceia</td>
+<td>O cliente (lib embarcada)</td>
+<td>Router/balanceador intermediário</td>
+</tr>
+<tr>
+<td>Hops no caminho de dados</td>
+<td>Direto (sem hop extra)</td>
+<td>+1 hop (latência adicional)</td>
+</tr>
+<tr>
+<td>Suporte poliglota</td>
+<td>Difícil (lib por linguagem)</td>
+<td>Trivial (qualquer cliente HTTP/TCP)</td>
+</tr>
+<tr>
+<td>Acoplamento ao registry</td>
+<td>Alto (cliente conhece o registry)</td>
+<td>Baixo (só o balanceador conhece)</td>
+</tr>
+<tr>
+<td>Sofisticação de LB possível</td>
+<td>Alta (latency-aware por instância)</td>
+<td>Limitada (depende do balanceador)</td>
+</tr>
+<tr>
+<td>Onde mora a complexidade</td>
+<td>No cliente (espalhada)</td>
+<td>No balanceador (centralizada)</td>
+</tr>
+<tr>
+<td>Risco de SPOF no data path</td>
+<td>Baixo (sem intermediário)</td>
+<td>Médio/alto (balanceador no caminho)</td>
+</tr>
+<tr>
+<td>Exemplos</td>
+<td>Eureka+Ribbon, gRPC resolver</td>
+<td>ELB, NGINX, kube-proxy</td>
+</tr>
+<tr>
+<td>Evolução híbrida</td>
+<td>—</td>
+<td>Service mesh (sidecar = LB client-side poliglota)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="consideracoes-operacionais-frequentemente-esquecidas">Considerações operacionais frequentemente esquecidas<a class="headerlink" href="#consideracoes-operacionais-frequentemente-esquecidas" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Topology-aware routing.</strong> Mandar tráfego para uma AZ diferente adiciona latência (round-trip cross-AZ) e custo de transferência de dados na nuvem. Recursos como <em>topology-aware hints</em> (Kubernetes) e <em>locality-weighted LB</em> (Istio) mantêm o tráfego na mesma zona quando há capacidade local, caindo para outras zonas só sob falha. Ignorar isso pode multiplicar custo de rede e p99.</li>
+<li><strong>Connection draining / graceful shutdown.</strong> Ao remover uma instância (deploy, scale-down), é preciso parar de mandar <em>novas</em> conexões mas <strong>drenar</strong> as em andamento, dando tempo de concluir. Sem isso, requests em voo são abortados a cada deploy. Readiness probes + preStop hooks + draining do balanceador resolvem.</li>
+<li><strong>Cardinalidade vs custo de propagação.</strong> Em frotas grandes (milhares de instâncias), propagar a lista completa de endpoints a todos os clientes/proxies a cada mudança é caro. Registries e control planes usam atualizações incrementais (xDS delta, watches) em vez de full snapshots. Subestimar isso degrada o control plane sob churn alto (autoscaling agressivo).</li>
+</ul>
+<h3 id="por-que-dns-puro-nao-basta-e-quando-basta">Por que DNS puro não basta (e quando basta)<a class="headerlink" href="#por-que-dns-puro-nao-basta-e-quando-basta" title="Permanent link">&para;</a></h3>
+<p>DNS é tentador como mecanismo de discovery: é universal, simples e já existe. Mas como mecanismo <em>dinâmico</em> ele tem armadilhas sérias:</p>
+<ul>
+<li><strong>Caching além do TTL.</strong> Resolvers de sistema operacional, JVMs (que historicamente cacheavam DNS <em>para sempre</em> por padrão) e bibliotecas frequentemente ignoram ou estendem o TTL. Você baixa o TTL para 5s achando que vai propagar mudanças rápido, mas o cliente continua usando o IP antigo por minutos.</li>
+<li><strong>Sem health checking real.</strong> DNS round-robin devolve uma lista de IPs sem saber quais estão saudáveis. Ele continua devolvendo o IP de uma instância morta até alguém atualizar os registros.</li>
+<li><strong>Distribuição enviesada.</strong> Muitos clientes usam apenas o <strong>primeiro</strong> registro A retornado, ignorando o round-robin. A "distribuição" colapsa numa instância.</li>
+<li><strong>Sem controle de política.</strong> Não há least-connections, latency-aware, nem afinidade — só a ordem (cacheável) dos registros.</li>
+</ul>
+<p>DNS <em>basta</em> como discovery quando: a topologia muda <strong>raramente</strong> (serviços estáveis, não autoescaláveis), você aceita propagação lenta, e o balanceamento round-robin simples é suficiente. É um fallback razoável, não um substituto de registry dinâmico para microsserviços elásticos. Sistemas como Kubernetes usam DNS (CoreDNS) apenas para resolver o <strong>VIP estável</strong> (ClusterIP), delegando o discovery dinâmico real ao control plane + kube-proxy — combinando o melhor dos dois.</p>
+<h3 id="self-registration-vs-third-party-registration">Self-registration vs third-party registration<a class="headerlink" href="#self-registration-vs-third-party-registration" title="Permanent link">&para;</a></h3>
+<p>Dois modelos de como instâncias entram no registry:</p>
+<ul>
+<li><strong>Self-registration:</strong> a própria instância chama a API do registry ao subir e mantém heartbeats (modelo Eureka). Simples e sem componentes extras, mas acopla a instância ao registry (precisa de código/lib para registrar) e, se a instância trava de forma "suja", pode não se desregistrar (depende da expiração por heartbeat).</li>
+<li><strong>Third-party registration:</strong> um <em>registrar</em> externo observa a plataforma e registra/desregistra instâncias por elas (ex.: Registrator + Consul, ou o controller do Kubernetes populando Endpoints). A instância não precisa saber do registry — desacoplamento limpo — ao custo de um componente a mais e da dependência da plataforma para detectar vida/morte das instâncias.</li>
+</ul>
+<p>Em Kubernetes, o modelo é third-party por natureza: o control plane observa readiness probes e atualiza EndpointSlices. Em ambientes sem orquestrador rico, self-registration (Eureka) era a norma.</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Use client-side discovery quando:</strong></p>
+<ul>
+<li>Sua frota é razoavelmente <strong>homogênea em linguagem/framework</strong> (ex.: tudo JVM), de modo que a biblioteca única não cria fardo poliglota.</li>
+<li><strong>Latência importa muito</strong> e você quer eliminar o hop do balanceador intermediário.</li>
+<li>Você quer <strong>balanceamento sofisticado e específico do cliente</strong> (latency-aware por instância, afinidade) sem montar infraestrutura de proxy.</li>
+</ul>
+<p><strong>Evite client-side discovery quando:</strong> sua frota é poliglota (cada linguagem exigiria reimplementar e manter o cliente), ou quando você não quer acoplar lógica de infraestrutura ao código de aplicação.</p>
+<p><strong>Use server-side discovery quando:</strong></p>
+<ul>
+<li>Os <strong>clientes são heterogêneos</strong> ou externos (mobile, web, parceiros) — caso quase universal na borda.</li>
+<li>Você quer <strong>centralizar</strong> a lógica de roteamento/balanceamento num time de plataforma e manter os serviços de aplicação simples.</li>
+<li>Você já roda em <strong>Kubernetes</strong>, onde server-side discovery (Service/Endpoints) é nativo e gratuito.</li>
+</ul>
+<p><strong>Evite server-side discovery quando:</strong> o hop adicional é inaceitável para o seu SLA de latência ultra-baixa e a frota é homogênea (aí client-side ou mesh sidecar local podem ser melhores).</p>
+<p><strong>Prefira service mesh quando:</strong> você quer o balanceamento inteligente do client-side, multi-linguagem, com observabilidade e mTLS, e aceita o overhead operacional e de latência do sidecar (ver documento dedicado para trade-offs do mesh).</p>
+<h3 id="caso-real-expandido-o-que-da-errado-na-pratica">Caso real expandido: o que dá errado na prática<a class="headerlink" href="#caso-real-expandido-o-que-da-errado-na-pratica" title="Permanent link">&para;</a></h3>
+<p>Vale aterrissar num incidente concreto comum no marketplace. Numa terça à tarde, um deploy do serviço <code>inventory</code> rodou um <em>rolling update</em>: réplicas antigas foram derrubadas e novas subiram. O problema: as réplicas novas registravam-se no Eureka <strong>antes</strong> de terminarem o warm-up (carregar caches, abrir pool de conexões com o banco). Durante ~20s, elas estavam "registradas" e recebendo tráfego, mas respondiam com latência altíssima ou erro — porque o health check era raso (só verificava que a porta abriu, não a prontidão real).</p>
+<p>O efeito em cascata: o <code>checkout</code>, balanceando para essas réplicas frias via Ribbon, viu a latência subir; sem circuit breaking bem calibrado para o <code>inventory</code>, as threads do <code>checkout</code> começaram a empoçar. A correção teve três frentes: (1) <strong>readiness probe profundo</strong> que só marcava a réplica pronta após o warm-up; (2) atrasar o registro no discovery até a prontidão real; (3) <strong>circuit breaking + outlier detection</strong> no chamador para ejetar réplicas lentas rapidamente. Esse incidente ilustra a tese central: discovery, health checking e resiliência são um único sistema — falhar em qualquer um deles produz o mesmo sintoma (latência/erro no usuário).</p>
+<p>Outro padrão de falha: durante uma Black Friday, o autoscaling subiu 150 novas réplicas de <code>catalog</code> em 2 minutos. O control plane teve que propagar essas 150 mudanças de endpoint a milhares de proxies/clientes; sem atualização incremental, o full-snapshot a cada mudança quase derrubou o próprio control plane (efeito <em>thundering herd</em> de configuração). A lição: discovery em escala precisa de propagação incremental (xDS delta, watches) e de cuidado com o churn de instâncias.</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>DNS round-robin como único mecanismo de discovery+LB.</strong> TTLs de DNS são caprichosos: resolvers e bibliotecas frequentemente fazem cache além do TTL, ignoram TTLs baixos ou usam só o primeiro registro A. Não há health checking real nem remoção rápida de instâncias mortas. Funciona como fallback simples, não como discovery dinâmico sério.</li>
+<li><strong>Tratar o service registry como não-crítico.</strong> O registry é infraestrutura <strong>tier-0</strong>. Se ele cai ou fica particionado, todo o discovery quebra. Subdimensionar, não monitorar ou não entender o comportamento CAP do seu registry (Eureka é AP e serve dados stale; Consul/etcd são CP e podem ficar indisponíveis numa partição minoritária) leva a outages catastróficos e contraintuitivos.</li>
+<li><strong>Ignorar staleness do cache client-side.</strong> Com fetch a cada 30s, o cliente pode tentar instâncias já mortas por até 30s. Sem retry + circuit breaking local, isso vira erro para o usuário. Discovery e resiliência (retry, timeout, circuit breaker) são complementares e indissociáveis.</li>
+<li><strong>Health check raso (só "a porta abriu").</strong> Um TCP check ou um <code>/health</code> que só responde 200 sem verificar dependências críticas (banco, fila) faz o LB enviar tráfego para instâncias incapazes de processar. Use readiness probes que reflitam capacidade real de servir.</li>
+<li><strong>Balanceamento sem latência/carga em workloads heterogêneos.</strong> Round-robin puro ignora que uma instância está em GC pause ou numa AZ distante. P2C ou latency-aware (EWMA) corrigem isso. Round-robin "burro" sob carga heterogênea concentra latência de cauda (p99).</li>
+<li><strong>Não considerar topology awareness / zona.</strong> Mandar tráfego cross-AZ desnecessariamente adiciona latência e custo de transferência de dados. Recursos como <em>topology-aware routing</em> (Kubernetes) ou locality LB (Istio) mantêm o tráfego local quando possível.</li>
+<li><strong>Balanceador server-side como SPOF não-redundante.</strong> Se há um único NGINX/proxy sem redundância, ele vira ponto único de falha <em>no caminho de dados</em> — pior que o registry, pois derruba o tráfego, não só a descoberta.</li>
+<li><strong>Registro antes da prontidão.</strong> Instâncias que se registram (ou são marcadas Ready) antes de terminar o warm-up recebem tráfego que não conseguem servir. Atrase o registro/readiness até a prontidão real (caches carregados, pools abertos, dependências verificadas).</li>
+<li><strong>Falta de connection draining.</strong> Remover uma instância do pool sem drenar conexões em andamento aborta requests em voo a cada deploy/scale-down. Use preStop hooks e draining no balanceador.</li>
+<li><strong>Tráfego cross-AZ desnecessário.</strong> Ignorar topology-aware routing manda tráfego entre zonas sem necessidade, inflando latência e custo de transferência. Mantenha o tráfego local quando há capacidade.</li>
+<li><strong>Acoplar discovery a um único provedor de nuvem.</strong> Usar primitivas proprietárias de discovery sem abstração dificulta portabilidade e testes locais. Prefira mecanismos padrão (Kubernetes Service, registries open source) quando a portabilidade importa.</li>
+<li><strong>Confiar em métricas de LB sem observar a cauda.</strong> Olhar só a latência média esconde o p99. Round-robin pode ter média boa e p99 terrível sob heterogeneidade. Monitore percentis altos e a distribuição de carga por instância.</li>
+</ul>
+<h3 id="a-interacao-staleness-resiliencia-por-que-discovery-sozinho-nao-basta">A interação staleness ↔ resiliência (por que discovery sozinho não basta)<a class="headerlink" href="#a-interacao-staleness-resiliencia-por-que-discovery-sozinho-nao-basta" title="Permanent link">&para;</a></h3>
+<p>Todo registry tem uma janela de <em>staleness</em>: o tempo entre uma instância morrer e essa morte se refletir na lista que os clientes usam. Com Eureka + fetch de 30s, essa janela chega a ~30s; com health checks ativos pode ser de segundos. Durante essa janela, <strong>o cliente vai tentar instâncias mortas</strong>. Isso é inevitável em sistemas AP e aceitável em CP sob certas falhas. A consequência arquitetural é direta: <strong>discovery precisa ser pareado com resiliência local</strong>.</p>
+<p>O fluxo robusto: o cliente escolhe uma instância da lista (possivelmente stale), tenta a chamada com <strong>timeout</strong> curto; se falha (connection refused, timeout), faz <strong>retry</strong> em <em>outra</em> instância da lista; após N falhas para a mesma instância, marca-a como suspeita localmente (<strong>circuit breaking / outlier detection</strong>) e a evita até ela se provar saudável de novo. Assim, a staleness do registry é absorvida pela resiliência do cliente — o usuário final não vê o erro. Um sistema que confia cegamente na lista do registry, sem retry e sem ejeção de outliers, transforma cada janela de staleness em erros visíveis. Por isso discovery, load balancing e os padrões de resiliência são, na prática, um único assunto (ver documento de Padrões de resiliência).</p>
+<h3 id="migracao-de-modelo-armadilhas">Migração de modelo: armadilhas<a class="headerlink" href="#migracao-de-modelo-armadilhas" title="Permanent link">&para;</a></h3>
+<p>Migrar de client-side (Eureka/Ribbon) para server-side ou mesh é comum (Ribbon está em manutenção). Pontos de atenção:</p>
+<ul>
+<li><strong>Comportamento de balanceamento muda.</strong> Sair de "weighted response time" do Ribbon para round-robin do kube-proxy pode piorar o p99 sob heterogeneidade — meça antes/depois.</li>
+<li><strong>Semântica de health diverge.</strong> Heartbeat (Eureka) vs readiness probe (K8s) detectam coisas diferentes; o que era "saudável" num pode não ser no outro.</li>
+<li><strong>Coexistência durante a transição.</strong> Ter parte da frota no Eureka e parte só no Service do K8s exige expor os serviços nos <em>dois</em> mecanismos temporariamente, com cuidado para não duplicar tráfego ou criar buracos de discovery.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Service Mesh &amp; sidecar:</strong> o mesh é a evolução do client-side LB, movendo a inteligência para um sidecar fora do código e tornando-a poliglota. Discovery, LB, retry, circuit breaking e mTLS convergem no data plane do mesh.</li>
+<li><strong>API Gateway &amp; BFF:</strong> o gateway é tipicamente um consumidor de server-side discovery na borda; ele descobre e balanceia os serviços downstream. BFFs agregam chamadas a serviços descobertos via mesh/discovery interno.</li>
+<li><strong>Padrões de resiliência:</strong> discovery é a precondição para retry (precisa saber para onde retentar), circuit breaking (precisa marcar instâncias suspeitas) e timeouts. Discovery sem resiliência local é frágil.</li>
+<li><strong>Consistent Hashing:</strong> uma política de LB específica usada para afinidade de sessão e cache locality (ex.: rotear sempre a mesma chave para a mesma instância de cache). Ver documento dedicado.</li>
+<li><strong>Sharding &amp; Leader Election:</strong> discovery muitas vezes precisa expor <em>qual</em> instância é o líder de um shard ou partição; registries como Consul/etcd servem tanto discovery quanto coordenação/eleição.</li>
+<li><strong>CAP &amp; consenso:</strong> a escolha CP (Consul/etcd via Raft) vs AP (Eureka) do registry é uma decisão CAP direta com consequências operacionais opostas em partições de rede.</li>
+</ul>
+<h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
+<p>Para fechar, três perguntas que orientam qualquer decisão de discovery + LB:</p>
+<ol>
+<li><strong>Onde mora a inteligência?</strong> No cliente (client-side: latência menor, acoplamento de linguagem), num intermediário (server-side: poliglota, hop extra), ou num sidecar (mesh: o melhor dos dois, com custo de recursos)? A resposta depende de homogeneidade da frota, sensibilidade a latência e maturidade operacional.</li>
+<li><strong>Qual o comportamento sob partição?</strong> O registry é CP (indisponível na minoria, nunca stale) ou AP (sempre disponível, possivelmente stale)? Essa escolha precisa ser consciente e pareada com resiliência no cliente para absorver staleness.</li>
+<li><strong>A resiliência está pareada?</strong> Discovery sozinho não basta: sem timeout, retry e ejeção de outliers, cada janela de staleness ou cada instância fria vira erro para o usuário. Discovery, LB e resiliência são um sistema único.</li>
+</ol>
+<p>O fio condutor: discovery resolve <em>onde estão</em> as instâncias, LB resolve <em>para qual ir</em>, e a resiliência resolve <em>o que fazer quando a escolhida falha</em>. Tratar os três isoladamente produz sistemas frágeis; tratá-los como um todo produz sistemas que degradam graciosamente.</p>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://microservices.io/patterns/client-side-discovery.html">Pattern: Client-side service discovery — microservices.io</a></li>
+<li><a href="https://microservices.io/patterns/server-side-discovery.html">Pattern: Server-side service discovery — microservices.io</a></li>
+<li><a href="https://microservices.io/patterns/service-registry.html">Pattern: Service registry — microservices.io</a></li>
+<li><a href="https://linkerd.io/2-edge/reference/architecture/">Architecture — Linkerd (load balancing, retries, service discovery no proxy)</a></li>
+<li><a href="https://istio.io/latest/docs/ops/deployment/architecture/">Istio / Architecture (data plane Envoy, discovery via control plane)</a></li>
+<li><a href="https://netflixtechblog.com/introducing-hystrix-for-resilience-engineering-13531c1ab362">Introducing Hystrix for Resilience Engineering — Netflix TechBlog</a></li>
+<li><a href="https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/">Timeouts, retries, and backoff with jitter — Amazon Builders' Library</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../06-crdts/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: CRDTs">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                CRDTs
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../08-api-gateway-vs-bff/" class="md-footer__link md-footer__link--next" aria-label="Próximo: API Gateway vs BFF">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                API Gateway vs BFF
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3979 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+      
+        <link rel="prev" href="../07-microservices/">
+      
+      
+        <link rel="next" href="../09-event-driven-architecture-eda/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>SOA - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#service-oriented-architecture-soa" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SOA
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Abas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Início
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Bibliografia
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  01 · Fundamentos
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../01-layered-n-tier-architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  02 · Estilos e padrões
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  03 · Design tático (DDD)
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  04 · Sistemas distribuídos
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  05 · Dados e persistência
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  06 · Mensageria e streaming
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  07 · Performance e escalabilidade
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  08 · Segurança arquitetural
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  09 · Observabilidade
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  10 · Evolução e práticas
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    01 · Fundamentos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Atributos de qualidade
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/02-architecture-decision-records-adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decision Records (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/03-fitness-functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fitness Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/04-conway-law-e-inverse-conway-maneuver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conway's Law e Inverse Conway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/05-c4-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C4 Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    02 · Estilos e padrões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-layered-n-tier-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Layered / N-Tier
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-hexagonal-ports-and-adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hexagonal (Ports & Adapters)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-clean-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clean Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-onion-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Onion Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-vertical-slice-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vertical Slice Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-modular-monolith/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modular Monolith
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-microservices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microservices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOA
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quando usar / Quando evitar">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#soa-vs-microservices-quadro-comparativo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SOA vs Microservices: quadro comparativo
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-event-driven-architecture-eda/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event-Driven Architecture (EDA)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-space-based-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Space-Based Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-pipes-and-filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipes and Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-serverless-faas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Serverless / FaaS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    03 · Design tático (DDD)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bounded Contexts, Context Mapping, Ubiquitous Language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/02-ddd-aggregates-entities-value-objects-domain-events/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aggregates, Entities, Value Objects, Domain Events
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/03-ddd-context-mapping-patterns-acl-shared-kernel-customer-supplier/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Context Mapping (ACL, Shared Kernel, Customer-Supplier)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/04-cqrs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CQRS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/05-event-sourcing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event Sourcing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/06-saga-pattern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Saga Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/07-outbox-e-inbox-pattern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Outbox e Inbox Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    04 · Sistemas distribuídos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Teorema CAP e PACELC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-sistemas-distribuidos/02-modelos-de-consistencia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelos de consistência
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-sistemas-distribuidos/03-consenso-distribuido-paxos-raft-2pc-3pc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Consenso distribuído (Paxos, Raft, 2PC, 3PC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-sistemas-distribuidos/04-idempotencia-e-semanticas-de-entrega/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Idempotência e semânticas de entrega
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-sistemas-distribuidos/05-vector-clocks-e-lamport-timestamps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vector Clocks e Lamport Timestamps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-sistemas-distribuidos/06-crdts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CRDTs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-sistemas-distribuidos/07-service-discovery-e-load-balancing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Discovery e Load Balancing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-sistemas-distribuidos/08-api-gateway-vs-bff/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Gateway vs BFF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-sistemas-distribuidos/09-service-mesh-sidecar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Mesh (sidecar)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-sistemas-distribuidos/10-padroes-de-resiliencia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Padrões de resiliência
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-sistemas-distribuidos/11-leader-election-sharding-consistent-hashing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Leader Election, Sharding, Consistent Hashing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    05 · Dados e persistência
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Polyglot Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/02-database-per-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Database per Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/03-read-replicas-sharding-particionamento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read Replicas, Sharding, Particionamento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/04-materialized-views-e-projecoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Materialized Views e projeções
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/05-cdc-change-data-capture-debezium/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CDC com Debezium
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/06-data-lake-warehouse-mesh-lakehouse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Lake, Warehouse, Mesh, Lakehouse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/07-oltp-vs-olap-lambda-kappa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OLTP vs OLAP (Lambda, Kappa)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/08-cache-patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cache patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/09-acid-vs-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ACID vs BASE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    06 · Mensageria e streaming
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Brokers vs log-based streaming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/02-pubsub-queue-topic-partition-consumer-groups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pub/Sub, Queue, Topic, Partition, Consumer Groups
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/03-backpressure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backpressure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/04-dead-letter-queue-e-poison-messages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dead Letter Queue e Poison Messages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/05-stream-processing-kafka-streams-flink-janelas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream Processing (Kafka Streams, Flink, janelas)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/06-event-carried-state-transfer-vs-event-notification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event-carried State Transfer vs Event Notification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    07 · Performance e escalabilidade
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Escalabilidade horizontal vs vertical
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Latência vs Throughput (percentis)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/03-use-red-four-golden-signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    USE, RED, Four Golden Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/04-caching-em-multiplas-camadas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Caching em múltiplas camadas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/05-connection-pooling-thread-pooling-async-io-reactive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connection/thread pooling, async I/O, reactive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/06-leis-little-amdahl-universal-scalability-law/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Leis de Little, Amdahl e USL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    08 · Segurança arquitetural
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zero Trust Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/02-oauth2-oidc-saml-jwt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OAuth 2.0, OIDC, SAML, JWT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/03-mtls-entre-servicos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mTLS entre serviços
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/04-defense-in-depth-least-privilege-secure-by-default/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Defense in Depth, Least Privilege, Secure by Default
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/05-secrets-management-vault-kms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secrets Management (Vault, KMS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/06-threat-modeling-stride-pasta/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Threat Modeling (STRIDE, PASTA)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    09 · Observabilidade
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Três pilares (+ eventos)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/02-distributed-tracing-opentelemetry-jaeger-zipkin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Tracing (OpenTelemetry, Jaeger, Zipkin)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/03-correlation-ids-e-propagacao-de-contexto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correlation IDs e propagação de contexto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/04-sli-slo-sla-error-budgets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLI, SLO, SLA e Error Budgets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    10 · Evolução e práticas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strangler Fig Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/02-branch-by-abstraction-parallel-run-feature-toggles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Branch by Abstraction, Parallel Run, Feature Toggles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/03-anti-corruption-layer-em-migracoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anti-Corruption Layer em migrações
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/04-trunk-based-development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trunk-Based Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/05-gitops-iac-immutable-infrastructure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitOps, IaC, Immutable Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/06-platform-engineering-e-idps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform Engineering e IDPs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quando usar / Quando evitar">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#soa-vs-microservices-quadro-comparativo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SOA vs Microservices: quadro comparativo
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="service-oriented-architecture-soa">Service-Oriented Architecture (SOA)<a class="headerlink" href="#service-oriented-architecture-soa" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Estilos e padrões arquiteturais · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~24 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>SOA é um estilo arquitetural corporativo (dominante nos anos 2000) que estrutura sistemas como uma coleção de <strong>serviços de negócio reutilizáveis, com contratos formais e baixo acoplamento</strong>, integrados tipicamente por um <strong>Enterprise Service Bus (ESB)</strong> que centraliza roteamento, transformação de mensagens e orquestração. O foco de SOA é <strong>reuso e integração de sistemas heterogêneos no nível da empresa</strong> (consolidar silos, expor capacidades legadas como serviços), não autonomia de deploy de times.</p>
+<p>A diferença prática para microservices se resume a três eixos: <strong>SOA centraliza inteligência no barramento (smart pipes)</strong> enquanto microservices usa <em>dumb pipes</em>; <strong>SOA tende a compartilhar dados e modelos canônicos</strong> enquanto microservices isola dados (<em>database per service</em>); e <strong>SOA otimiza para reuso/integração corporativa</strong> enquanto microservices otimiza para <em>deployability</em> independente e velocidade de entrega de times autônomos. Microservices é frequentemente chamado de "SOA feito certo" — herda os princípios de serviço, descarta o ESB monolítico e a governança pesada.</p>
+<p>Regra de arquiteto: se alguém propõe "SOA com ESB" hoje em greenfield, questione. O legado de SOA permanece valioso conceitualmente (contratos, loose coupling, composição), mas o ESB como hub central virou anti-padrão na maioria dos contextos modernos.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>SOA emergiu no fim dos anos 1990 e dominou a primeira metade dos anos 2000, num contexto corporativo muito específico: grandes empresas com <strong>dezenas de sistemas legados heterogêneos</strong> (mainframe COBOL, ERPs, aplicações cliente-servidor) que precisavam se integrar. O problema central era <strong>integração ponto-a-ponto explosiva</strong>: com N sistemas, integrá-los todos dois a dois gera O(N²) conexões frágeis e proprietárias — a "spaghetti integration".</p>
+<p><strong>Thomas Erl</strong> formalizou o cânone com <em>Service-Oriented Architecture: Concepts, Technology, and Design</em> (Prentice Hall, 2005), definindo os princípios de orientação a serviço. <strong>IBM, Microsoft, Oracle, SAP</strong> e o consórcio <strong>OASIS</strong> empurraram a stack de padrões WS-<em> (SOAP, WSDL, UDDI, WS-Security, BPEL). O objetivo declarado era </em><em>alinhar TI ao negócio</em>* expondo capacidades como serviços reutilizáveis e governados, reduzindo a integração de O(N²) para O(N) ao plugar tudo num barramento comum.</p>
+<p>A promessa de marketing era ambiciosa — "agilidade do negócio via reuso de serviços". Na prática, muitas iniciativas SOA naufragaram em governança pesada, ESBs que viraram monolitos centrais e gargalos, e <em>canonical data models</em> que ninguém conseguia evoluir. Esse fracasso parcial é justamente o pano de fundo contra o qual microservices se definiu por volta de 2014.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<p>SOA, segundo a definição consolidada (IBM/Erl): uma coleção de serviços que se comunicam entre si, passando dados ou coordenando uma atividade, expostos por <strong>interfaces de serviço (service contracts)</strong> baseadas em padrões comuns, de modo que possam ser <strong>reutilizados e recombinados</strong> em novas aplicações.</p>
+<p>Os princípios de orientação a serviço (Erl) — termos-chave:</p>
+<ul>
+<li><strong>Service Contract (contrato de serviço):</strong> serviços expõem um contrato formal e padronizado (historicamente <strong>WSDL</strong> descrevendo operações e tipos), independente de implementação.</li>
+<li><strong>Loose Coupling (baixo acoplamento):</strong> serviços minimizam dependências e conhecem-se apenas pelo contrato.</li>
+<li><strong>Abstraction:</strong> o serviço esconde sua lógica e tecnologia internas atrás do contrato.</li>
+<li><strong>Reusability (reusabilidade):</strong> o serviço é projetado para ser reutilizado por múltiplos consumidores — este é o valor central de SOA, mais até que autonomia.</li>
+<li><strong>Autonomy:</strong> o serviço controla a lógica que encapsula (autonomia <em>lógica</em>, não necessariamente de deploy).</li>
+<li><strong>Statelessness:</strong> preferência por não reter estado entre invocações, delegando-o quando possível.</li>
+<li><strong>Discoverability:</strong> serviços são descritos e registrados (historicamente <strong>UDDI</strong>) para serem descobertos.</li>
+<li><strong>Composability:</strong> serviços podem ser compostos em serviços de maior granularidade e em processos de negócio (orquestração via <strong>BPEL</strong>).</li>
+</ul>
+<p><strong>Tipos/granularidades de serviço</strong> comuns em SOA enterprise: <em>task services</em> (lógica de um processo específico, baixo reuso), <em>entity services</em> (centrados em entidades de negócio como Cliente, Produto — alto reuso), e <em>utility/infrastructure services</em> (logging, notificação — agnósticos de negócio). A granularidade tende a ser <strong>mais grossa</strong> que em microservices: um serviço SOA pode encapsular um subsistema inteiro.</p>
+<p><strong>Enterprise Service Bus (ESB):</strong> o componente que define o sabor "clássico" de SOA. É um middleware de integração que provê: roteamento baseado em conteúdo, <strong>transformação/mediação de mensagens</strong> (ex.: traduzir um formato XML de um sistema para outro), adaptadores de protocolo (JMS, HTTP, FTP, conectores de ERP), orquestração de processos e, frequentemente, segurança e monitoramento. A ideia é "smart pipes": a inteligência de integração vive no barramento, não nos endpoints. É exatamente esse ponto que microservices inverte.</p>
+<p>Note: SOA <em>pode</em> existir sem ESB (REST/microservices são tecnicamente "SOA"). Mas o estereótipo histórico — e o que se contrasta com microservices — é SOA-com-ESB, WS-*, governança centralizada e modelo canônico de dados.</p>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>Topologia típica de SOA enterprise:</p>
+<ul>
+<li><strong>Service Providers</strong> expõem capacidades via contrato (WSDL/SOAP, ou REST em SOA mais moderno).</li>
+<li><strong>Service Consumers</strong> invocam serviços. Não conhecem a implementação, apenas o contrato.</li>
+<li><strong>Service Registry (UDDI):</strong> catálogo onde serviços são publicados e descobertos. Promove reuso e descoberta dinâmica (na prática, o registro dinâmico raramente foi usado; o registro virou mais documentação/governança).</li>
+<li><strong>ESB:</strong> intermediário central por onde passam as mensagens. Faz roteamento, mediação/transformação, e orquestração. Aplica políticas (segurança, throttling, logging) de forma centralizada.</li>
+<li><strong>Orchestration Engine (BPEL):</strong> motor que executa processos de negócio de longa duração compondo múltiplos serviços segundo um fluxo definido (uma forma de orquestração explícita).</li>
+<li><strong>Canonical Data Model (CDM):</strong> um esquema de dados comum para o qual o ESB traduz as mensagens, evitando que cada par de sistemas precise conhecer o formato do outro. Na teoria reduz acoplamento; na prática vira um artefato gigante, difícil de evoluir e que todos passam a depender.</li>
+</ul>
+<p>Fluxo de uma operação: o consumidor envia uma mensagem (SOAP/XML) ao ESB → o ESB autentica, aplica políticas, transforma do formato do consumidor para o CDM, roteia ao provider correto, possivelmente orquestra uma sequência de chamadas a vários providers (BPEL), agrega a resposta, transforma de volta e devolve. A inteligência do fluxo está concentrada no barramento.</p>
+<p><strong>Governança</strong> é parte integral e pesada de SOA: um <em>SOA Center of Excellence</em> tipicamente define padrões de contrato, versionamento, políticas de segurança, e aprova novos serviços. Essa governança centralizada — útil para consistência corporativa — é também a principal fonte de lentidão, e o que microservices descentraliza deliberadamente.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TB
+    subgraph Consumidores
+        APP1[Portal Web]
+        APP2[App B2B Parceiro]
+        APP3[Sistema Legado CRM]
+    end
+
+    subgraph "Barramento Central (smart pipe)"
+        ESB{{"Enterprise Service Bus&lt;br/&gt;roteamento + transformacao&lt;br/&gt;+ orquestracao + politicas"}}
+        REG[("Service Registry&lt;br/&gt;UDDI")]
+        ORCH["Orchestration&lt;br/&gt;Engine (BPEL)"]
+        ESB --- ORCH
+        ESB -.-&gt; REG
+    end
+
+    subgraph "Service Providers (granularidade grossa)"
+        S1["Servico de Cliente&lt;br/&gt;(entity service)"]
+        S2["Servico de Pedidos"]
+        S3["Servico de Faturamento&lt;br/&gt;(wrap de ERP legado)"]
+    end
+
+    APP1 --&gt;|SOAP/XML| ESB
+    APP2 --&gt;|SOAP/XML| ESB
+    APP3 --&gt;|JMS| ESB
+
+    ESB --&gt;|contrato WSDL| S1
+    ESB --&gt;|contrato WSDL| S2
+    ESB --&gt;|adaptador| S3
+
+    SHARED[("Banco Corporativo&lt;br/&gt;frequentemente compartilhado")]
+    S1 --- SHARED
+    S2 --- SHARED
+    S3 --- SHARED
+
+    note1["Inteligencia de integracao&lt;br/&gt;concentrada no ESB.&lt;br/&gt;Dados frequentemente compartilhados."]
+    ESB -.-&gt; note1</code></pre>
+<p>Compare mentalmente com o diagrama de microservices (arquivo 07): lá o broker é <em>dumb</em> e cada serviço tem banco próprio; aqui o ESB é <em>smart</em> e o banco tende a ser compartilhado.</p>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p><strong>Cenário:</strong> um banco de varejo brasileiro de grande porte, anos 2008–2012, com sistemas em silos: core bancário em mainframe, CRM, sistema de cartões, internet banking, e um novo app mobile. Cada novo canal precisava integrar com vários backends, e as integrações ponto-a-ponto estavam virando um inferno de manutenção.</p>
+<p><strong>Solução SOA:</strong> o banco implanta um ESB (ex.: IBM WebSphere ESB ou Oracle Service Bus). Cada backend é "embrulhado" e exposto como serviço de negócio: <code>ConsultarSaldo</code>, <code>TransferirFundos</code>, <code>ConsultarLimiteCartao</code>. O internet banking e o app mobile passam a consumir esses serviços via o ESB, sem conhecer o mainframe por baixo. Um processo de "abertura de conta" é orquestrado via BPEL, encadeando <code>ValidarCPF</code> → <code>ConsultarBureau</code> → <code>CriarConta</code> → <code>EmitirCartao</code>, com compensação se algum passo falhar.</p>
+<p><strong>Pseudocódigo de uma orquestração BPEL (conceitual):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>processo AberturaDeConta:
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    receber(dadosCliente)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    invocar ServicoCadastro.validarCPF(dadosCliente)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    invocar ServicoBureau.consultarScore(dadosCliente.cpf)
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    se score &gt;= minimo:
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        contaId = invocar ServicoCore.criarConta(dadosCliente)   # mainframe via adaptador
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        invocar ServicoCartoes.emitirCartao(contaId)
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        responder(SUCESSO, contaId)
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    senao:
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        responder(RECUSADO)
+</code></pre></div>
+<p><strong>Ganho:</strong> reuso real — o serviço <code>ConsultarSaldo</code> é construído uma vez e consumido pelo internet banking, app, URA telefônica e parceiros. <strong>Custo:</strong> o ESB virou um ponto central crítico (e político); evoluir o modelo canônico exigia reuniões de governança; e o time de integração virou gargalo para todos os outros.</p>
+<p><strong>Adotantes/contexto real:</strong> a era de ouro de SOA foi puxada por IBM, Oracle e SAP em grandes corporações (bancos, telecom, governo, varejo de grande porte). Muitas dessas implementações ainda existem em produção. O próprio artigo de Lewis/Fowler sobre microservices dedica uma seção a posicionar microservices em relação a SOA, reconhecendo a herança e marcando as diferenças.</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Quando SOA (com ESB) ainda faz sentido:</strong></p>
+<ul>
+<li><strong>Integração de muitos sistemas legados heterogêneos</strong> numa grande corporação, onde o problema dominante é mediação de protocolos/formatos e exposição de capacidades legadas. O ESB resolve mediação melhor que código espalhado.</li>
+<li><strong>Forte necessidade de governança centralizada e padronização corporativa</strong> (setores regulados, onde políticas de segurança e auditoria precisam ser aplicadas uniformemente).</li>
+<li><strong>Reuso de serviços de granularidade grossa</strong> entre muitos canais é o objetivo de negócio primário.</li>
+<li>Você já tem o investimento em uma plataforma de integração e o ROI de migrar não se justifica.</li>
+</ul>
+<p><strong>Quando evitar / preferir microservices:</strong></p>
+<ul>
+<li><strong>Greenfield orientado a velocidade de entrega de times autônomos.</strong> Para isso, microservices entrega <em>deployability</em> independente que SOA-com-ESB não dá (o ESB e o CDM reacoplam tudo).</li>
+<li>Quando o ESB se tornaria um <strong>gargalo de performance e organizacional</strong> — um único componente central por onde tudo passa e que um único time governa.</li>
+<li>Quando você quer <strong>propriedade descentralizada de dados</strong> e poliglotismo — SOA enterprise tende ao banco e ao modelo canônico compartilhados.</li>
+<li>Quando a sobrecarga da stack WS-* (SOAP/WSDL/BPEL) não se justifica frente a REST/gRPC/eventos mais leves.</li>
+</ul>
+<p><strong>Trade-offs explícitos.</strong> SOA entrega <em>reuso</em>, <em>integração de heterogêneos</em> e <em>governança consistente</em>.</p>
+<p>Paga com <em>acoplamento ao barramento central</em>, <em>gargalo no ESB</em>, <em>governança lenta</em>, e <em>deployment não-independente</em> — o reuso intenso reacopla os serviços e o CDM acopla todos os schemas.</p>
+<p>Em essência, SOA otimiza para <strong>reuso e integração</strong>; microservices, ao recusar o ESB e não compartilhar nada, otimiza para <strong>autonomia e velocidade</strong> — e aceita pagar com duplicação e consistência eventual.</p>
+<h3 id="soa-vs-microservices-quadro-comparativo">SOA vs Microservices: quadro comparativo<a class="headerlink" href="#soa-vs-microservices-quadro-comparativo" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Eixo</th>
+<th>SOA (clássico, com ESB)</th>
+<th>Microservices</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Comunicação / "pipes"</td>
+<td>ESB inteligente (<em>smart pipes</em>)</td>
+<td>Broker/HTTP "burro" (<em>dumb pipes</em>)</td>
+</tr>
+<tr>
+<td>Lógica de roteamento e orquestração</td>
+<td>Centralizada no barramento</td>
+<td>Distribuída nos endpoints</td>
+</tr>
+<tr>
+<td>Dados</td>
+<td>Banco e modelo canônico compartilhados</td>
+<td>Banco por serviço (<em>database per service</em>)</td>
+</tr>
+<tr>
+<td>Governança</td>
+<td>Centralizada (CoE, gates)</td>
+<td>Descentralizada (guidelines)</td>
+</tr>
+<tr>
+<td>Objetivo primário</td>
+<td>Reuso e integração corporativa</td>
+<td>Deployability independente e autonomia</td>
+</tr>
+<tr>
+<td>Granularidade</td>
+<td>Grossa (subsistemas)</td>
+<td>Fina (capacidade de negócio / bounded context)</td>
+</tr>
+<tr>
+<td>Protocolos típicos</td>
+<td>SOAP/WSDL/BPEL (WS-*)</td>
+<td>REST/gRPC/eventos</td>
+</tr>
+<tr>
+<td>Acoplamento de deploy</td>
+<td>Alto (reuso + CDM reacoplam)</td>
+<td>Baixo (contratos versionados)</td>
+</tr>
+<tr>
+<td>Tecnologia</td>
+<td>Padronizada corporativamente</td>
+<td>Poliglota por time</td>
+</tr>
+</tbody>
+</table>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>ESB como monolito central / "God ESB".</strong> Lógica de negócio migra para dentro do barramento. O ESB cresce, vira crítico, é mantido por um único time e bloqueia todos os demais. Vira um monolito disfarçado de integração — o oposto do "dumb pipes" de microservices.</li>
+<li><strong>Canonical Data Model gigante e ossificado.</strong> O CDM tenta modelar "o cliente verdadeiro da empresa inteira", vira enorme, e qualquer mudança quebra muitos consumidores. Acopla globalmente o que deveria estar isolado.</li>
+<li><strong>Banco de dados compartilhado entre serviços.</strong> Comum em SOA, mas é o mesmo acoplamento perverso já discutido em microservices: mata a evolução independente.</li>
+<li><strong>Governança como gate burocrático.</strong> O "SOA CoE" vira um comitê que aprova cada serviço; a fricção mata a agilidade que SOA prometia entregar.</li>
+<li><strong>"Reuso" forçado gerando acoplamento.</strong> Reusar um serviço por toda parte cria um nó de dependência: mudá-lo afeta dezenas de consumidores, e ele acumula responsabilidades conflitantes. Reuso e autonomia estão em tensão — SOA escolheu reuso, microservices escolhe autonomia.</li>
+<li><strong>Confundir "ter SOAP/WSDL" com fazer SOA.</strong> SOA é sobre princípios de design (contrato, loose coupling, composição), não sobre a stack WS-*. Expor um CRUD anêmico em SOAP não é orientação a serviço.</li>
+<li><strong>Chamar microservices de "SOA porque tem serviços".</strong> Embora microservices seja tecnicamente um tipo de arquitetura orientada a serviços, equiparar os dois ignora as diferenças deliberadas (dumb pipes, dados isolados, governança descentralizada) e leva a recriar o ESB sob outro nome.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Microservices:</strong> a relação central deste arquivo. Microservices descende de SOA e compartilha os princípios de serviço (contrato, loose coupling, composição), mas inverte três decisões: pipes <em>dumb</em> em vez de ESB <em>smart</em>; dados/governança <em>descentralizados</em> em vez de centralizados; otimização para <em>deployability/autonomia</em> em vez de <em>reuso</em>. Sam Newman e Fowler tratam microservices como "uma forma específica e disciplinada de SOA". Ver <code>07-microservices.md</code>.</li>
+<li><strong>Enterprise Integration Patterns (Hohpe/Woolf):</strong> o vocabulário de mediação, roteamento e transformação que o ESB implementa vem dos EIP. Padrões como <em>Message Router</em>, <em>Message Translator</em>, <em>Content-Based Router</em> e <strong>Pipes and Filters</strong> são o tecido conceitual do ESB. Ver <code>11-pipes-and-filters.md</code>.</li>
+<li><strong>Event-Driven Architecture:</strong> SOA é predominantemente <em>request/response</em> síncrono (RPC sobre o ESB), enquanto EDA é assíncrono e orientado a eventos. SOA moderna pode incorporar eventos, mas o estereótipo clássico é comando/consulta síncronos. Ver <code>09-event-driven-architecture-eda.md</code>.</li>
+<li><strong>API Gateway:</strong> funcionalmente, o API Gateway de microservices herda <em>parte</em> do papel do ESB (auth de borda, roteamento, agregação), mas deliberadamente <strong>não</strong> carrega lógica de negócio nem orquestração pesada — é mais "fino" que um ESB.</li>
+<li><strong>Orchestration vs Choreography:</strong> SOA com BPEL é o arquétipo da <strong>orquestração centralizada</strong>. Microservices/EDA frequentemente preferem <strong>coreografia</strong> para evitar o acoplamento ao orquestrador. Ver a discussão em EDA.</li>
+<li><strong>Domain-Driven Design:</strong> SOA tradicional raramente usava DDD para definir fronteiras (decompunha por sistema/entidade técnica); microservices adota bounded contexts. Essa é uma das razões pelas quais fronteiras SOA tendem a ser grossas e centradas em entidades.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://www.ibm.com/think/topics/soa">What is Service-Oriented Architecture (SOA)? — IBM</a> — definição corporativa de referência de SOA.</li>
+<li><a href="https://www.ibm.com/docs/en/was/8.5.5?topic=ws-service-oriented-architecture">Service-oriented architecture — IBM Documentation (WebSphere)</a> — visão de SOA na stack de integração da IBM.</li>
+<li><a href="https://martinfowler.com/articles/microservices.html">Microservices — James Lewis &amp; Martin Fowler (martinfowler.com)</a> — inclui a seção que contrasta microservices com SOA.</li>
+<li><a href="https://en.wikipedia.org/wiki/Thomas_Erl">Thomas Erl — Wikipedia</a> — autor que formalizou os princípios de orientação a serviço.</li>
+<li><a href="https://books.google.com/books/about/Service_oriented_Architecture.html?id=GN1QAAAAMAAJ">Service-Oriented Architecture: Concepts, Technology, and Design — Thomas Erl (Google Books)</a> — obra seminal de SOA (2005).</li>
+<li><a href="https://www.thoughtworks.com/insights/blog/microservices-nutshell">Microservices in a Nutshell — Thoughtworks</a> — comparação prática entre microservices e SOA/ESB.</li>
+<li><a href="https://www.enterpriseintegrationpatterns.com/gregor.html">Enterprise Integration Patterns — Gregor Hohpe</a> — padrões de integração que sustentam o ESB.</li>
+<li><a href="https://microservices.io/patterns/microservices.html">Pattern: Microservice Architecture — microservices.io (Chris Richardson)</a> — para contrastar o estilo de serviço de microservices com SOA.</li>
+<li><a href="https://www.oreilly.com/library/view/fundamentals-of-software/9781492043447/">Fundamentals of Software Architecture — O'Reilly (Richards &amp; Ford)</a> — capítulos sobre o estilo orientado a serviços e suas variantes.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../07-microservices/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Microservices">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Microservices
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../09-event-driven-architecture-eda/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Event-Driven Architecture (EDA)">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Event-Driven Architecture (EDA)
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

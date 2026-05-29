@@ -1,0 +1,4517 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+      
+        <link rel="prev" href="../08-api-gateway-vs-bff/">
+      
+      
+        <link rel="next" href="../10-padroes-de-resiliencia/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Service Mesh (sidecar) - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#service-mesh-istio-linkerd-sidecar-pattern" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Service Mesh (sidecar)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Abas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Início
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Bibliografia
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  01 · Fundamentos
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  02 · Estilos e padrões
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  03 · Design tático (DDD)
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../01-teorema-cap-e-pacelc/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  04 · Sistemas distribuídos
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  05 · Dados e persistência
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  06 · Mensageria e streaming
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  07 · Performance e escalabilidade
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  08 · Segurança arquitetural
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  09 · Observabilidade
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  10 · Evolução e práticas
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    01 · Fundamentos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Atributos de qualidade
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/02-architecture-decision-records-adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decision Records (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/03-fitness-functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fitness Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/04-conway-law-e-inverse-conway-maneuver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conway's Law e Inverse Conway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/05-c4-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C4 Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    02 · Estilos e padrões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Layered / N-Tier
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/02-hexagonal-ports-and-adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hexagonal (Ports & Adapters)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/03-clean-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clean Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/04-onion-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Onion Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/05-vertical-slice-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vertical Slice Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/06-modular-monolith/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modular Monolith
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/07-microservices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microservices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/08-service-oriented-architecture-soa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/09-event-driven-architecture-eda/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event-Driven Architecture (EDA)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/10-space-based-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Space-Based Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/11-pipes-and-filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipes and Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/12-serverless-faas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Serverless / FaaS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    03 · Design tático (DDD)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bounded Contexts, Context Mapping, Ubiquitous Language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/02-ddd-aggregates-entities-value-objects-domain-events/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aggregates, Entities, Value Objects, Domain Events
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/03-ddd-context-mapping-patterns-acl-shared-kernel-customer-supplier/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Context Mapping (ACL, Shared Kernel, Customer-Supplier)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/04-cqrs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CQRS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/05-event-sourcing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event Sourcing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/06-saga-pattern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Saga Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/07-outbox-e-inbox-pattern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Outbox e Inbox Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    04 · Sistemas distribuídos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-teorema-cap-e-pacelc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Teorema CAP e PACELC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-modelos-de-consistencia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelos de consistência
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-consenso-distribuido-paxos-raft-2pc-3pc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Consenso distribuído (Paxos, Raft, 2PC, 3PC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-idempotencia-e-semanticas-de-entrega/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Idempotência e semânticas de entrega
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-vector-clocks-e-lamport-timestamps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vector Clocks e Lamport Timestamps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-crdts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CRDTs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-service-discovery-e-load-balancing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Discovery e Load Balancing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-api-gateway-vs-bff/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Gateway vs BFF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Mesh (sidecar)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Mesh (sidecar)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-plane" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data plane
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#control-plane" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Control plane
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#capacidades-entregues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capacidades entregues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sidecar-pattern-em-geral-e-a-alternativa-sidecarless" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sidecar pattern (em geral) e a alternativa sidecarless
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mtls-e-identidade-de-workload-em-detalhe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mTLS e identidade de workload em detalhe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#observabilidade-automatica-as-golden-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observabilidade automática: as golden metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#istio-vs-linkerd-o-trade-off-de-poder-vs-simplicidade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Istio vs Linkerd: o trade-off de poder vs simplicidade
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#traffic-management-o-que-o-controle-de-trafego-habilita" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traffic management: o que o controle de tráfego habilita
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-sidecar-pattern-alem-do-mesh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O sidecar pattern além do mesh
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Exemplo prático / caso real">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-custo-concreto-que-ninguem-conta-no-inicio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O custo concreto que ninguém conta no início
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sidecar-vs-sidecarless-ambient-a-fronteira-em-movimento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sidecar vs sidecarless (ambient): a fronteira em movimento
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-evolucao-historica-por-que-o-mesh-existe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A evolução histórica: por que o mesh existe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#estrategia-de-adocao-incremental" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estratégia de adoção incremental
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Anti-padrões e armadilhas comuns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-plane-vs-control-plane-a-separacao-que-define-tudo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data plane vs control plane: a separação que define tudo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-fluxo-de-uma-requisicao-byte-a-byte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O fluxo de uma requisição, byte a byte
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-padroes-de-resiliencia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Padrões de resiliência
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-leader-election-sharding-consistent-hashing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Leader Election, Sharding, Consistent Hashing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    05 · Dados e persistência
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Polyglot Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/02-database-per-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Database per Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/03-read-replicas-sharding-particionamento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read Replicas, Sharding, Particionamento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/04-materialized-views-e-projecoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Materialized Views e projeções
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/05-cdc-change-data-capture-debezium/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CDC com Debezium
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/06-data-lake-warehouse-mesh-lakehouse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Lake, Warehouse, Mesh, Lakehouse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/07-oltp-vs-olap-lambda-kappa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OLTP vs OLAP (Lambda, Kappa)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/08-cache-patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cache patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/09-acid-vs-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ACID vs BASE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    06 · Mensageria e streaming
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Brokers vs log-based streaming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/02-pubsub-queue-topic-partition-consumer-groups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pub/Sub, Queue, Topic, Partition, Consumer Groups
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/03-backpressure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backpressure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/04-dead-letter-queue-e-poison-messages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dead Letter Queue e Poison Messages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/05-stream-processing-kafka-streams-flink-janelas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream Processing (Kafka Streams, Flink, janelas)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/06-event-carried-state-transfer-vs-event-notification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event-carried State Transfer vs Event Notification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    07 · Performance e escalabilidade
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Escalabilidade horizontal vs vertical
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Latência vs Throughput (percentis)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/03-use-red-four-golden-signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    USE, RED, Four Golden Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/04-caching-em-multiplas-camadas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Caching em múltiplas camadas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/05-connection-pooling-thread-pooling-async-io-reactive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connection/thread pooling, async I/O, reactive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/06-leis-little-amdahl-universal-scalability-law/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Leis de Little, Amdahl e USL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    08 · Segurança arquitetural
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zero Trust Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/02-oauth2-oidc-saml-jwt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OAuth 2.0, OIDC, SAML, JWT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/03-mtls-entre-servicos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mTLS entre serviços
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/04-defense-in-depth-least-privilege-secure-by-default/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Defense in Depth, Least Privilege, Secure by Default
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/05-secrets-management-vault-kms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secrets Management (Vault, KMS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/06-threat-modeling-stride-pasta/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Threat Modeling (STRIDE, PASTA)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    09 · Observabilidade
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Três pilares (+ eventos)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/02-distributed-tracing-opentelemetry-jaeger-zipkin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Tracing (OpenTelemetry, Jaeger, Zipkin)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/03-correlation-ids-e-propagacao-de-contexto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correlation IDs e propagação de contexto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/04-sli-slo-sla-error-budgets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLI, SLO, SLA e Error Budgets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    10 · Evolução e práticas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strangler Fig Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/02-branch-by-abstraction-parallel-run-feature-toggles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Branch by Abstraction, Parallel Run, Feature Toggles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/03-anti-corruption-layer-em-migracoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anti-Corruption Layer em migrações
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/04-trunk-based-development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trunk-Based Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/05-gitops-iac-immutable-infrastructure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitOps, IaC, Immutable Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/06-platform-engineering-e-idps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform Engineering e IDPs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-plane" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data plane
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#control-plane" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Control plane
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#capacidades-entregues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capacidades entregues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sidecar-pattern-em-geral-e-a-alternativa-sidecarless" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sidecar pattern (em geral) e a alternativa sidecarless
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mtls-e-identidade-de-workload-em-detalhe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mTLS e identidade de workload em detalhe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#observabilidade-automatica-as-golden-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observabilidade automática: as golden metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#istio-vs-linkerd-o-trade-off-de-poder-vs-simplicidade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Istio vs Linkerd: o trade-off de poder vs simplicidade
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#traffic-management-o-que-o-controle-de-trafego-habilita" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traffic management: o que o controle de tráfego habilita
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-sidecar-pattern-alem-do-mesh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O sidecar pattern além do mesh
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Exemplo prático / caso real">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-custo-concreto-que-ninguem-conta-no-inicio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O custo concreto que ninguém conta no início
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sidecar-vs-sidecarless-ambient-a-fronteira-em-movimento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sidecar vs sidecarless (ambient): a fronteira em movimento
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-evolucao-historica-por-que-o-mesh-existe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A evolução histórica: por que o mesh existe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#estrategia-de-adocao-incremental" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estratégia de adoção incremental
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Anti-padrões e armadilhas comuns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-plane-vs-control-plane-a-separacao-que-define-tudo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data plane vs control plane: a separação que define tudo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-fluxo-de-uma-requisicao-byte-a-byte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O fluxo de uma requisição, byte a byte
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="service-mesh-istio-linkerd-sidecar-pattern">Service Mesh (Istio, Linkerd) — Sidecar Pattern<a class="headerlink" href="#service-mesh-istio-linkerd-sidecar-pattern" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Sistemas distribuídos · <strong>Nível:</strong> Avançado · <strong>Tempo de leitura:</strong> ~26 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>À medida que o número de microsserviços cresce, cada serviço precisa lidar com as mesmas preocupações de comunicação: descoberta, balanceamento de carga, retry, timeout, circuit breaking, criptografia mútua (mTLS), métricas, tracing e políticas de autorização. Implementar tudo isso em bibliotecas dentro de cada serviço (modelo Hystrix/Ribbon/Finagle) não escala numa frota poliglota e acopla infraestrutura ao código de negócio. O <strong>Service Mesh</strong> extrai essa lógica para uma camada de infraestrutura dedicada: um <strong>proxy sidecar</strong> (Envoy no Istio, micro-proxy em Rust no Linkerd) é injetado ao lado de cada instância de serviço e <strong>intercepta todo o tráfego de rede</strong> de entrada e saída (via regras de iptables, transparente ao aplicativo). O conjunto desses proxies forma o <strong>data plane</strong>; um <strong>control plane</strong> (istiod no Istio) configura e coordena os proxies, distribuindo políticas de roteamento, certificados mTLS e configuração de resiliência. O resultado: resiliência, segurança (mTLS automático), observabilidade (golden metrics, tracing) e controle de tráfego (canary, traffic splitting) tornam-se capacidades de plataforma, uniformes e independentes de linguagem, sem mexer no código de aplicação. O custo: latência adicional por hop de proxy, consumo de recursos (CPU/memória dos sidecars) e complexidade operacional significativa.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>A comunicação serviço-a-serviço em microsserviços (tráfego <strong>east-west</strong>) é cheia de preocupações repetitivas e críticas. Inicialmente, a indústria resolveu isso com <strong>bibliotecas embarcadas</strong>: a Netflix construiu <strong>Hystrix</strong> (circuit breaking, bulkhead), <strong>Ribbon</strong> (client-side LB), <strong>Eureka</strong> (discovery); o Twitter tinha o <strong>Finagle</strong>. Você adicionava essas libs ao seu serviço e ganhava resiliência.</p>
+<p>Esse modelo tem limitações estruturais que se agravam com escala e diversidade:</p>
+<ul>
+<li><strong>Acoplamento de linguagem (poliglotismo).</strong> Hystrix é Java. Se sua frota tem serviços em Go, Python, Node, Rust e JVM, você precisa reimplementar ou portar a biblioteca (e toda a lógica sutil de circuit breaking, backoff, etc.) para cada linguagem — e mantê-las em paridade de comportamento e versão. Inviável na prática para frotas grandes e heterogêneas.</li>
+<li><strong>Acoplamento ao ciclo de vida da aplicação.</strong> Para corrigir um bug na lógica de retry ou mudar uma política de timeout, você precisa <strong>recompilar, retestar e redeployar todos os serviços</strong>. Mudança de infraestrutura vira mudança de código de aplicação, com todo o risco e fricção associados.</li>
+<li><strong>Inconsistência.</strong> Versões diferentes das bibliotecas em serviços diferentes significam comportamento de resiliência inconsistente pela frota. Difícil garantir que <em>todos</em> têm mTLS, <em>todos</em> exportam as mesmas métricas, <em>todos</em> têm a mesma política de retry.</li>
+<li><strong>Mistura de concerns.</strong> O código de negócio fica entremeado com configuração de infraestrutura (anotações de circuit breaker, configuração de pool de conexões), poluindo o domínio.</li>
+</ul>
+<p>O <strong>Service Mesh</strong> resolve isso movendo toda essa lógica para fora do processo de aplicação, para um <strong>proxy sidecar</strong> rodando ao lado de cada serviço. Como o proxy intercepta o tráfego de rede transparentemente, ele funciona com <strong>qualquer linguagem</strong> (a "interface" é o protocolo de rede, não uma API de biblioteca), é atualizado <strong>independentemente</strong> do código de aplicação (atualizar o mesh não exige recompilar serviços), e garante <strong>uniformidade</strong> (todos os sidecars rodam a mesma versão de política). A inteligência de comunicação vira uma capacidade da plataforma.</p>
+<p>A origem prática: a Lyft criou o <strong>Envoy</strong> (2016) como proxy de borda e sidecar de alto desempenho; Google, IBM e Lyft lançaram o <strong>Istio</strong> (2017) usando Envoy como data plane; a Buoyant criou o <strong>Linkerd</strong> (cunhando o termo "service mesh"), reescrevendo-o em Rust no Linkerd2 para ser ultraleve.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<p><strong>Service Mesh</strong> é uma camada de infraestrutura dedicada que gerencia a comunicação serviço-a-serviço, fornecendo de forma transparente e uniforme: roteamento de tráfego, balanceamento de carga, descoberta, resiliência (retry, timeout, circuit breaking), segurança (mTLS, autorização), e observabilidade (métricas, tracing, logging). Estrutura-se em dois planos:</p>
+<h3 id="data-plane">Data plane<a class="headerlink" href="#data-plane" title="Permanent link">&para;</a></h3>
+<p>Conjunto dos <strong>proxies sidecar</strong> que ficam no caminho de todo o tráfego de rede entre serviços. Cada sidecar:</p>
+<ul>
+<li>É um container que roda <strong>no mesmo Pod</strong> (em Kubernetes) que o container de aplicação.</li>
+<li><strong>Intercepta o tráfego</strong> de entrada (inbound) e saída (outbound) do serviço. Em Kubernetes, isso é feito programando regras de <strong>iptables</strong> (via um init container) que redirecionam todo o tráfego TCP do Pod para o proxy — totalmente transparente para a aplicação, que pensa estar falando direto com o destino.</li>
+<li>Aplica políticas: faz o balanceamento (P2C, latency-aware/EWMA), retries, timeouts, circuit breaking, criptografa/descriptografa mTLS, e emite telemetria.</li>
+</ul>
+<p>No <strong>Istio</strong>, o data plane é o <strong>Envoy</strong> (proxy C++ de alto desempenho, configurável via API dinâmica <strong>xDS</strong>). No <strong>Linkerd</strong>, é o <strong>linkerd2-proxy</strong>, um micro-proxy escrito em <strong>Rust</strong>, propositadamente especializado para o caso de uso de mesh (não um proxy de propósito geral), priorizando footprint mínimo e simplicidade. No Linkerd, o proxy de saída (outbound) cuida de discovery, LB, circuit breaking, retries e timeouts; o de entrada (inbound) cuida de enforcement de autorização.</p>
+<h3 id="control-plane">Control plane<a class="headerlink" href="#control-plane" title="Permanent link">&para;</a></h3>
+<p>O cérebro que <strong>configura e coordena</strong> os proxies do data plane, sem estar no caminho de dados (não toca o tráfego em si). No Istio, é o <strong>istiod</strong>, que:</p>
+<ul>
+<li><strong>Descobre</strong> serviços e instâncias (a partir do registry da plataforma, ex.: API do Kubernetes).</li>
+<li><strong>Traduz</strong> regras de alto nível (VirtualService, DestinationRule) em configuração específica do Envoy e a <strong>distribui</strong> aos sidecars em runtime via xDS.</li>
+<li>Atua como <strong>CA (Certificate Authority)</strong>: emite e rotaciona automaticamente os certificados X.509 que os sidecars usam para o <strong>mTLS</strong> entre si, dando identidade criptográfica (SPIFFE) a cada workload.</li>
+</ul>
+<h3 id="capacidades-entregues">Capacidades entregues<a class="headerlink" href="#capacidades-entregues" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Resiliência:</strong> retries, timeouts, circuit breaking, <em>outlier detection</em> (ejetar instâncias com taxa de erro alta) — tudo configurável por política, sem código.</li>
+<li><strong>Segurança:</strong> <strong>mTLS automático</strong> entre todos os serviços (criptografia em trânsito + autenticação mútua por identidade de workload), e <strong>políticas de autorização</strong> (que serviço pode chamar qual).</li>
+<li><strong>Observabilidade:</strong> as <em>golden metrics</em> (taxa de requisições, taxa de erro, latência/distribuição) para <em>todo</em> o tráfego, automaticamente; propagação de contexto de tracing; topologia de serviços.</li>
+<li><strong>Controle de tráfego:</strong> <em>traffic splitting</em> (canary, blue-green), roteamento por header, <em>fault injection</em> (injetar latência/erros para testes de caos), <em>mirroring</em>.</li>
+</ul>
+<h3 id="sidecar-pattern-em-geral-e-a-alternativa-sidecarless">Sidecar pattern (em geral) e a alternativa sidecarless<a class="headerlink" href="#sidecar-pattern-em-geral-e-a-alternativa-sidecarless" title="Permanent link">&para;</a></h3>
+<p>O <strong>sidecar pattern</strong> é mais amplo que mesh: é o padrão de empacotar funcionalidade auxiliar (logging, proxy, config sync) num container que compartilha o ciclo de vida e os recursos de rede/disco do container principal, sem acoplá-la ao código. O mesh é a aplicação mais conhecida.</p>
+<p>O custo do sidecar — um proxy por Pod, multiplicando consumo de recursos e adicionando latência — motivou modelos <strong>sidecarless / ambient</strong>: o <strong>Istio Ambient Mesh</strong> separa as funções em um componente por-nó (ztunnel, para mTLS/L4) e um por-namespace (waypoint, para L7), reduzindo o overhead de ter um Envoy por Pod. É uma evolução importante a conhecer, mas o modelo sidecar permanece o mais difundido e didático.</p>
+<h3 id="glossario-rapido">Glossário rápido<a class="headerlink" href="#glossario-rapido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Service Mesh:</strong> camada de infraestrutura que gerencia comunicação serviço-a-serviço (resiliência, segurança, observabilidade, tráfego).</li>
+<li><strong>Sidecar:</strong> proxy co-localizado com cada serviço, que intercepta seu tráfego de rede.</li>
+<li><strong>Data plane:</strong> o conjunto dos sidecars (Envoy/linkerd2-proxy); está no caminho de dados.</li>
+<li><strong>Control plane:</strong> o cérebro (istiod) que configura os sidecars e emite certificados; fora do caminho de dados.</li>
+<li><strong>xDS:</strong> API dinâmica pela qual o control plane configura os proxies Envoy em runtime.</li>
+<li><strong>mTLS:</strong> TLS mútuo automático entre serviços (criptografia + autenticação por identidade).</li>
+<li><strong>SPIFFE:</strong> padrão de identidade de workload usado nos certificados do mesh.</li>
+<li><strong>Golden metrics / RED:</strong> Rate, Errors, Duration — métricas emitidas automaticamente pelo mesh.</li>
+<li><strong>Outlier detection:</strong> ejetar instâncias com taxa de erro/latência anômala.</li>
+<li><strong>Ambient / sidecarless:</strong> modelo que reduz o overhead do sidecar (ztunnel por-nó + waypoint).</li>
+</ul>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>Passo a passo da interceptação (modelo sidecar, Kubernetes):</p>
+<ol>
+<li><strong>Injeção.</strong> Ao criar um Pod num namespace habilitado, um <strong>admission controller</strong> (no Istio, o sidecar injector; no Linkerd, o proxy injector) <strong>muta a especificação do Pod</strong>, adicionando o container do proxy (Envoy/linkerd2-proxy) e um <strong>init container</strong> que configura iptables.</li>
+<li><strong>Captura via iptables.</strong> O init container instala regras de iptables que redirecionam <strong>todo</strong> o tráfego de entrada e saída do Pod para o proxy sidecar. A aplicação faz uma chamada HTTP/gRPC normal para o destino; o kernel a redireciona ao proxy local.</li>
+<li><strong>Saída (outbound).</strong> O proxy do serviço chamador recebe a chamada interceptada, resolve o destino (discovery via control plane), escolhe a instância (LB latency-aware/P2C), aplica timeout/retry/circuit breaking, <strong>inicia o handshake mTLS</strong> com o proxy do destino e envia a requisição criptografada.</li>
+<li><strong>Entrada (inbound).</strong> O proxy do serviço chamado termina o mTLS (autenticando a identidade do chamador), <strong>aplica a política de autorização</strong> (este chamador pode acessar este endpoint?), e entrega a requisição em texto claro ao container de aplicação via loopback.</li>
+<li><strong>Telemetria.</strong> Ambos os proxies emitem métricas (latência, status, volume) e propagam o contexto de tracing — sem que a aplicação precise instrumentar nada para as métricas L7.</li>
+<li><strong>Configuração dinâmica.</strong> Quando você aplica uma política (ex.: "rote 5% do tráfego de <code>checkout</code> para a v2 do <code>payments</code>"), o control plane traduz isso e empurra a nova configuração aos proxies relevantes em runtime, <strong>sem reiniciar</strong> as aplicações.</li>
+</ol>
+<p>A genialidade do modelo: a aplicação <strong>não sabe que o mesh existe</strong>. Ela faz <code>http://payments/charge</code> como se o serviço estivesse ali; o sidecar materializa mTLS, retry, LB e telemetria por baixo.</p>
+<h3 id="mtls-e-identidade-de-workload-em-detalhe">mTLS e identidade de workload em detalhe<a class="headerlink" href="#mtls-e-identidade-de-workload-em-detalhe" title="Permanent link">&para;</a></h3>
+<p>O mTLS automático é uma das motivações mais fortes para adotar mesh, e merece detalhamento. Em vez de cada serviço ter que gerenciar certificados manualmente:</p>
+<ol>
+<li>O control plane atua como <strong>CA</strong> (Certificate Authority) interna. No Istio, o istiod emite certificados; pode encadear a uma CA corporativa raiz.</li>
+<li>Cada workload recebe uma <strong>identidade criptográfica</strong> baseada em <strong>SPIFFE</strong> (Secure Production Identity Framework For Everyone) — um identificador no formato <code>spiffe://trust-domain/ns/namespace/sa/service-account</code>, derivado da identidade do Pod (service account no Kubernetes). Não é o IP (efêmero), é a <em>identidade lógica</em> do serviço.</li>
+<li>Os certificados são <strong>rotacionados automaticamente</strong> (curta validade, ex.: 24h), reduzindo a janela de comprometimento sem operação manual.</li>
+<li>No handshake, cada lado <strong>autentica o outro</strong> (mutual TLS): o proxy de entrada verifica a identidade SPIFFE do chamador, e o de saída verifica a do destino. Isso dá <strong>criptografia em trânsito</strong> + <strong>autenticação de workload</strong> + base para <strong>autorização</strong> ("só <code>checkout</code> pode chamar <code>payments</code>").</li>
+</ol>
+<p>Modos de mTLS (Istio): <strong>PERMISSIVE</strong> (aceita tanto texto claro quanto mTLS — útil durante migração incremental) e <strong>STRICT</strong> (só aceita mTLS — postura zero-trust). A migração típica vai de PERMISSIVE para STRICT à medida que toda a frota entra no mesh.</p>
+<p>Ponto crítico: mTLS resolve <em>transit security</em> e <em>identidade</em>, mas <strong>não substitui</strong> autorização de aplicação (regras de negócio sobre <em>o quê</em> o chamador pode fazer com <em>quais</em> dados), validação de input, nem gestão de segredos. É uma camada de zero-trust, não o todo.</p>
+<h3 id="observabilidade-automatica-as-golden-metrics">Observabilidade automática: as golden metrics<a class="headerlink" href="#observabilidade-automatica-as-golden-metrics" title="Permanent link">&para;</a></h3>
+<p>O mesh emite, para <em>todo</em> o tráfego L7 interceptado, as chamadas <strong>golden metrics</strong> (também "RED": Rate, Errors, Duration) sem que a aplicação instrumente nada:</p>
+<ul>
+<li><strong>Taxa de requisições</strong> (RPS) por serviço, par origem-destino e rota.</li>
+<li><strong>Taxa de erro</strong> (% de respostas 5xx/falhas).</li>
+<li><strong>Distribuição de latência</strong> (histogramas p50/p95/p99).</li>
+<li><strong>Topologia de serviços</strong> (quem chama quem), montável a partir dos pares observados.</li>
+</ul>
+<p>Isso alimenta <strong>Prometheus</strong> (scraping das métricas dos proxies), <strong>Grafana</strong> (dashboards) e, com propagação de contexto de tracing, <strong>Jaeger</strong>/<strong>Zipkin</strong>/<strong>OpenTelemetry</strong> (traces distribuídos). Caveat importante: o mesh dá o <em>tracing de rede</em> automaticamente (spans por hop de proxy), mas a <strong>propagação dos headers de trace</strong> entre chamadas <em>dentro</em> da aplicação ainda exige cooperação do código — o sidecar não consegue correlacionar uma requisição de entrada com as de saída se a aplicação não repassar os headers (<code>traceparent</code>, <code>b3</code>). Logo, mesh reduz mas não elimina a instrumentação de tracing.</p>
+<h3 id="istio-vs-linkerd-o-trade-off-de-poder-vs-simplicidade">Istio vs Linkerd: o trade-off de poder vs simplicidade<a class="headerlink" href="#istio-vs-linkerd-o-trade-off-de-poder-vs-simplicidade" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Dimensão</th>
+<th>Istio</th>
+<th>Linkerd</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data plane</td>
+<td>Envoy (C++, proxy de propósito geral)</td>
+<td>linkerd2-proxy (Rust, especializado p/ mesh)</td>
+</tr>
+<tr>
+<td>Footprint do sidecar</td>
+<td>Maior (Envoy é full-featured)</td>
+<td>Mínimo (micro-proxy enxuto)</td>
+</tr>
+<tr>
+<td>Riqueza de traffic management</td>
+<td>Muito alta (VirtualService, fault injection, mirroring, multi-cluster)</td>
+<td>Moderada (foco no essencial)</td>
+</tr>
+<tr>
+<td>Curva de aprendizado / operação</td>
+<td>Alta (muitos CRDs, complexidade)</td>
+<td>Baixa (opinativo, poucos knobs)</td>
+</tr>
+<tr>
+<td>Suporte a workloads fora de K8s (VMs)</td>
+<td>Sim</td>
+<td>Limitado</td>
+</tr>
+<tr>
+<td>Modo sidecarless</td>
+<td>Ambient mesh (ztunnel + waypoint)</td>
+<td>— (foco em sidecar leve)</td>
+</tr>
+<tr>
+<td>Filosofia</td>
+<td>Poder e flexibilidade</td>
+<td>Simplicidade e baixo overhead</td>
+</tr>
+</tbody>
+</table>
+<p>A regra prática: se você precisa de <strong>mTLS + observabilidade + resiliência básica</strong> com mínimo atrito operacional, Linkerd é o sweet spot. Se precisa de <strong>traffic management sofisticado</strong> (canary automatizado, fault injection para caos, gateways multi-cluster, VMs no mesh), Istio justifica sua complexidade.</p>
+<h3 id="traffic-management-o-que-o-controle-de-trafego-habilita">Traffic management: o que o controle de tráfego habilita<a class="headerlink" href="#traffic-management-o-que-o-controle-de-trafego-habilita" title="Permanent link">&para;</a></h3>
+<p>Além de resiliência e segurança, o mesh transforma o roteamento de tráfego em algo <em>programável por configuração</em>, desacoplado do deploy de código. As capacidades centrais:</p>
+<ul>
+<li><strong>Traffic splitting (canary / blue-green):</strong> rotear uma fração percentual do tráfego para uma nova versão (ex.: 5% → 25% → 100%), monitorando as golden metrics a cada passo, com rollback instantâneo. Crucialmente, isso é decidido no control plane — os <em>consumidores</em> não sabem nem mudam; eles continuam chamando <code>recommendations</code> e o mesh decide a versão.</li>
+<li><strong>Roteamento baseado em conteúdo:</strong> rotear por header, cookie, ou atributo (ex.: usuários internos para a v2, externos para a v1; região X para o cluster Y). Habilita dark launches e testes A/B no nível de infraestrutura.</li>
+<li><strong>Fault injection:</strong> <strong>injetar deliberadamente</strong> latência ou erros (ex.: 10% das chamadas a <code>payments</code> retornam 503, ou +2s de delay) para testar a resiliência do sistema sem quebrar nada de verdade — engenharia de caos controlada. Permite validar que circuit breakers e fallbacks realmente funcionam.</li>
+<li><strong>Traffic mirroring (shadowing):</strong> espelhar uma cópia do tráfego de produção para uma nova versão <em>sem</em> afetar a resposta ao usuário (a resposta da versão espelhada é descartada). Permite testar a v2 com tráfego real antes de servi-lo.</li>
+<li><strong>Outlier detection:</strong> ejetar automaticamente instâncias que apresentam taxa de erro/latência anômala (uma forma de circuit breaking no nível de instância, complementando o LB).</li>
+</ul>
+<p>O ponto comum: tudo isso é <strong>mudança de configuração no control plane</strong>, propagada aos sidecars em runtime, <strong>sem redeployar as aplicações</strong>. Isso desacopla decisões de release/tráfego do ciclo de build/deploy de código — uma das maiores alavancas operacionais do mesh.</p>
+<h3 id="o-sidecar-pattern-alem-do-mesh">O sidecar pattern além do mesh<a class="headerlink" href="#o-sidecar-pattern-alem-do-mesh" title="Permanent link">&para;</a></h3>
+<p>O mesh é a aplicação mais famosa do <strong>sidecar pattern</strong>, mas o padrão é mais amplo: empacotar funcionalidade auxiliar num container que compartilha o ciclo de vida, a rede e (opcionalmente) volumes do container principal, sem misturá-la ao código de negócio. Outros usos clássicos:</p>
+<ul>
+<li><strong>Log shipper:</strong> um sidecar (Fluent Bit/Fluentd) lê os logs do container principal de um volume compartilhado e os envia ao sistema central de logs — sem o app saber.</li>
+<li><strong>Config sync / secret fetcher:</strong> um sidecar busca configuração ou segredos (de Vault, Consul) e os disponibiliza ao app via arquivo/volume.</li>
+<li><strong>Adapter / protocol translator:</strong> um sidecar normaliza a saída do app (ex.: expõe métricas num formato que o monitoramento entende, traduzindo o formato proprietário do app).</li>
+</ul>
+<p>A força do padrão é a <strong>separação de concerns com co-localização</strong>: a funcionalidade auxiliar evolui independentemente (atualiza o sidecar sem tocar o app), funciona com qualquer linguagem (a interface é rede/arquivo, não API de lib) e é reutilizável entre serviços. O custo é o mesmo do mesh em menor escala: mais um container por Pod, mais consumo de recursos.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart LR
+    subgraph PodA["Pod: checkout"]
+        AppA["App checkout"]
+        PxA["Sidecar proxy&lt;br/&gt;(Envoy / linkerd2)"]
+    end
+    subgraph PodB["Pod: payments"]
+        PxB["Sidecar proxy"]
+        AppB["App payments"]
+    end
+    CP["Control Plane&lt;br/&gt;istiod&lt;br/&gt;(config + CA mTLS + xDS)"]
+
+    AppA --&gt;|"1. chamada local&lt;br/&gt;(interceptada via iptables)"| PxA
+    PxA ==&gt;|"2. mTLS + LB + retry + timeout"| PxB
+    PxB --&gt;|"3. autoriza + entrega&lt;br/&gt;(loopback, texto claro)"| AppB
+    CP -.-&gt;|"config / certs"| PxA
+    CP -.-&gt;|"config / certs"| PxB
+    PxA -.-&gt;|"métricas / traces"| CP
+    PxB -.-&gt;|"métricas / traces"| CP</code></pre>
+<pre class="mermaid"><code>sequenceDiagram
+    participant App as App checkout
+    participant SPout as Sidecar (saída)
+    participant SPin as Sidecar payments (entrada)
+    participant Pay as App payments
+    App-&gt;&gt;SPout: GET http://payments/charge (texto claro, loopback)
+    Note over SPout: discovery + LB (P2C/EWMA)&lt;br/&gt;aplica timeout, retry, circuit breaker
+    SPout-&gt;&gt;SPin: handshake mTLS + requisição cifrada
+    Note over SPin: valida identidade (SPIFFE)&lt;br/&gt;aplica AuthorizationPolicy
+    SPin-&gt;&gt;Pay: GET /charge (texto claro, loopback)
+    Pay--&gt;&gt;SPin: 200 OK
+    SPin--&gt;&gt;SPout: resposta cifrada (mTLS)
+    SPout--&gt;&gt;App: 200 OK
+    Note over SPout,SPin: ambos emitem golden metrics + traces</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p>Considere um <strong>marketplace brasileiro</strong> com ~150 microsserviços poliglotas (JVM, Go, Node, Python) em Kubernetes multi-região, com requisitos regulatórios de criptografia em trânsito (LGPD/PCI para dados de pagamento).</p>
+<p><strong>Dor antes do mesh.</strong> Cada time implementava retry/timeout/circuit breaking de um jeito (ou não implementava). Não havia mTLS interno — tráfego entre serviços trafegava em texto claro dentro do cluster, um risco de compliance. Métricas de latência/erro eram inconsistentes (cada serviço instrumentava à sua maneira). Um deploy ruim do <code>pricing</code> derrubou <code>checkout</code> em cascata porque não havia circuit breaking padronizado.</p>
+<p><strong>Adoção de Linkerd (mesh leve).</strong> O time de plataforma escolheu <strong>Linkerd</strong> pela simplicidade operacional e footprint baixo (proxy em Rust). Ganhos imediatos, sem tocar no código dos 150 serviços:</p>
+<ul>
+<li><strong>mTLS automático</strong> entre todos os serviços — resolve o requisito de criptografia em trânsito e dá identidade de workload, satisfazendo auditoria.</li>
+<li><strong>Golden metrics uniformes</strong> (success rate, RPS, latências p50/p95/p99) para todo serviço, no mesmo formato — observabilidade consistente de graça.</li>
+<li><strong>Latency-aware load balancing (EWMA)</strong>: durante a Black Friday, réplicas de <code>inventory</code> com GC pause recebem menos tráfego automaticamente.</li>
+<li><strong>Retries e timeouts</strong> configurados por política, sem recompilar nada.</li>
+</ul>
+<p><strong>Por que não Istio aqui?</strong> Istio é mais poderoso (Envoy full L7, traffic management rico, fault injection, suporte a VMs fora do Kubernetes, ambient mode), mas mais complexo de operar. O time avaliou que precisava de mTLS + observabilidade + resiliência básica — sweet spot do Linkerd. Em um cenário com necessidade de <strong>traffic splitting sofisticado, canary automatizado, gateways multi-cluster e fault injection para engenharia de caos</strong>, a escolha penderia para <strong>Istio</strong>.</p>
+<p><strong>Caso de controle de tráfego (Istio).</strong> Em outro time, que usava Istio, o lançamento da v2 do serviço de <code>recommendations</code> foi feito como <strong>canary</strong>: uma <code>VirtualService</code> roteou 5% do tráfego para a v2, monitorou as golden metrics por 30 min, e o time foi subindo para 25%, 50%, 100% — tudo via configuração no control plane, sem deploy de código nos consumidores, com rollback instantâneo se a taxa de erro subisse.</p>
+<p>Pseudo-configuração (Istio, traffic split):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># VirtualService — canary 5% para v2</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">http</span><span class="p">:</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">route</span><span class="p">:</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">destination</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> host</span><span class="p">:</span><span class="w"> </span><span class="nv">recommendations</span><span class="p p-Indicator">,</span><span class="nt"> subset</span><span class="p">:</span><span class="w"> </span><span class="nv">v1</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">        </span><span class="nt">weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">95</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">destination</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> host</span><span class="p">:</span><span class="w"> </span><span class="nv">recommendations</span><span class="p p-Indicator">,</span><span class="nt"> subset</span><span class="p">:</span><span class="w"> </span><span class="nv">v2</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">        </span><span class="nt">weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2s</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> attempts</span><span class="p">:</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="nt"> perTryTimeout</span><span class="p">:</span><span class="w"> </span><span class="nv">800ms</span><span class="p p-Indicator">,</span><span class="nt"> retryOn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;5xx,connect-failure&quot;</span><span class="w"> </span><span class="p p-Indicator">}</span>
+</code></pre></div>
+<p>Ferramentas reais: <strong>Istio</strong> (+ <strong>Envoy</strong> como data plane), <strong>Linkerd</strong> (linkerd2-proxy em Rust), <strong>Consul Connect</strong> (mesh da HashiCorp), <strong>Cilium Service Mesh</strong> (baseado em eBPF). Para tracing/métricas: integração com <strong>Prometheus</strong>, <strong>Grafana</strong>, <strong>Jaeger</strong>, <strong>OpenTelemetry</strong>.</p>
+<h3 id="o-custo-concreto-que-ninguem-conta-no-inicio">O custo concreto que ninguém conta no início<a class="headerlink" href="#o-custo-concreto-que-ninguem-conta-no-inicio" title="Permanent link">&para;</a></h3>
+<p>Adotar mesh em 150 serviços significa, na prática:</p>
+<ul>
+<li><strong>+150 sidecars</strong> (um por Pod, multiplicado pelas réplicas — facilmente milhares de proxies). Cada um consome CPU e memória; mesmo o micro-proxy do Linkerd, somado a milhares de instâncias, é uma conta material de recursos do cluster.</li>
+<li><strong>Latência adicional por hop.</strong> Cada chamada agora passa por dois proxies (saída + entrada). Linkerd reporta latência adicional sub-milissegundo no p50, mas o impacto no p99 sob carga deve ser medido, não assumido.</li>
+<li><strong>Nova superfície de debug.</strong> Um request que falha agora pode falhar no app, no proxy de saída, na rede mTLS, no proxy de entrada, ou na configuração empurrada pelo control plane. Sem familiaridade com <code>linkerd tap</code>/<code>istioctl proxy-config</code>, logs do Envoy e dashboards, o time fica cego.</li>
+<li><strong>Operação do control plane.</strong> istiod/linkerd-controller são infraestrutura tier-0: se caem, novos Pods não recebem config/certs e a rotação de certificados para. Precisam de HA e monitoramento próprios.</li>
+</ul>
+<p>Esses custos não invalidam o mesh — invalidam adotá-lo <em>cedo demais</em> ou <em>sem maturidade operacional</em>. São o outro lado da balança do "de graça".</p>
+<h3 id="sidecar-vs-sidecarless-ambient-a-fronteira-em-movimento">Sidecar vs sidecarless (ambient): a fronteira em movimento<a class="headerlink" href="#sidecar-vs-sidecarless-ambient-a-fronteira-em-movimento" title="Permanent link">&para;</a></h3>
+<p>O modelo sidecar tem um custo estrutural — um proxy por Pod — que motivou alternativas. O <strong>Istio Ambient Mesh</strong> redistribui as funções: um componente <strong>por-nó</strong> (ztunnel) cuida do mTLS e do roteamento L4 para todos os Pods do nó, e um componente <strong>por-namespace/serviço</strong> (waypoint proxy) cuida do L7 <em>quando necessário</em>. Resultado: você obtém mTLS e identidade sem um Envoy por Pod, pagando o overhead L7 apenas onde precisa. É a tendência de reduzir o "imposto do sidecar" em frotas grandes. Abordagens baseadas em <strong>eBPF</strong> (Cilium) movem parte da interceptação para o kernel, evitando o desvio para userspace. Conhecer essa direção é importante para decisões de longo prazo, embora o sidecar permaneça o modelo mais difundido e didaticamente claro.</p>
+<h3 id="a-evolucao-historica-por-que-o-mesh-existe">A evolução histórica: por que o mesh existe<a class="headerlink" href="#a-evolucao-historica-por-que-o-mesh-existe" title="Permanent link">&para;</a></h3>
+<p>Entender a trajetória ajuda a internalizar o porquê do mesh:</p>
+<ol>
+<li><strong>Bibliotecas embarcadas (2011-2015).</strong> Netflix OSS (Hystrix, Ribbon, Eureka), Twitter Finagle. A inteligência de comunicação vivia <em>dentro</em> do processo, como dependência. Funcionou bem em frotas homogêneas (tudo JVM), mas o acoplamento de linguagem e de ciclo de vida (recompilar para mudar política) virou gargalo.</li>
+<li><strong>Proxies de borda → sidecars (2016).</strong> A Lyft cria o <strong>Envoy</strong> como proxy de alto desempenho, primeiro na borda, depois como sidecar. A ideia-chave: mover a inteligência para <em>fora</em> do processo, num proxy co-localizado que intercepta o tráfego — tornando-a poliglota e independente do deploy de código.</li>
+<li><strong>Control plane (2017).</strong> Google/IBM/Lyft lançam o <strong>Istio</strong> usando Envoy como data plane, adicionando um control plane que configura e coordena os sidecars centralmente. A Buoyant cunha "service mesh" e cria o <strong>Linkerd</strong>, depois reescrito em Rust (linkerd2-proxy) para footprint mínimo.</li>
+<li><strong>Sidecarless / ambient (anos recentes).</strong> A percepção do custo do sidecar (um proxy por Pod) motiva o Istio Ambient e abordagens eBPF, redistribuindo as funções para reduzir o overhead.</li>
+</ol>
+<p>A lição arquitetural: cada geração resolveu a dor da anterior. As libs resolveram a resiliência mas acoplaram linguagem; o sidecar desacoplou linguagem mas adicionou custo de recursos; o ambient busca reduzir esse custo. Saber onde você está nessa trajetória orienta a decisão.</p>
+<h3 id="estrategia-de-adocao-incremental">Estratégia de adoção incremental<a class="headerlink" href="#estrategia-de-adocao-incremental" title="Permanent link">&para;</a></h3>
+<p>Adotar mesh não é big-bang. A sequência típica e segura:</p>
+<ol>
+<li><strong>Instalar o control plane</strong> e habilitar o mesh em <strong>um namespace de baixo risco</strong> primeiro.</li>
+<li><strong>mTLS em modo PERMISSIVE</strong> — os serviços aceitam tanto texto claro quanto mTLS, permitindo que serviços dentro e fora do mesh coexistam durante a migração.</li>
+<li><strong>Injetar sidecars gradualmente</strong>, serviço a serviço, medindo impacto em latência e recursos a cada passo.</li>
+<li><strong>Validar observabilidade</strong> (golden metrics chegando ao Prometheus, traces correlacionados) antes de confiar no mesh para decisões.</li>
+<li><strong>Migrar para mTLS STRICT</strong> só quando toda a frota relevante estiver no mesh.</li>
+<li><strong>Introduzir traffic management</strong> (canary, retries via política) depois que o básico (mTLS, métricas) estiver estável.</li>
+</ol>
+<p>Pular etapas — especialmente ir direto para STRICT ou configurar retries agressivos antes de entender o comportamento — é a receita para incidentes de adoção.</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Use service mesh quando:</strong></p>
+<ul>
+<li>Você tem uma <strong>frota grande e poliglota</strong> de microsserviços, onde bibliotecas de resiliência por linguagem não escalam.</li>
+<li>Precisa de <strong>mTLS uniforme</strong> e políticas de autorização por workload (requisitos de compliance/zero-trust).</li>
+<li>Quer <strong>observabilidade consistente</strong> (golden metrics, tracing) sem instrumentar cada serviço.</li>
+<li>Precisa de <strong>controle de tráfego avançado</strong> (canary, traffic splitting, fault injection) desacoplado do deploy de código.</li>
+<li>Já roda em <strong>Kubernetes</strong> (onde a injeção de sidecar e a captura via iptables são naturais).</li>
+</ul>
+<p><strong>Evite (ou adie) service mesh quando:</strong></p>
+<ul>
+<li>Você tem <strong>poucos serviços</strong> (uma dúzia ou menos): o overhead operacional do mesh supera o benefício. Bibliotecas (Resilience4j) ou capacidades nativas do Kubernetes podem bastar.</li>
+<li>O time <strong>não tem maturidade operacional</strong> para rodar e debugar um mesh — ele adiciona uma camada de rede complexa, e debugar problemas que agora passam por dois proxies é não-trivial.</li>
+<li><strong>Latência ultra-baixa</strong> é crítica e o hop adicional do sidecar (sub-milissegundos a poucos ms, mas existente) é inaceitável.</li>
+<li>O <strong>orçamento de recursos é apertado</strong>: cada sidecar consome CPU/memória; multiplicado por milhares de Pods, é material (motivação do modo ambient/sidecarless).</li>
+</ul>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Adotar mesh cedo demais.</strong> Com poucos serviços, o mesh é complexidade prematura. Comece com capacidades nativas (Kubernetes Services, Resilience4j) e adote mesh quando a dor de escala/poliglotismo for real.</li>
+<li><strong>Subestimar o custo de recursos e latência.</strong> Um sidecar por Pod multiplica consumo de CPU/memória e adiciona latência por hop (dois proxies no caminho de uma chamada). Dimensione os sidecars e meça o impacto no p99 antes de assumir que é "grátis".</li>
+<li><strong>Confiar só no mTLS do mesh e relaxar o resto.</strong> mTLS criptografa e autentica em trânsito, mas <strong>não substitui</strong> autorização de aplicação, validação de input, segredos bem geridos. Zero-trust é mais que mTLS; o mesh é uma camada, não a solução completa.</li>
+<li><strong>Circuit breaking / retry mal calibrados via mesh.</strong> Configurar retries agressivos no mesh sem backoff/jitter ou sem orçamento de retry (retry budget) pode causar <strong>retry storm</strong> amplificado por toda a malha. Mesh não dispensa entender os padrões de resiliência (ver documento dedicado).</li>
+<li><strong>Ignorar a explosão de cardinalidade de métricas.</strong> O mesh emite métricas por par origem-destino-rota; em frotas grandes isso explode a cardinalidade no Prometheus e pode derrubar o sistema de observabilidade. Planeje agregação e retenção.</li>
+<li><strong>Debug "caixa-preta".</strong> Quando algo falha, agora há dois proxies, iptables e o control plane no caminho. Sem familiaridade com as ferramentas de debug do mesh (tap, logs do proxy, dashboards), o time fica cego. Invista em runbook e treinamento.</li>
+<li><strong>Misturar responsabilidades north-south e east-west sem clareza.</strong> O mesh é primariamente east-west (serviço-a-serviço); o ingress/API gateway é north-south (borda). Usar o mesh para tudo ou confundir os papéis gera configuração confusa e gargalos.</li>
+<li><strong>Ir direto para mTLS STRICT.</strong> Habilitar STRICT antes de toda a frota estar no mesh quebra a comunicação com serviços fora dele. Migre via PERMISSIVE e só endureça quando a cobertura estiver completa.</li>
+<li><strong>Não dimensionar nem monitorar o control plane.</strong> istiod/linkerd-controller são tier-0; sua falha para a propagação de config e a rotação de certificados (que estoura silenciosamente depois). Rode-o em HA e monitore-o como infraestrutura crítica.</li>
+<li><strong>Sidecars sem requests/limits adequados.</strong> Sidecars subdimensionados viram gargalo (sufocam o tráfego); superdimensionados desperdiçam recursos multiplicados por milhares de Pods. Faça profiling e ajuste por classe de workload.</li>
+<li><strong>Assumir que mesh dá tracing completo de graça.</strong> O mesh dá spans por hop de proxy, mas a correlação entre requisição de entrada e chamadas de saída exige que a aplicação propague os headers de trace (<code>traceparent</code>/<code>b3</code>). Sem isso, os traces ficam fragmentados.</li>
+<li><strong>Adotar mesh sem runbook nem treinamento de debug.</strong> Quando algo falha, o time precisa saber usar <code>linkerd tap</code>/<code>istioctl proxy-config</code>, ler logs do Envoy e interpretar os dashboards. Sem isso, o mesh vira uma caixa-preta que atrasa a resolução de incidentes.</li>
+</ul>
+<h3 id="data-plane-vs-control-plane-a-separacao-que-define-tudo">Data plane vs control plane: a separação que define tudo<a class="headerlink" href="#data-plane-vs-control-plane-a-separacao-que-define-tudo" title="Permanent link">&para;</a></h3>
+<p>A distinção mais importante para raciocinar sobre mesh é entre os dois planos, porque ela determina onde está o risco e como debugar:</p>
+<ul>
+<li><strong>Data plane (os sidecars):</strong> está <strong>no caminho de dados</strong> — toca cada byte de cada requisição. Se um sidecar morre, o tráfego daquele Pod para. Por isso o data plane precisa ser ultra-confiável e de baixa latência (motivo do Envoy em C++ e do linkerd2-proxy em Rust). Falhas aqui são imediatas e visíveis (erros de conexão).</li>
+<li><strong>Control plane (istiod/linkerd-controller):</strong> está <strong>fora do caminho de dados</strong> — configura os sidecars e emite certificados, mas não toca o tráfego. Se o control plane cai, o tráfego <strong>existente continua fluindo</strong> (os sidecars têm a última config em cache), mas novos Pods não recebem config/certs e a rotação de certificados para. Falhas aqui são insidiosas: tudo parece funcionar até um deploy ou uma expiração de certificado.</li>
+</ul>
+<p>Essa separação tem consequência operacional direta: o control plane é tier-0 (precisa de HA e monitoramento próprios), mas uma falha sua não é instantaneamente catastrófica como uma falha do data plane. Ao debugar, pergunte sempre: o problema está no data plane (conexão, mTLS, política aplicada errada) ou no control plane (config não propagou, certificado não emitido)?</p>
+<h3 id="o-fluxo-de-uma-requisicao-byte-a-byte">O fluxo de uma requisição, byte a byte<a class="headerlink" href="#o-fluxo-de-uma-requisicao-byte-a-byte" title="Permanent link">&para;</a></h3>
+<p>Para fixar a mecânica, siga uma chamada <code>checkout → payments</code> no detalhe físico:</p>
+<ol>
+<li>O código do <code>checkout</code> faz <code>POST http://payments/charge</code>. Para a aplicação, é uma chamada HTTP normal — ela não sabe do mesh.</li>
+<li>O pacote sai do container de aplicação, mas as <strong>regras de iptables</strong> (instaladas pelo init container na criação do Pod) o redirecionam para a porta do <strong>sidecar de saída</strong>, na mesma rede do Pod (loopback).</li>
+<li>O sidecar de saída resolve <code>payments</code> (endpoints vindos do control plane), aplica LB (P2C/EWMA), verifica circuit breaker e bulkhead, e <strong>inicia o handshake mTLS</strong> com o sidecar de entrada do Pod de destino, apresentando seu certificado SPIFFE.</li>
+<li>A requisição viaja <strong>cifrada</strong> pela rede entre os dois Pods.</li>
+<li>O <strong>sidecar de entrada</strong> do <code>payments</code> termina o mTLS, <strong>valida a identidade</strong> do chamador (é mesmo o <code>checkout</code>?), aplica a <code>AuthorizationPolicy</code> (o <code>checkout</code> pode chamar <code>/charge</code>?), e — se autorizado — entrega a requisição <strong>em texto claro</strong> ao container de aplicação via loopback.</li>
+<li>O <code>payments</code> processa e responde; o caminho inverso recriptografa via mTLS.</li>
+<li>Ambos os sidecars registram métricas (latência, status) e propagam contexto de trace.</li>
+</ol>
+<p>Note: a aplicação recebe a requisição em texto claro no loopback — ela nunca lida com TLS. Toda a criptografia, autenticação e telemetria acontecem nos sidecars, transparentemente.</p>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Padrões de resiliência:</strong> o mesh é o veículo de plataforma para retry, timeout, circuit breaking e outlier detection — implementa os padrões do documento de resiliência <em>fora</em> do código. Mas exige a mesma disciplina de calibração (backoff, jitter, budgets).</li>
+<li><strong>Service Discovery &amp; Load Balancing:</strong> o mesh é a forma moderna de client-side LB inteligente sem biblioteca por linguagem; o sidecar de saída faz discovery (via control plane) e LB latency-aware/P2C.</li>
+<li><strong>Segurança / mTLS / zero-trust:</strong> o mesh provê mTLS automático e identidade de workload (SPIFFE), peça central de arquiteturas zero-trust — uma das motivações mais fortes para adotá-lo.</li>
+<li><strong>Observabilidade:</strong> golden metrics, tracing distribuído e topologia vêm "de graça" do mesh, alimentando Prometheus/Grafana/Jaeger/OpenTelemetry.</li>
+<li><strong>API Gateway / BFF:</strong> o gateway cuida do north-south (cliente→sistema); o mesh do east-west (serviço↔serviço). Complementares; muitos meshes têm um ingress gateway integrado.</li>
+<li><strong>Sidecar pattern (geral):</strong> mesh é a aplicação mais famosa do padrão sidecar, que também cobre logging, config sync e adapters — sempre extraindo concerns auxiliares para um container co-localizado.</li>
+</ul>
+<h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
+<p>Três ideias para carregar:</p>
+<ol>
+<li><strong>O mesh move concerns de comunicação do código para a plataforma.</strong> Resiliência, segurança (mTLS), observabilidade e controle de tráfego deixam de ser bibliotecas por linguagem e viram capacidades uniformes e poliglotas, mudáveis em runtime sem redeployar serviços. É a evolução natural das libs (Hystrix/Ribbon) para uma frota heterogênea.</li>
+<li><strong>Nada é de graça.</strong> O mesh cobra em latência por hop, recursos por sidecar e complexidade operacional (novo data plane + control plane para operar e debugar). O benefício justifica o custo em frotas grandes, poliglotas, com requisitos de zero-trust e observabilidade — não em sistemas pequenos.</li>
+<li><strong>Data plane vs control plane define o risco.</strong> O data plane (sidecars) está no caminho de dados — falha imediata. O control plane está fora — falha insidiosa (config não propaga, certificado expira). Raciocinar nessa separação é a chave para operar e debugar mesh.</li>
+</ol>
+<p>O fio condutor: o mesh é a aplicação do <strong>sidecar pattern</strong> para tornar a comunicação serviço-a-serviço (east-west) uma capacidade de infraestrutura — uniforme, segura e observável — ao custo de uma camada de rede adicional que precisa ser operada com maturidade.</p>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li>O mesh extrai concerns de comunicação (resiliência, mTLS, observabilidade, tráfego) do código para um <strong>sidecar proxy</strong>, tornando-os poliglotas e mudáveis em runtime.</li>
+<li>A interceptação é <strong>transparente</strong> via iptables: a aplicação não sabe que o mesh existe.</li>
+<li><strong>Data plane</strong> (sidecars) está no caminho de dados; <strong>control plane</strong> (istiod) está fora — essa separação define onde está o risco e como debugar.</li>
+<li><strong>mTLS automático</strong> + identidade SPIFFE são a peça de zero-trust mais citada como motivação — mas não substituem autorização de aplicação.</li>
+<li><strong>Golden metrics (RED)</strong> vêm de graça; tracing distribuído ainda exige propagação de headers pela aplicação.</li>
+<li><strong>Istio</strong> = poder/flexibilidade (Envoy, traffic management rico); <strong>Linkerd</strong> = simplicidade/footprint baixo (proxy Rust).</li>
+<li>O custo é real: latência por hop, recursos por sidecar (motivação do <strong>ambient/sidecarless</strong>), complexidade operacional. Não adote cedo demais nem sem maturidade.</li>
+<li>Mesh é <strong>east-west</strong> (serviço↔serviço); gateway/BFF é <strong>north-south</strong> (cliente↔sistema) — complementares.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://istio.io/latest/docs/ops/deployment/architecture/">Istio / Architecture (data plane Envoy, control plane istiod)</a></li>
+<li><a href="https://istio.io/latest/docs/overview/dataplane-modes/">Istio / Sidecar or ambient? (modos de data plane)</a></li>
+<li><a href="https://istio.io/latest/blog/2019/data-plane-setup/">Demystifying Istio's Sidecar Injection Model — Istio Blog</a></li>
+<li><a href="https://linkerd.io/2-edge/reference/architecture/">Architecture — Linkerd (data plane micro-proxy, proxy injector, mTLS)</a></li>
+<li><a href="https://linkerd.io/docs/overview/">Overview — Linkerd</a></li>
+<li><a href="https://netflixtechblog.com/introducing-hystrix-for-resilience-engineering-13531c1ab362">Introducing Hystrix for Resilience Engineering — Netflix TechBlog</a></li>
+<li><a href="https://microservices.io/patterns/server-side-discovery.html">Pattern: Server-side service discovery — microservices.io</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../08-api-gateway-vs-bff/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: API Gateway vs BFF">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                API Gateway vs BFF
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../10-padroes-de-resiliencia/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Padrões de resiliência">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Padrões de resiliência
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

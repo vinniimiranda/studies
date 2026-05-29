@@ -1,0 +1,3909 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+      
+        <link rel="prev" href="../05-vector-clocks-e-lamport-timestamps/">
+      
+      
+        <link rel="next" href="../07-service-discovery-e-load-balancing/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>CRDTs - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#crdts-conflict-free-replicated-data-types" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CRDTs
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Abas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Início
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Bibliografia
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  01 · Fundamentos
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  02 · Estilos e padrões
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  03 · Design tático (DDD)
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../01-teorema-cap-e-pacelc/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  04 · Sistemas distribuídos
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  05 · Dados e persistência
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  06 · Mensageria e streaming
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  07 · Performance e escalabilidade
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  08 · Segurança arquitetural
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  09 · Observabilidade
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  10 · Evolução e práticas
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    01 · Fundamentos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Atributos de qualidade
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/02-architecture-decision-records-adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decision Records (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/03-fitness-functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fitness Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/04-conway-law-e-inverse-conway-maneuver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conway's Law e Inverse Conway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-fundamentos-arquiteturais/05-c4-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C4 Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    02 · Estilos e padrões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Layered / N-Tier
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/02-hexagonal-ports-and-adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hexagonal (Ports & Adapters)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/03-clean-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clean Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/04-onion-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Onion Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/05-vertical-slice-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vertical Slice Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/06-modular-monolith/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modular Monolith
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/07-microservices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microservices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/08-service-oriented-architecture-soa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/09-event-driven-architecture-eda/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event-Driven Architecture (EDA)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/10-space-based-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Space-Based Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/11-pipes-and-filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipes and Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-estilos-e-padroes/12-serverless-faas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Serverless / FaaS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    03 · Design tático (DDD)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bounded Contexts, Context Mapping, Ubiquitous Language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/02-ddd-aggregates-entities-value-objects-domain-events/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aggregates, Entities, Value Objects, Domain Events
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/03-ddd-context-mapping-patterns-acl-shared-kernel-customer-supplier/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Context Mapping (ACL, Shared Kernel, Customer-Supplier)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/04-cqrs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CQRS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/05-event-sourcing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event Sourcing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/06-saga-pattern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Saga Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-design-tatico-ddd/07-outbox-e-inbox-pattern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Outbox e Inbox Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    04 · Sistemas distribuídos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-teorema-cap-e-pacelc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Teorema CAP e PACELC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-modelos-de-consistencia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelos de consistência
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-consenso-distribuido-paxos-raft-2pc-3pc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Consenso distribuído (Paxos, Raft, 2PC, 3PC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-idempotencia-e-semanticas-de-entrega/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Idempotência e semânticas de entrega
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-vector-clocks-e-lamport-timestamps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vector Clocks e Lamport Timestamps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CRDTs
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CRDTs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-service-discovery-e-load-balancing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Discovery e Load Balancing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-api-gateway-vs-bff/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Gateway vs BFF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-service-mesh-sidecar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Mesh (sidecar)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-padroes-de-resiliencia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Padrões de resiliência
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-leader-election-sharding-consistent-hashing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Leader Election, Sharding, Consistent Hashing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    05 · Dados e persistência
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Polyglot Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/02-database-per-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Database per Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/03-read-replicas-sharding-particionamento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read Replicas, Sharding, Particionamento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/04-materialized-views-e-projecoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Materialized Views e projeções
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/05-cdc-change-data-capture-debezium/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CDC com Debezium
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/06-data-lake-warehouse-mesh-lakehouse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Lake, Warehouse, Mesh, Lakehouse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/07-oltp-vs-olap-lambda-kappa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OLTP vs OLAP (Lambda, Kappa)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/08-cache-patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cache patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-dados-e-persistencia/09-acid-vs-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ACID vs BASE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    06 · Mensageria e streaming
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Brokers vs log-based streaming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/02-pubsub-queue-topic-partition-consumer-groups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pub/Sub, Queue, Topic, Partition, Consumer Groups
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/03-backpressure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backpressure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/04-dead-letter-queue-e-poison-messages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dead Letter Queue e Poison Messages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/05-stream-processing-kafka-streams-flink-janelas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream Processing (Kafka Streams, Flink, janelas)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-mensageria-e-streaming/06-event-carried-state-transfer-vs-event-notification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event-carried State Transfer vs Event Notification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    07 · Performance e escalabilidade
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Escalabilidade horizontal vs vertical
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Latência vs Throughput (percentis)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/03-use-red-four-golden-signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    USE, RED, Four Golden Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/04-caching-em-multiplas-camadas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Caching em múltiplas camadas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/05-connection-pooling-thread-pooling-async-io-reactive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connection/thread pooling, async I/O, reactive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-performance-e-escalabilidade/06-leis-little-amdahl-universal-scalability-law/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Leis de Little, Amdahl e USL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    08 · Segurança arquitetural
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zero Trust Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/02-oauth2-oidc-saml-jwt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OAuth 2.0, OIDC, SAML, JWT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/03-mtls-entre-servicos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mTLS entre serviços
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/04-defense-in-depth-least-privilege-secure-by-default/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Defense in Depth, Least Privilege, Secure by Default
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/05-secrets-management-vault-kms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secrets Management (Vault, KMS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-seguranca-arquitetural/06-threat-modeling-stride-pasta/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Threat Modeling (STRIDE, PASTA)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    09 · Observabilidade
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Três pilares (+ eventos)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/02-distributed-tracing-opentelemetry-jaeger-zipkin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Tracing (OpenTelemetry, Jaeger, Zipkin)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/03-correlation-ids-e-propagacao-de-contexto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correlation IDs e propagação de contexto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observabilidade/04-sli-slo-sla-error-budgets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLI, SLO, SLA e Error Budgets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    10 · Evolução e práticas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strangler Fig Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/02-branch-by-abstraction-parallel-run-feature-toggles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Branch by Abstraction, Parallel Run, Feature Toggles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/03-anti-corruption-layer-em-migracoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anti-Corruption Layer em migrações
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/04-trunk-based-development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trunk-Based Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/05-gitops-iac-immutable-infrastructure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitOps, IaC, Immutable Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-evolucao-e-praticas/06-platform-engineering-e-idps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform Engineering e IDPs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="crdts-conflict-free-replicated-data-types">CRDTs (Conflict-free Replicated Data Types)<a class="headerlink" href="#crdts-conflict-free-replicated-data-types" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Sistemas distribuídos · <strong>Nível:</strong> Avançado · <strong>Tempo de leitura:</strong> ~25 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p><strong>CRDTs</strong> (Conflict-free Replicated Data Types) são estruturas de dados projetadas para replicação em múltiplos nós que <strong>convergem automaticamente</strong> para o mesmo estado, sem coordenação e sem resolução manual de conflitos. Qualquer réplica pode ser modificada localmente (alta disponibilidade, baixa latência), e quando réplicas trocam atualizações, elas chegam deterministicamente ao mesmo resultado. Isso entrega <strong>strong eventual consistency (SEC)</strong>: réplicas que receberam o mesmo conjunto de atualizações têm estado idêntico, garantidamente.</p>
+<p>A mágica não é mágica: vem da matemática. CRDTs exigem que o merge seja uma operação <strong>comutativa, associativa e idempotente</strong> — formalmente, que o estado forme um <strong>semilattice join</strong> (semirreticulado), onde o merge é o <em>join</em> (supremo). Sob essas condições, a ordem de chegada, a duplicação e a reentrega de atualizações <strong>não importam</strong>: o resultado converge igual. Existem duas famílias: <strong>state-based (CvRDT)</strong>, que propagam o estado inteiro e fazem merge; e <strong>operation-based (CmRDT)</strong>, que propagam operações comutativas.</p>
+<p>Tipos comuns: <strong>G-Counter</strong> e <strong>PN-Counter</strong> (contadores), <strong>G-Set</strong>, <strong>2P-Set</strong>, <strong>LWW-Element-Set</strong> e <strong>OR-Set</strong> (conjuntos), <strong>LWW-Register</strong> e <strong>MV-Register</strong> (registradores), e sequências/textos (<strong>RGA</strong>, <strong>Logoot</strong>, <strong>YATA</strong>) para edição colaborativa. Custo: alguns CRDTs acumulam metadados (<em>tombstones</em>, version vectors) que crescem; o design precisa lidar com poda e tamanho. Para o arquiteto: CRDTs são a resposta de engenharia ao dilema AP — disponibilidade total + convergência garantida — ideais para colaboração offline-first, contadores distribuídos, presença, carrinhos e edição em tempo real.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>Sistemas AP (disponíveis sob partição) permitem escritas concorrentes em réplicas diferentes, gerando <strong>divergência</strong>. A reconciliação tradicional é dolorosa: <em>last-write-wins</em> (LWW) <strong>perde dados</strong> silenciosamente; <strong>vector clocks</strong> <em>detectam</em> o conflito mas empurram a resolução para a aplicação (siblings que alguém precisa mesclar manualmente, frequentemente com regras ad-hoc e bugosas). A pergunta natural: existe uma classe de tipos de dados onde a reconciliação seja <strong>automática, determinística e provadamente correta</strong>, sem nunca perder atualizações nem exigir consenso?</p>
+<p>A resposta é sim, sob condições matemáticas específicas, e o conceito foi formalizado por <strong>Marc Shapiro</strong>, <strong>Nuno Preguiça</strong>, <strong>Carlos Baquero</strong> e <strong>Marek Zawirski</strong> em <strong>2011</strong>, no relatório técnico do Inria <em>A Comprehensive Study of Convergent and Commutative Replicated Data Types</em> (RR-7506) e no paper <em>Conflict-Free Replicated Data Types</em> (SSS 2011). Eles uniram duas linhas de pesquisa anteriores — tipos <em>convergentes</em> (state-based, baseados em merge de estado) e <em>comutativos</em> (operation-based, baseados em operações que comutam) — sob o nome CRDT e provaram as condições suficientes para <strong>strong eventual consistency</strong>.</p>
+<p>A motivação histórica vem de dois mundos: <strong>edição colaborativa</strong> (o problema de múltiplos usuários editando o mesmo documento, atacado antes por <em>Operational Transformation</em> — a técnica do Google Docs, notoriamente difícil de implementar corretamente) e <strong>computação móvel/desconectada</strong> (réplicas que operam offline e sincronizam depois, como no sistema Bayou). CRDTs ofereceram uma fundação mais simples e composável que OT para esses problemas.</p>
+<p>O resultado teórico central que CRDTs exploram: se o estado das réplicas forma um <strong>join-semilattice</strong> (conjunto parcialmente ordenado onde todo par tem um supremo / <em>least upper bound</em>) e as atualizações são funções monotônicas que só "sobem" no reticulado, então o merge (= join) é comutativo, associativo e idempotente — e a convergência é garantida independentemente de ordem, duplicação ou reentrega. É a tradução de <strong>eventual consistency</strong> (uma garantia fraca de liveness) para <strong>strong eventual consistency</strong> (uma garantia forte: mesmo conjunto de updates ⟹ mesmo estado, sempre).</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<p><strong>Strong Eventual Consistency (SEC).</strong> A garantia que CRDTs oferecem: (1) <em>eventual delivery</em> — toda atualização chega a todas as réplicas; (2) <em>convergence</em> — réplicas que entregaram o mesmo conjunto de atualizações têm estado equivalente; (3) <em>termination</em> — todas as execuções de merge terminam. Diferente da eventual consistency comum, SEC <strong>não</strong> precisa de resolução de conflito nem de consenso: a convergência é uma propriedade matemática do tipo de dado.</p>
+<p><strong>Duas famílias.</strong></p>
+<ul>
+<li>
+<p><strong>State-based (Convergent RDT, CvRDT).</strong> Cada réplica mantém um estado completo. Periodicamente, uma réplica envia seu estado inteiro a outra, que faz <code>merge(estado_local, estado_recebido)</code>. Para correção, o estado precisa formar um <strong>join-semilattice</strong> e a função merge precisa ser o <strong>join (LUB)</strong>: comutativa (<code>m(a,b)=m(b,a)</code>), associativa (<code>m(m(a,b),c)=m(a,m(b,c))</code>) e idempotente (<code>m(a,a)=a</code>). As atualizações locais devem ser <strong>monotônicas</strong> (nunca "descem" no reticulado). Vantagem: tolera qualquer canal de comunicação (perda, duplicação, reordenação) porque merge é idempotente/comutativo. Desvantagem: propagar o estado inteiro pode ser caro (mitigado por <strong>delta-CRDTs</strong>, que enviam só o "delta" do estado).</p>
+</li>
+<li>
+<p><strong>Operation-based (Commutative RDT, CmRDT).</strong> Réplicas propagam <strong>operações</strong> (não o estado). Cada operação é aplicada localmente e difundida; outras réplicas aplicam a operação ao receber. Para correção, as operações concorrentes precisam <strong>comutar</strong> (a ordem de aplicação não muda o resultado), e o canal precisa garantir <strong>entrega exatamente uma vez, em ordem causal</strong> (ou as operações precisam ser idempotentes). Vantagem: mensagens pequenas (só a operação). Desvantagem: exige garantias mais fortes do middleware de entrega (causal broadcast, sem duplicação). State-based e op-based são <strong>equivalentes em poder expressivo</strong> — qualquer CRDT pode ser expresso nas duas formas.</p>
+</li>
+</ul>
+<p><strong>Tipos canônicos.</strong></p>
+<ul>
+<li><strong>G-Counter (grow-only counter).</strong> Vetor com um contador por réplica; incremento mexe só na própria posição; merge faz <code>max</code> posição a posição; valor = soma. Só cresce.</li>
+<li><strong>PN-Counter (positive-negative).</strong> Dois G-Counters (P para incrementos, N para decrementos); valor = soma(P) − soma(N). Permite decrementar.</li>
+<li><strong>G-Set (grow-only set).</strong> Conjunto que só admite <code>add</code>; merge = união. Idempotente e comutativo trivialmente.</li>
+<li><strong>2P-Set (two-phase set).</strong> Um G-Set de adicionados e um de removidos (tombstones); um elemento removido <strong>nunca</strong> pode ser readicionado. Simples, mas limitado.</li>
+<li><strong>LWW-Element-Set.</strong> Cada elemento carrega timestamp de add e de remove; o mais recente vence. Sofre dos problemas de LWW (clock skew).</li>
+<li><strong>OR-Set (Observed-Remove Set).</strong> O conjunto "certo" para a maioria dos casos: cada <code>add</code> gera uma <em>tag</em> única; <code>remove</code> só apaga as tags <em>observadas</em> no momento. Resolve o dilema add-vs-remove concorrente com a semântica intuitiva "add vence sobre remove concorrente" — readicionar funciona, e itens não "reaparecem" indevidamente. É a base de carrinhos e listas colaborativas modernas.</li>
+<li><strong>LWW-Register / MV-Register (multi-value).</strong> Registrador de valor único: LWW escolhe por timestamp; MV mantém todos os valores concorrentes (siblings) para a aplicação resolver.</li>
+<li><strong>Sequências/Texto</strong>: <strong>RGA</strong> (Replicated Growable Array), <strong>Logoot</strong>, <strong>Treedoc</strong>, <strong>YATA</strong> (base do Yjs) — para inserções/remoções concorrentes em texto/listas, o problema mais difícil, base de editores colaborativos.</li>
+</ul>
+<p><strong>A propriedade que tudo unifica</strong>: comutatividade + associatividade + idempotência do merge garantem que, dado o mesmo conjunto de atualizações, qualquer ordem de aplicação leva ao mesmo estado. Isso é por que CRDTs dispensam coordenação: não há "conflito" a resolver porque o merge é determinístico por construção. "Conflict-free" não significa "sem escritas concorrentes" — significa "a reconciliação de escritas concorrentes é livre de ambiguidade".</p>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p><strong>G-Counter, passo a passo.</strong> Três réplicas A, B, C, cada uma com vetor <code>[A,B,C]</code> inicial <code>[0,0,0]</code>.</p>
+<ul>
+<li>A incrementa 2x: <code>[2,0,0]</code>. B incrementa 1x: <code>[0,1,0]</code>. C incrementa 3x: <code>[0,0,3]</code>.</li>
+<li>A e B sincronizam: <code>merge = [max(2,0), max(0,1), max(0,0)] = [2,1,0]</code>. Valor = 3.</li>
+<li>Depois todos sincronizam: <code>[2,1,3]</code>. Valor = 6.</li>
+</ul>
+<p>A ordem dos merges não importa, e re-enviar um estado já visto não muda nada (idempotência do <code>max</code>). Mesmo que A receba o estado de B duas vezes, o <code>max</code> absorve a duplicata. Esse é o motivo de CRDTs serem robustos a at-least-once delivery e reordenação — eles <strong>transformam o problema de idempotência em propriedade do tipo de dado</strong>.</p>
+<p><strong>OR-Set, o caso interessante — add vs remove concorrente.</strong> Suponha o conjunto <code>{X}</code>.</p>
+<ul>
+<li>Réplica A faz <code>remove(X)</code>: apaga a tag de X que A observou, digamos <code>X:tag1</code>.</li>
+<li>Concorrentemente, réplica B faz <code>add(X)</code> de novo: cria nova tag <code>X:tag2</code>.</li>
+<li>No merge: A removeu <code>tag1</code>, mas <code>tag2</code> (a adição concorrente de B) <strong>não foi observada</strong> por A no momento do remove. Logo <code>tag2</code> sobrevive → X permanece no conjunto.</li>
+<li>Semântica resultante: <strong>add concorrente vence sobre remove</strong>. Intuitivo e sem "ressurreição" espúria de elementos genuinamente removidos.</li>
+</ul>
+<p>Compare com o 2P-Set, onde X removido nunca volta (readicionar é impossível) — semântica frequentemente errada para o usuário. O OR-Set acerta ao custo de manter tags (metadados), que precisam de poda eventual.</p>
+<p><strong>A condição matemática, concretamente.</strong> Para um state-based CRDT ser correto, o conjunto de estados possíveis com a relação de ordem precisa ser um <strong>join-semilattice</strong>, e:</p>
+<ul>
+<li><code>merge(a, b) = merge(b, a)</code> — comutatividade (ordem de chegada irrelevante).</li>
+<li><code>merge(merge(a,b), c) = merge(a, merge(b,c))</code> — associatividade (agrupamento irrelevante).</li>
+<li><code>merge(a, a) = a</code> — idempotência (duplicatas irrelevantes).</li>
+<li>Atualizações locais são monotônicas: o novo estado domina o anterior (<code>a ≤ update(a)</code>).</li>
+</ul>
+<p>Se essas valem, o estado de cada réplica é o <em>join</em> de todas as atualizações que ela viu, e duas réplicas que viram o mesmo conjunto têm o mesmo join → convergem. Não precisa de relógio confiável, consenso ou ordem de mensagens. <strong>Delta-state CRDTs</strong> (Almeida, Shapiro et al.) otimizam o state-based propagando apenas as mudanças incrementais (deltas), mantendo as mesmas garantias com muito menos tráfego.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>State-based CRDT: réplicas evoluindo independentemente e convergindo por merge (PN-Counter / G-Counter):</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant A as Réplica A [0,0,0]
+    participant B as Réplica B [0,0,0]
+    participant C as Réplica C [0,0,0]
+
+    Note over A: inc, inc → [2,0,0]
+    Note over B: inc → [0,1,0]
+    Note over C: inc, inc, inc → [0,0,3]
+    A-&gt;&gt;B: envia estado [2,0,0]
+    Note over B: merge(max) → [2,1,0]
+    C-&gt;&gt;B: envia estado [0,0,3]
+    Note over B: merge(max) → [2,1,3]  valor=6
+    B-&gt;&gt;A: envia estado [2,1,3]
+    Note over A: merge(max) → [2,1,3]  valor=6
+    Note over A,C: ordem/duplicação não importam → convergência garantida (SEC)</code></pre>
+<p>Decisão: qual tipo/família de CRDT usar:</p>
+<pre class="mermaid"><code>flowchart TD
+    Start{Que estrutura&lt;br/&gt;preciso replicar?}
+    Start --&gt;|contador| Ctr{Só incrementa?}
+    Ctr --&gt;|Sim| GC[G-Counter]
+    Ctr --&gt;|Inc e dec| PN[PN-Counter]
+    Start --&gt;|conjunto| Set{Preciso remover&lt;br/&gt;e readicionar?}
+    Set --&gt;|Não, só add| GS[G-Set]
+    Set --&gt;|Remove definitivo| TP[2P-Set]
+    Set --&gt;|Add e remove&lt;br/&gt;com readd correto| OR[OR-Set]
+    Start --&gt;|valor único| Reg{Resolver concorrência&lt;br/&gt;por timestamp?}
+    Reg --&gt;|Sim| LWW[LWW-Register]
+    Reg --&gt;|Manter siblings| MV[MV-Register]
+    Start --&gt;|texto / sequência| Seq[RGA / Logoot / YATA&lt;br/&gt;editores colaborativos]
+
+    GC -.canal não-confiável OK.-&gt; Fam[State-based: merge idempotente]
+    OR -.metadados/tombstones&lt;br/&gt;precisam poda.-&gt; Cost[Cuidado com crescimento]</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p><strong>Cenário 1: contador de curtidas/visualizações distribuído numa rede social brasileira.</strong></p>
+<p>Curtidas chegam de múltiplas regiões concorrentemente, em altíssimo volume. Coordenar cada incremento via consenso seria suicídio de latência e throughput. Solução: um <strong>PN-Counter</strong> (ou G-Counter, se só incrementa). Cada região incrementa localmente (latência sub-ms, disponível mesmo sob partição) e os estados são mesclados em background por <code>max</code> posição a posição. O total converge para a soma correta deterministicamente, sem perder nenhum incremento e sem coordenação. É o uso clássico de CRDT para contadores em escala.</p>
+<p><strong>Cenário 2: carrinho de compras replicado (a evolução do caso Dynamo).</strong></p>
+<p>No paper do Dynamo, o carrinho usava vector clocks + merge por união, com o efeito colateral de itens deletados "ressuscitarem". Modelando o carrinho como um <strong>OR-Set</strong>, esse bug some: <code>add(item)</code> e <code>remove(item)</code> concorrentes resolvem com semântica correta (add concorrente vence, mas um remove genuíno de um item já observado persiste). O cliente adiciona itens em duas réplicas particionadas; ao sincronizar, o OR-Set converge para a união correta, e remoções funcionam sem ressurreição. Disponibilidade total (PA/EL) + convergência garantida, sem lógica de reconciliação ad-hoc na aplicação.</p>
+<p><strong>Cenário 3: edição colaborativa em tempo real (estilo Google Docs / Figma / Notion).</strong></p>
+<p>Múltiplos usuários editam o mesmo documento simultaneamente, possivelmente offline. CRDTs de sequência (<strong>RGA</strong>/<strong>YATA</strong>) permitem que cada cliente insira/remova caracteres localmente (resposta instantânea, funciona offline) e sincronize quando reconectar, convergindo todos para o mesmo texto sem perder edições nem precisar de servidor coordenador autoritativo. Bibliotecas reais: <strong>Yjs</strong> (YATA) e <strong>Automerge</strong> — ambas amplamente usadas em apps colaborativos e local-first. É a alternativa moderna ao Operational Transformation, mais simples de implementar corretamente.</p>
+<p>Esboço de OR-Set (pseudocódigo leve):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a># add: cria tag única e a associa ao elemento
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>def add(elem):
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    tag = (replica_id, contador_local())
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    adds.insere((elem, tag))
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a># remove: marca como removidas apenas as tags JÁ observadas
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>def remove(elem):
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    tags_observadas = { t for (e, t) in adds if e == elem }
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    removes |= tags_observadas
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a># valor: elemento presente se tem alguma tag adicionada e não removida
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>def valor():
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    return { e for (e, t) in adds if t not in removes }
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a># merge: união dos adds e dos removes (comutativo, associativo, idempotente)
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>def merge(outro):
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    adds |= outro.adds
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    removes |= outro.removes
+</code></pre></div>
+<p>Sistemas reais: <strong>Redis</strong> (tipo <code>CRDT</code> no Redis Enterprise / Active-Active geo-replicação baseada em CRDTs), <strong>Riak</strong> (Riak DT: counters, sets, maps, registers CRDT-based), <strong>Azure Cosmos DB</strong> (replicação multi-region com merge automático), <strong>Yjs</strong> e <strong>Automerge</strong> (edição colaborativa local-first), <strong>Figma</strong> e <strong>Linear</strong> (modelos colaborativos inspirados em CRDT), <strong>SoundCloud Roshi</strong> (LWW-element-set CRDT para timelines).</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Use CRDTs quando:</strong></p>
+<ul>
+<li>Você precisa de <strong>alta disponibilidade e baixa latência com escrita multi-master</strong> (AP/EL) e quer convergência <strong>garantida</strong> sem coordenação — contadores, conjuntos, presença online, flags, carrinhos.</li>
+<li>O cenário é <strong>offline-first / local-first</strong>: apps que funcionam desconectados e sincronizam depois (mobile, edge, colaboração).</li>
+<li><strong>Edição colaborativa em tempo real</strong> de texto/listas/estruturas.</li>
+<li>A semântica de merge do domínio pode ser expressa como uma operação comutativa/associativa/idempotente (a maioria dos casos "naturais" pode).</li>
+</ul>
+<p><strong>Evite CRDTs quando:</strong></p>
+<ul>
+<li>O domínio exige <strong>invariantes globais</strong> que CRDTs não conseguem manter sem coordenação — ex.: "saldo nunca negativo", "estoque nunca abaixo de zero", unicidade global. CRDTs garantem convergência, <strong>não</strong> invariantes que dependem do estado agregado de todas as réplicas. Para isso você precisa de consenso (CP) ou reservas/bounded counters com escopo coordenado.</li>
+<li>A semântica de conflito do domínio <strong>não</strong> é comutativa/associativa (ordem importa de fato) — forçar um CRDT distorce o significado.</li>
+<li>O custo de metadados (tombstones, tags, version vectors) é proibitivo e você não tem estratégia de poda viável.</li>
+</ul>
+<p><strong>Regra prática</strong>: CRDTs são para <strong>convergência sem coordenação</strong>; consenso é para <strong>invariantes com coordenação</strong>. Escolha pelo que o domínio exige.</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Esperar que CRDTs mantenham invariantes globais.</strong> Um PN-Counter pode ir abaixo de zero se duas réplicas decrementam concorrentemente além do saldo — CRDTs convergem, mas não impõem "saldo ≥ 0". Invariantes globais exigem coordenação (consenso ou bounded counters como o trabalho de Balegas et al.).</li>
+<li><strong>Usar LWW-Register/LWW-Set onde dados importam.</strong> LWW herda todos os problemas do last-write-wins: clock skew torna a "última" arbitrária e descarta escritas concorrentes silenciosamente. Prefira OR-Set/MV-Register quando perder dados é inaceitável.</li>
+<li><strong>2P-Set quando o usuário espera readicionar.</strong> Um item removido nunca pode voltar — quase sempre semântica errada. Use OR-Set.</li>
+<li><strong>Ignorar o crescimento de metadados.</strong> Tombstones e tags acumulam indefinidamente sem poda; o estado incha e merges ficam caros. Planeje <em>garbage collection</em> causal (com cuidado para não reintroduzir bugs).</li>
+<li><strong>Op-based CRDT sobre canal que não garante o exigido.</strong> Operation-based assume entrega causal e sem duplicação (ou operações idempotentes); rodar sobre um canal at-least-once sem essas garantias quebra a convergência. State-based é mais tolerante.</li>
+<li><strong>Reinventar OT/CRDT de sequência do zero.</strong> Editores colaborativos corretos são notoriamente difíceis; use Yjs/Automerge em vez de implementar RGA na mão.</li>
+<li><strong>Achar que CRDT = sem conflito de negócio.</strong> "Conflict-free" é sobre a <em>reconciliação técnica</em> ser determinística. Conflitos de <em>intenção</em> (dois usuários querem coisas incompatíveis) ainda existem e podem exigir UX de resolução.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Modelos de consistência</strong>: CRDTs entregam <strong>strong eventual consistency</strong>, a versão "forte" da eventual consistency — convergência determinística e garantida, sem resolução de conflito. Ver <code>02-modelos-de-consistencia.md</code>.</li>
+<li><strong>Teorema CAP / PACELC</strong>: CRDTs são a materialização mais elegante do lado <strong>AP/EL</strong> — disponibilidade total e baixa latência, com a convergência que o eventual consistency comum não garante de forma determinística. Ver <code>01-teorema-cap-e-pacelc.md</code>.</li>
+<li><strong>Vector clocks / version vectors</strong>: muitos CRDTs (OR-Set, delta-CRDTs) usam <em>dots</em> e version vectors internamente para rastrear causalidade das operações; CRDTs vão além ao prover a reconciliação automática que vector clocks apenas habilitam (detectando conflito). Ver <code>05-vector-clocks-e-lamport-timestamps.md</code>.</li>
+<li><strong>Idempotência e semânticas de entrega</strong>: CRDTs são idempotência elevada à propriedade do tipo de dado — merges idempotentes/comutativos tornam at-least-once delivery seguro sem dedup explícito. Ver <code>04-idempotencia-e-semanticas-de-entrega.md</code>.</li>
+<li><strong>Consenso distribuído</strong>: CRDTs e consenso são complementares e opostos no eixo coordenação — CRDTs evitam coordenação (convergência); consenso impõe coordenação (invariantes/ordem total). Sistemas reais combinam ambos por subsistema. Ver <code>03-consenso-distribuido-paxos-raft-2pc-3pc.md</code>.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://crdt.tech/">Conflict-free Replicated Data Types — crdt.tech (portal de referência)</a></li>
+<li><a href="https://crdt.tech/papers.html">CRDT Papers — crdt.tech</a></li>
+<li><a href="https://inria.hal.science/inria-00555588/en/">A Comprehensive Study of Convergent and Commutative Replicated Data Types — Shapiro, Preguiça, Baquero, Zawirski (Inria RR-7506)</a></li>
+<li><a href="https://arxiv.org/abs/1805.06358">Conflict-free Replicated Data Types (CRDTs) — Preguiça et al. (arXiv 1805.06358)</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type">Conflict-free replicated data type — Wikipedia</a></li>
+<li><a href="https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf">Dynamo: Amazon's Highly Available Key-value Store (SOSP 2007, PDF) — origem do problema de reconciliação</a></li>
+<li><a href="https://jepsen.io/consistency">Consistency models reference — Jepsen (strong eventual consistency)</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../05-vector-clocks-e-lamport-timestamps/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Vector Clocks e Lamport Timestamps">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Vector Clocks e Lamport Timestamps
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../07-service-discovery-e-load-balancing/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Service Discovery e Load Balancing">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Service Discovery e Load Balancing
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

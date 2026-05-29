@@ -28,11 +28,12 @@ theme:
         icon: material/weather-sunny
         name: Mudar para modo claro
   features:
-    - navigation.tabs
-    - navigation.sections
+    # Navegação na barra lateral esquerda, com os 10 blocos recolhíveis
+    # (sem abas horizontais no topo, que causavam scroll lateral).
     - navigation.top
     - navigation.indexes
     - navigation.footer
+    - navigation.prune
     - toc.follow
     - search.suggest
     - search.highlight

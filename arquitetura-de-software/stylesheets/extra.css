@@ -1,0 +1,27 @@
+/* ===========================================================================
+   Ajustes visuais do site de estudo
+   =========================================================================== */
+
+/* --- Largura do conteúdo ---------------------------------------------------
+   O Material limita o conteúdo a ~61rem por padrão. Um pouco mais de largura
+   dá mais espaço aos diagramas e tabelas, sem prejudicar muito a leitura. */
+.md-grid {
+  max-width: 1280px;
+}
+
+/* --- Diagramas Mermaid -----------------------------------------------------
+   Faz cada diagrama ocupar toda a largura disponível da coluna de conteúdo.
+   Como Mermaid gera SVG (vetorial), ele escala sem perder nitidez. Se um
+   diagrama ainda for mais largo que a coluna, aparece rolagem horizontal
+   apenas no bloco do diagrama (não na página inteira). */
+.md-typeset .mermaid {
+  margin: 1.5em auto;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.md-typeset .mermaid > svg {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+}

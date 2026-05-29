@@ -40,6 +40,9 @@ theme:
     - content.code.copy
     - content.tooltips
 
+extra_css:
+  - stylesheets/extra.css
+
 plugins:
   - search:
       lang: pt

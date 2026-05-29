@@ -1,6 +1,7 @@
 site_name: Arquitetura de Software — Estudo
 site_description: Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.
 site_author: Flavio Miranda
+site_url: https://vinniimiranda.github.io/studies/
 
 # O conteúdo de estudo vive nesta pasta (não em ./docs).
 docs_dir: arquitetura-de-software

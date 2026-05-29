@@ -1,0 +1,41 @@
+name: Publicar site MkDocs
+
+# Roda a cada push na branch principal.
+on:
+  push:
+    branches:
+      - main
+  # Permite disparar manualmente pela aba Actions do GitHub.
+  workflow_dispatch:
+
+# Permissão necessária para o gh-deploy escrever na branch gh-pages.
+permissions:
+  contents: write
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Actions oficiais do GitHub (org "actions", confiável).
+      # Dica de segurança: para hardening, troque as tags vX pelo SHA do commit.
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache de dependências pip
+        uses: actions/cache@v4
+        with:
+          key: mkdocs-${{ hashFiles('requirements.txt') }}
+          path: ~/.cache/pip
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Build e deploy para a branch gh-pages
+        run: mkdocs gh-deploy --force --clean

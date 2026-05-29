@@ -1,0 +1,18 @@
+# Build do MkDocs
+/site/
+
+# Ambientes virtuais Python
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Artefatos de sistema operacional
+.DS_Store
+Thumbs.db
+
+# Editores
+.idea/
+.vscode/
+*.swp

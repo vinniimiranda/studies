@@ -1,0 +1,151 @@
+site_name: Arquitetura de Software — Estudo
+site_description: Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.
+site_author: Flavio Miranda
+
+# O conteúdo de estudo vive nesta pasta (não em ./docs).
+docs_dir: arquitetura-de-software
+
+# Build output (ignorado pelo git).
+site_dir: site
+
+theme:
+  name: material
+  language: pt-BR
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Mudar para modo escuro
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Mudar para modo claro
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tooltips
+
+plugins:
+  - search:
+      lang: pt
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+nav:
+  - Início: README.md
+  - Bibliografia: BIBLIOGRAFIA.md
+  - 01 · Fundamentos:
+      - Atributos de qualidade: 01-fundamentos-arquiteturais/01-atributos-de-qualidade.md
+      - Architecture Decision Records (ADRs): 01-fundamentos-arquiteturais/02-architecture-decision-records-adr.md
+      - Fitness Functions: 01-fundamentos-arquiteturais/03-fitness-functions.md
+      - Conway's Law e Inverse Conway: 01-fundamentos-arquiteturais/04-conway-law-e-inverse-conway-maneuver.md
+      - C4 Model: 01-fundamentos-arquiteturais/05-c4-model.md
+  - 02 · Estilos e padrões:
+      - Layered / N-Tier: 02-estilos-e-padroes/01-layered-n-tier-architecture.md
+      - Hexagonal (Ports & Adapters): 02-estilos-e-padroes/02-hexagonal-ports-and-adapters.md
+      - Clean Architecture: 02-estilos-e-padroes/03-clean-architecture.md
+      - Onion Architecture: 02-estilos-e-padroes/04-onion-architecture.md
+      - Vertical Slice Architecture: 02-estilos-e-padroes/05-vertical-slice-architecture.md
+      - Modular Monolith: 02-estilos-e-padroes/06-modular-monolith.md
+      - Microservices: 02-estilos-e-padroes/07-microservices.md
+      - SOA: 02-estilos-e-padroes/08-service-oriented-architecture-soa.md
+      - Event-Driven Architecture (EDA): 02-estilos-e-padroes/09-event-driven-architecture-eda.md
+      - Space-Based Architecture: 02-estilos-e-padroes/10-space-based-architecture.md
+      - Pipes and Filters: 02-estilos-e-padroes/11-pipes-and-filters.md
+      - Serverless / FaaS: 02-estilos-e-padroes/12-serverless-faas.md
+  - 03 · Design tático (DDD):
+      - Bounded Contexts, Context Mapping, Ubiquitous Language: 03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language.md
+      - Aggregates, Entities, Value Objects, Domain Events: 03-design-tatico-ddd/02-ddd-aggregates-entities-value-objects-domain-events.md
+      - Context Mapping (ACL, Shared Kernel, Customer-Supplier): 03-design-tatico-ddd/03-ddd-context-mapping-patterns-acl-shared-kernel-customer-supplier.md
+      - CQRS: 03-design-tatico-ddd/04-cqrs.md
+      - Event Sourcing: 03-design-tatico-ddd/05-event-sourcing.md
+      - Saga Pattern: 03-design-tatico-ddd/06-saga-pattern.md
+      - Outbox e Inbox Pattern: 03-design-tatico-ddd/07-outbox-e-inbox-pattern.md
+  - 04 · Sistemas distribuídos:
+      - Teorema CAP e PACELC: 04-sistemas-distribuidos/01-teorema-cap-e-pacelc.md
+      - Modelos de consistência: 04-sistemas-distribuidos/02-modelos-de-consistencia.md
+      - Consenso distribuído (Paxos, Raft, 2PC, 3PC): 04-sistemas-distribuidos/03-consenso-distribuido-paxos-raft-2pc-3pc.md
+      - Idempotência e semânticas de entrega: 04-sistemas-distribuidos/04-idempotencia-e-semanticas-de-entrega.md
+      - Vector Clocks e Lamport Timestamps: 04-sistemas-distribuidos/05-vector-clocks-e-lamport-timestamps.md
+      - CRDTs: 04-sistemas-distribuidos/06-crdts.md
+      - Service Discovery e Load Balancing: 04-sistemas-distribuidos/07-service-discovery-e-load-balancing.md
+      - API Gateway vs BFF: 04-sistemas-distribuidos/08-api-gateway-vs-bff.md
+      - Service Mesh (sidecar): 04-sistemas-distribuidos/09-service-mesh-sidecar.md
+      - Padrões de resiliência: 04-sistemas-distribuidos/10-padroes-de-resiliencia.md
+      - Leader Election, Sharding, Consistent Hashing: 04-sistemas-distribuidos/11-leader-election-sharding-consistent-hashing.md
+  - 05 · Dados e persistência:
+      - Polyglot Persistence: 05-dados-e-persistencia/01-polyglot-persistence.md
+      - Database per Service: 05-dados-e-persistencia/02-database-per-service.md
+      - Read Replicas, Sharding, Particionamento: 05-dados-e-persistencia/03-read-replicas-sharding-particionamento.md
+      - Materialized Views e projeções: 05-dados-e-persistencia/04-materialized-views-e-projecoes.md
+      - CDC com Debezium: 05-dados-e-persistencia/05-cdc-change-data-capture-debezium.md
+      - Data Lake, Warehouse, Mesh, Lakehouse: 05-dados-e-persistencia/06-data-lake-warehouse-mesh-lakehouse.md
+      - OLTP vs OLAP (Lambda, Kappa): 05-dados-e-persistencia/07-oltp-vs-olap-lambda-kappa.md
+      - Cache patterns: 05-dados-e-persistencia/08-cache-patterns.md
+      - ACID vs BASE: 05-dados-e-persistencia/09-acid-vs-base.md
+  - 06 · Mensageria e streaming:
+      - Brokers vs log-based streaming: 06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming.md
+      - Pub/Sub, Queue, Topic, Partition, Consumer Groups: 06-mensageria-e-streaming/02-pubsub-queue-topic-partition-consumer-groups.md
+      - Backpressure: 06-mensageria-e-streaming/03-backpressure.md
+      - Dead Letter Queue e Poison Messages: 06-mensageria-e-streaming/04-dead-letter-queue-e-poison-messages.md
+      - Stream Processing (Kafka Streams, Flink, janelas): 06-mensageria-e-streaming/05-stream-processing-kafka-streams-flink-janelas.md
+      - Event-carried State Transfer vs Event Notification: 06-mensageria-e-streaming/06-event-carried-state-transfer-vs-event-notification.md
+  - 07 · Performance e escalabilidade:
+      - Escalabilidade horizontal vs vertical: 07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical.md
+      - Latência vs Throughput (percentis): 07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis.md
+      - USE, RED, Four Golden Signals: 07-performance-e-escalabilidade/03-use-red-four-golden-signals.md
+      - Caching em múltiplas camadas: 07-performance-e-escalabilidade/04-caching-em-multiplas-camadas.md
+      - Connection/thread pooling, async I/O, reactive: 07-performance-e-escalabilidade/05-connection-pooling-thread-pooling-async-io-reactive.md
+      - Leis de Little, Amdahl e USL: 07-performance-e-escalabilidade/06-leis-little-amdahl-universal-scalability-law.md
+  - 08 · Segurança arquitetural:
+      - Zero Trust Architecture: 08-seguranca-arquitetural/01-zero-trust-architecture.md
+      - OAuth 2.0, OIDC, SAML, JWT: 08-seguranca-arquitetural/02-oauth2-oidc-saml-jwt.md
+      - mTLS entre serviços: 08-seguranca-arquitetural/03-mtls-entre-servicos.md
+      - Defense in Depth, Least Privilege, Secure by Default: 08-seguranca-arquitetural/04-defense-in-depth-least-privilege-secure-by-default.md
+      - Secrets Management (Vault, KMS): 08-seguranca-arquitetural/05-secrets-management-vault-kms.md
+      - Threat Modeling (STRIDE, PASTA): 08-seguranca-arquitetural/06-threat-modeling-stride-pasta.md
+  - 09 · Observabilidade:
+      - Três pilares (+ eventos): 09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos.md
+      - Distributed Tracing (OpenTelemetry, Jaeger, Zipkin): 09-observabilidade/02-distributed-tracing-opentelemetry-jaeger-zipkin.md
+      - Correlation IDs e propagação de contexto: 09-observabilidade/03-correlation-ids-e-propagacao-de-contexto.md
+      - SLI, SLO, SLA e Error Budgets: 09-observabilidade/04-sli-slo-sla-error-budgets.md
+  - 10 · Evolução e práticas:
+      - Strangler Fig Pattern: 10-evolucao-e-praticas/01-strangler-fig-pattern.md
+      - Branch by Abstraction, Parallel Run, Feature Toggles: 10-evolucao-e-praticas/02-branch-by-abstraction-parallel-run-feature-toggles.md
+      - Anti-Corruption Layer em migrações: 10-evolucao-e-praticas/03-anti-corruption-layer-em-migracoes.md
+      - Trunk-Based Development: 10-evolucao-e-praticas/04-trunk-based-development.md
+      - GitOps, IaC, Immutable Infrastructure: 10-evolucao-e-praticas/05-gitops-iac-immutable-infrastructure.md
+      - Platform Engineering e IDPs: 10-evolucao-e-praticas/06-platform-engineering-e-idps.md

@@ -1,8 +1,10 @@
 # Arquitetura de Software — Estudo de Conceitos Intermediários e Avançados
 
-Material de estudo aprofundado, em português, cobrindo **72 conceitos** de arquitetura de software organizados em 10 blocos temáticos. Cada conceito tem seu próprio arquivo com: definição aprofundada, mecânica de funcionamento, **diagrama de fluxo (Mermaid)**, exemplo prático em cenário brasileiro (e-commerce/marketplace/fintech), trade-offs de quando usar e evitar, anti-padrões e **referências reais** (blogs, papers, docs oficiais e livros).
+Material de estudo aprofundado, em português, cobrindo **137 conceitos** de arquitetura de software e fundamentos de ciência da computação, organizados em 17 blocos temáticos. Cada conceito tem seu próprio arquivo com: definição aprofundada, mecânica de funcionamento, **diagrama de fluxo (Mermaid)**, exemplo prático em cenário brasileiro (e-commerce/marketplace/fintech), trade-offs de quando usar e evitar, anti-padrões e **referências reais** (blogs, papers, docs oficiais e livros).
 
-> Público-alvo: dev sênior em transição para arquiteto. Nível: intermediário/avançado.
+O material tem duas partes complementares: **Parte I — Arquitetura (blocos 01–10)**, voltada ao papel de arquiteto; e **Parte II — Fundamentos de CS e entrevistas (blocos 11–17)**, cobrindo complexidade, estruturas de dados, algoritmos, concorrência, banco de dados a fundo, redes e System Design.
+
+> Público-alvo: dev sênior em transição para arquiteto e preparação para entrevistas de senioridade. Nível: intermediário/avançado.
 
 ---
 
@@ -198,6 +200,8 @@ O coração teórico. Não pule — sustenta tudo de mensageria e dados.
 - [Service Mesh (sidecar)](04-sistemas-distribuidos/09-service-mesh-sidecar.md)
 - [Padrões de resiliência](04-sistemas-distribuidos/10-padroes-de-resiliencia.md)
 - [Leader Election, Sharding, Consistent Hashing](04-sistemas-distribuidos/11-leader-election-sharding-consistent-hashing.md)
+- [Quórum reads/writes (N, R, W)](04-sistemas-distribuidos/12-quorum-reads-writes-n-r-w.md)
+- [Relógios físicos: clock skew, NTP, TrueTime](04-sistemas-distribuidos/13-relogios-fisicos-clock-skew-ntp-truetime.md)
 
 ### 05 — Dados e persistência
 
@@ -253,6 +257,90 @@ O coração teórico. Não pule — sustenta tudo de mensageria e dados.
 - [Trunk-Based Development](10-evolucao-e-praticas/04-trunk-based-development.md)
 - [GitOps, IaC, Immutable Infrastructure](10-evolucao-e-praticas/05-gitops-iac-immutable-infrastructure.md)
 - [Platform Engineering e Internal Developer Platforms](10-evolucao-e-praticas/06-platform-engineering-e-idps.md)
+
+### 11 — Complexidade e análise algorítmica
+
+- [Notação assintótica (Big O, Θ, Ω)](11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega.md)
+- [Pior, melhor e caso médio](11-complexidade-algoritmica/02-pior-melhor-e-caso-medio.md)
+- [Complexidade amortizada](11-complexidade-algoritmica/03-complexidade-amortizada.md)
+- [Time vs space complexity e trade-offs](11-complexidade-algoritmica/04-time-vs-space-complexity-tradeoffs.md)
+- [Análise de recursão: árvore e Master Theorem](11-complexidade-algoritmica/05-analise-de-recursao-arvore-e-master-theorem.md)
+
+### 12 — Estruturas de dados
+
+- [Arrays e Linked Lists](12-estruturas-de-dados/01-arrays-e-linked-lists.md)
+- [Stacks, Queues, Deque, Priority Queue](12-estruturas-de-dados/02-stacks-queues-deque-priority-queue.md)
+- [Hash Tables](12-estruturas-de-dados/03-hash-tables.md)
+- [Árvores de busca: BST, AVL, Red-Black](12-estruturas-de-dados/04-arvores-de-busca-bst-avl-red-black.md)
+- [B-Tree e B+Tree](12-estruturas-de-dados/05-b-tree-e-b-plus-tree.md)
+- [Heaps](12-estruturas-de-dados/06-heaps.md)
+- [Tries](12-estruturas-de-dados/07-tries.md)
+- [Graphs (representação)](12-estruturas-de-dados/08-graphs-representacao.md)
+- [Skip List, Bloom Filter, LRU/LFU](12-estruturas-de-dados/09-skip-list-bloom-filter-lru-lfu.md)
+- [Union-Find (Disjoint Set)](12-estruturas-de-dados/10-union-find-disjoint-set.md)
+- [Segment Tree e Fenwick Tree](12-estruturas-de-dados/11-segment-tree-e-fenwick-tree.md)
+
+### 13 — Algoritmos essenciais
+
+- [Sorting (quicksort, mergesort, heapsort, radix, counting)](13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting.md)
+- [Searching: busca binária e variações](13-algoritmos-essenciais/02-searching-busca-binaria-e-variacoes.md)
+- [Two Pointers, Sliding Window, Fast & Slow](13-algoritmos-essenciais/03-two-pointers-sliding-window-fast-slow.md)
+- [Recursão e Backtracking](13-algoritmos-essenciais/04-recursao-e-backtracking.md)
+- [Divide and Conquer](13-algoritmos-essenciais/05-divide-and-conquer.md)
+- [Greedy Algorithms](13-algoritmos-essenciais/06-greedy-algorithms.md)
+- [Dynamic Programming](13-algoritmos-essenciais/07-dynamic-programming.md)
+- [Graph Algorithms (BFS, DFS, Dijkstra, Bellman-Ford, Floyd-Warshall, A*, topological sort, Kruskal, Prim)](13-algoritmos-essenciais/08-graph-algorithms.md)
+- [String Algorithms (KMP, Rabin-Karp, Z)](13-algoritmos-essenciais/09-string-algorithms-kmp-rabin-karp-z.md)
+
+### 14 — Concorrência e paralelismo
+
+- [Concorrência vs Paralelismo e context switching](14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching.md)
+- [Race Condition e Critical Section](14-concorrencia-e-paralelismo/02-race-condition-e-critical-section.md)
+- [Deadlock, Livelock, Starvation](14-concorrencia-e-paralelismo/03-deadlock-livelock-starvation.md)
+- [Primitivas: Mutex, Semaphore, Monitor, Spinlock](14-concorrencia-e-paralelismo/04-primitivas-de-sincronizacao-mutex-semaphore-monitor-spinlock.md)
+- [Atomic, CAS, lock-free e wait-free](14-concorrencia-e-paralelismo/05-atomic-cas-lock-free-wait-free.md)
+- [Memory model e false sharing](14-concorrencia-e-paralelismo/06-memory-model-happens-before-volatile-barriers-false-sharing.md)
+- [Problemas clássicos (Producer-Consumer, Readers-Writers, Dining Philosophers)](14-concorrencia-e-paralelismo/07-problemas-classicos-producer-consumer-readers-writers-dining-philosophers.md)
+- [Thread pools e tuning](14-concorrencia-e-paralelismo/08-thread-pools-e-tuning.md)
+- [Async/await, Futures/Promises, Reactive Streams](14-concorrencia-e-paralelismo/09-async-await-futures-promises-reactive-streams.md)
+
+### 15 — Banco de dados (a fundo)
+
+- [Níveis de isolamento e anomalias](15-banco-de-dados/01-niveis-de-isolamento-e-anomalias.md)
+- [Locking: pessimista vs otimista](15-banco-de-dados/02-locking-pessimista-vs-otimista.md)
+- [Índices: B-Tree, Hash, composite, covering](15-banco-de-dados/03-indices-de-banco-btree-hash-composite-covering.md)
+- [Query optimization: EXPLAIN e N+1](15-banco-de-dados/04-query-optimization-explain-e-n-mais-1.md)
+- [Normalização vs desnormalização](15-banco-de-dados/05-normalizacao-vs-desnormalizacao.md)
+- [SQL vs NoSQL](15-banco-de-dados/06-sql-vs-nosql.md)
+
+### 16 — Redes e protocolos
+
+- [Modelo OSI e TCP/IP](16-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md)
+- [TCP vs UDP](16-redes-e-protocolos/02-tcp-vs-udp.md)
+- [HTTP/1.1 vs HTTP/2 vs HTTP/3 (QUIC)](16-redes-e-protocolos/03-http1-http2-http3-quic.md)
+- [HTTPS, TLS handshake e certificados](16-redes-e-protocolos/04-https-tls-handshake-e-certificados.md)
+- [DNS resolution](16-redes-e-protocolos/05-dns-resolution.md)
+- [REST vs GraphQL vs gRPC vs WebSockets](16-redes-e-protocolos/06-rest-graphql-grpc-websockets.md)
+- [Semântica HTTP: idempotência e status codes](16-redes-e-protocolos/07-semantica-http-idempotencia-e-status-codes.md)
+- [CORS, CSRF, XSS](16-redes-e-protocolos/08-cors-csrf-xss.md)
+- [Long polling, SSE, WebSockets](16-redes-e-protocolos/09-long-polling-sse-websockets.md)
+
+### 17 — System Design (estudos de caso)
+
+- [Encurtador de URL](17-system-design/01-encurtador-de-url.md)
+- [Timeline de rede social](17-system-design/02-timeline-rede-social.md)
+- [Sistema de chat](17-system-design/03-sistema-de-chat.md)
+- [Notificações em escala](17-system-design/04-sistema-de-notificacoes-em-escala.md)
+- [Rate limiter](17-system-design/05-rate-limiter.md)
+- [Web crawler distribuído](17-system-design/06-web-crawler-distribuido.md)
+- [Sistema de busca](17-system-design/07-sistema-de-busca.md)
+- [Upload de arquivos](17-system-design/08-upload-de-arquivos.md)
+- [Streaming de vídeo](17-system-design/09-streaming-de-video.md)
+- [Sistema de reservas](17-system-design/10-sistema-de-reservas.md)
+- [Sistema de pagamentos](17-system-design/11-sistema-de-pagamentos.md)
+- [Newsfeed ranking e recomendação](17-system-design/12-newsfeed-ranking-e-recomendacao.md)
+- [Sistema de logs distribuído](17-system-design/13-sistema-de-logs-distribuido.md)
+- [Top K trending (count-min sketch)](17-system-design/14-top-k-trending-count-min-sketch.md)
 
 ---
 

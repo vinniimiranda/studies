@@ -1,0 +1,2560 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/14-concorrencia-e-paralelismo/08-thread-pools-e-tuning/">
+      
+      
+        <link rel="prev" href="../07-problemas-classicos-producer-consumer-readers-writers-dining-philosophers/">
+      
+      
+        <link rel="next" href="../09-async-await-futures-promises-reactive-streams/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Thread pools e tuning - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#thread-pools-e-tuning-tamanho-otimo-filas-cpu-bound-vs-io-bound" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Thread pools e tuning
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_16" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_16" id="__nav_16_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_16_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_16">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    14 · Concorrência e paralelismo
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concorrência vs Paralelismo e context switching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-race-condition-e-critical-section/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Race Condition e Critical Section
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-deadlock-livelock-starvation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deadlock, Livelock, Starvation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-primitivas-de-sincronizacao-mutex-semaphore-monitor-spinlock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Primitivas (Mutex, Semaphore, Monitor, Spinlock)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-atomic-cas-lock-free-wait-free/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Atomic, CAS, lock-free, wait-free
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-memory-model-happens-before-volatile-barriers-false-sharing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory model e false sharing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-problemas-classicos-producer-consumer-readers-writers-dining-philosophers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Problemas clássicos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Thread pools e tuning
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Thread pools e tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anatomia-de-um-thread-pool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anatomia de um thread pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-dinamica-contraintuitiva-do-threadpoolexecutor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A dinâmica contraintuitiva do ThreadPoolExecutor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#as-factory-methods-do-executors-e-suas-armadilhas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        As factory methods do Executors (e suas armadilhas)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-bound-vs-io-bound-o-eixo-que-define-o-tamanho" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU-bound vs IO-bound: o eixo que define o tamanho
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filas-e-rejection-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filas e rejection policies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-threads-goroutines-mudando-o-calculo-de-io" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Virtual threads / Goroutines: mudando o cálculo de IO
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Anti-padrões e armadilhas comuns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#por-que-mais-threads-nao-significa-mais-velocidade-usl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que mais threads não significa mais velocidade (USL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-async-await-futures-promises-reactive-streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Async/await, Futures, Reactive Streams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anatomia-de-um-thread-pool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anatomia de um thread pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-dinamica-contraintuitiva-do-threadpoolexecutor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A dinâmica contraintuitiva do ThreadPoolExecutor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#as-factory-methods-do-executors-e-suas-armadilhas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        As factory methods do Executors (e suas armadilhas)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-bound-vs-io-bound-o-eixo-que-define-o-tamanho" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU-bound vs IO-bound: o eixo que define o tamanho
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filas-e-rejection-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filas e rejection policies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-threads-goroutines-mudando-o-calculo-de-io" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Virtual threads / Goroutines: mudando o cálculo de IO
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Anti-padrões e armadilhas comuns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#por-que-mais-threads-nao-significa-mais-velocidade-usl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que mais threads não significa mais velocidade (USL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="thread-pools-e-tuning-tamanho-otimo-filas-cpu-bound-vs-io-bound">Thread pools e tuning: tamanho ótimo, filas, CPU-bound vs IO-bound<a class="headerlink" href="#thread-pools-e-tuning-tamanho-otimo-filas-cpu-bound-vs-io-bound" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Concorrência e paralelismo · <strong>Nível:</strong> Avançado · <strong>Tempo de leitura:</strong> ~30 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>Criar uma thread por tarefa não escala: cada thread de plataforma custa memória (stack ~512KB–1MB), o número de threads do SO é finito, e o <strong>context-switch</strong> entre milhares de threads degrada o desempenho mais do que ajuda. O <strong>thread pool</strong> resolve isso reusando um conjunto fixo (ou limitado) de <strong>worker threads</strong> que consomem tarefas de uma <strong>fila de trabalho</strong> — é, no fundo, um <strong>producer-consumer</strong>: quem submete tarefas é o produtor, os workers são os consumidores, a work queue é o bounded buffer. O parâmetro mais cobrado é o <strong>tamanho ótimo do pool</strong>, e a resposta depende da <strong>natureza da carga</strong>. Para tarefas <strong>CPU-bound</strong> (que passam quase todo o tempo computando), o pool ideal é próximo do <strong>número de núcleos</strong> (<code>Ncpu</code> ou <code>Ncpu+1</code>) — mais threads que núcleos só adiciona context-switch sem ganho, porque não há paralelismo físico extra. Para tarefas <strong>IO-bound</strong> (que passam a maior parte do tempo <em>esperando</em> rede/disco/banco), o pool pode e deve ser <strong>muito maior</strong>, porque enquanto uma thread espera I/O o núcleo fica livre para outra. A fórmula de <strong>Brian Goetz</strong> (Java Concurrency in Practice) formaliza: <code>Nthreads = Ncpu × Ucpu × (1 + W/C)</code>, onde <code>W/C</code> é a razão entre tempo de espera e tempo de computação — para CPU-bound <code>W/C≈0</code> (pool ≈ Ncpu), para IO-bound <code>W/C</code> é grande (pool muito maior). A escolha da <strong>fila</strong> importa tanto quanto o tamanho: fila <strong>ilimitada</strong> (<code>newFixedThreadPool</code> default) esconde sobrecarga e arrisca OOM; fila <strong>limitada</strong> dá backpressure mas exige uma <strong>rejection policy</strong> (o que fazer quando enche: rejeitar, <code>CallerRunsPolicy</code>, descartar). O <code>ThreadPoolExecutor</code> do Java expõe <code>corePoolSize</code>, <code>maximumPoolSize</code>, <code>keepAliveTime</code>, <code>workQueue</code> e <code>RejectedExecutionHandler</code> — e sua dinâmica é contraintuitiva (só cria threads acima do core <em>depois</em> que a fila enche). A regra de ouro: <strong>separe pools por tipo de carga</strong> (um pool CPU-bound, outro IO-bound; um pool por dependência crítica — bulkhead), <strong>dimensione com dados</strong> (Lei de Little e medição, não achismo) e <strong>nunca compartilhe um pool entre cargas heterogêneas</strong>. Virtual threads (Java 21+, Project Loom) e Goroutines mudam o cálculo para I/O ao tornar threads baratíssimas, mas o raciocínio sobre o recurso limitante permanece.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>A abordagem mais ingênua de concorrência é <strong>thread-per-task</strong>: para cada requisição/tarefa, criar uma <code>new Thread()</code>. Isso tem três problemas fatais sob carga:</p>
+<ol>
+<li><strong>Custo de criação e memória.</strong> Cada thread de plataforma (mapeada 1:1 a uma thread do SO) reserva uma stack — tipicamente 512KB a 1MB. Mil threads = ~1GB só de stacks. Criar e destruir threads também tem custo de syscall não-trivial.</li>
+<li><strong>Número finito de threads.</strong> O SO limita o número total de threads; ultrapassá-lo causa <code>OutOfMemoryError</code>/falha de criação. Não há limite natural em thread-per-task — uma rajada de requisições cria threads sem teto.</li>
+<li><strong>Context-switch e contenção.</strong> Com muito mais threads runnable que núcleos, o escalonador do SO gasta tempo trocando o contexto entre elas (salvar/restaurar registradores, invalidar caches/TLB). Acima de certo ponto, <strong>adicionar threads piora o throughput</strong> — o sistema passa mais tempo trocando que trabalhando (thrashing). É uma manifestação direta da Universal Scalability Law: o termo de coerência cresce e a curva de escalabilidade <em>desce</em>.</li>
+</ol>
+<p>O <strong>thread pool</strong> resolve os três: reusa um número <strong>controlado</strong> de threads (sem custo de criação por tarefa, sem estouro), enfileira tarefas quando todas as threads estão ocupadas (limite natural de concorrência), e mantém o número de threads runnable próximo do que o hardware comporta (minimizando context-switch). A pergunta de design central torna-se: <strong>"Quantas threads o pool deve ter, e o que fazer com as tarefas que chegam quando todas estão ocupadas?"</strong> — e a resposta depende criticamente de a carga ser CPU-bound ou IO-bound.</p>
+<p>Há um segundo problema, mais sutil, que o pool <em>bem configurado</em> resolve e o mal configurado <em>causa</em>: <strong>isolamento de falha</strong>. Se um único pool atende tanto consultas rápidas quanto chamadas lentas a uma dependência externa, uma dependência lenta pode prender todas as threads do pool e derrubar tudo — exatamente a falha em cascata. Separar pools por tipo de carga (bulkhead) é tão importante quanto dimensioná-los.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="anatomia-de-um-thread-pool">Anatomia de um thread pool<a class="headerlink" href="#anatomia-de-um-thread-pool" title="Permanent link">&para;</a></h3>
+<p>Um thread pool tem três componentes essenciais:</p>
+<ul>
+<li><strong>Worker threads:</strong> um conjunto de threads de longa duração que ficam em loop, retirando tarefas da fila e executando-as. Não morrem ao terminar uma tarefa — voltam a buscar a próxima.</li>
+<li><strong>Work queue (fila de trabalho):</strong> onde as tarefas submetidas aguardam até haver um worker livre. É o "bounded buffer" do producer-consumer.</li>
+<li><strong>Política de submissão/rejeição:</strong> o que acontece quando se submete uma tarefa — vai direto a um worker, à fila, cria-se uma thread nova, ou rejeita-se.</li>
+</ul>
+<p>No Java, o <code>ThreadPoolExecutor</code> parametriza isso explicitamente:</p>
+<ul>
+<li><strong><code>corePoolSize</code>:</strong> número de threads mantidas vivas mesmo ociosas (o "núcleo" do pool).</li>
+<li><strong><code>maximumPoolSize</code>:</strong> número máximo de threads que o pool pode criar.</li>
+<li><strong><code>keepAliveTime</code>:</strong> tempo que threads acima do core ficam ociosas antes de serem destruídas.</li>
+<li><strong><code>workQueue</code>:</strong> a <code>BlockingQueue</code> onde tarefas aguardam.</li>
+<li><strong><code>RejectedExecutionHandler</code>:</strong> o que fazer quando não há como aceitar a tarefa (pool cheio E fila cheia).</li>
+</ul>
+<h3 id="a-dinamica-contraintuitiva-do-threadpoolexecutor">A dinâmica contraintuitiva do ThreadPoolExecutor<a class="headerlink" href="#a-dinamica-contraintuitiva-do-threadpoolexecutor" title="Permanent link">&para;</a></h3>
+<p>A ordem de decisão do <code>ThreadPoolExecutor</code> ao receber uma tarefa surpreende muita gente e é pegadinha de entrevista:</p>
+<ol>
+<li>Se há <strong>menos</strong> threads que <code>corePoolSize</code>, <strong>cria uma nova thread</strong> (mesmo que outras estejam ociosas — para chegar ao core).</li>
+<li>Se o core está cheio, <strong>tenta enfileirar</strong> a tarefa na work queue.</li>
+<li>Só se a <strong>fila estiver cheia</strong> é que cria threads adicionais até <code>maximumPoolSize</code>.</li>
+<li>Se fila cheia <strong>e</strong> <code>maximumPoolSize</code> atingido, aciona a <strong>rejection policy</strong>.</li>
+</ol>
+<p>A consequência prática crítica: com uma fila <strong>ilimitada</strong> (o caso de <code>Executors.newFixedThreadPool</code>, que usa <code>LinkedBlockingQueue</code> sem limite), o passo 3 <strong>nunca acontece</strong> — a fila nunca enche, então <code>maximumPoolSize</code> é irrelevante e o pool nunca cresce além do core. Pior: a fila ilimitada cresce indefinidamente sob sobrecarga, escondendo o problema até estourar a memória. Por isso pools de produção sérios usam <strong>fila limitada</strong> + <code>maximumPoolSize</code> significativo + rejection policy explícita.</p>
+<h3 id="as-factory-methods-do-executors-e-suas-armadilhas">As factory methods do <code>Executors</code> (e suas armadilhas)<a class="headerlink" href="#as-factory-methods-do-executors-e-suas-armadilhas" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>newFixedThreadPool(n)</code>:</strong> <code>core = max = n</code>, fila <strong>ilimitada</strong>. Simples, mas a fila ilimitada é um risco de OOM sob rajada.</li>
+<li><strong><code>newCachedThreadPool()</code>:</strong> <code>core = 0</code>, <code>max = Integer.MAX_VALUE</code>, fila <code>SynchronousQueue</code> (capacidade zero — toda tarefa exige um worker imediato). Cria threads sem limite sob rajada → pode esgotar o SO. Bom para cargas leves e esporádicas, perigoso sob carga.</li>
+<li><strong><code>newSingleThreadExecutor()</code>:</strong> uma thread, fila ilimitada. Garante execução sequencial.</li>
+<li><strong><code>newWorkStealingPool()</code> / <code>ForkJoinPool</code>:</strong> pool com <strong>work-stealing</strong> — cada worker tem sua própria deque; quando fica ocioso, "rouba" tarefas da deque de outro worker. Excelente para tarefas recursivas/divide-and-conquer (fork/join) e é o pool por trás de <code>parallelStream()</code> e <code>CompletableFuture</code> por default (o <code>commonPool</code>).</li>
+</ul>
+<p>Brian Goetz e a documentação Oracle recomendam, para controle real, <strong>construir o <code>ThreadPoolExecutor</code> manualmente</strong> com parâmetros explícitos em vez de usar as factories, justamente para escolher fila limitada e rejection policy.</p>
+<h3 id="cpu-bound-vs-io-bound-o-eixo-que-define-o-tamanho">CPU-bound vs IO-bound: o eixo que define o tamanho<a class="headerlink" href="#cpu-bound-vs-io-bound-o-eixo-que-define-o-tamanho" title="Permanent link">&para;</a></h3>
+<p>A natureza da tarefa é o fator dominante no dimensionamento:</p>
+<ul>
+<li>
+<p><strong>CPU-bound (compute-bound):</strong> a tarefa passa quase todo o tempo usando a CPU (cálculo, serialização pesada, compressão, processamento de imagem). Enquanto roda, ela <strong>ocupa</strong> um núcleo. Mais threads que núcleos não dá paralelismo extra (não há núcleos livres) — só adiciona context-switch e contenção de cache. <strong>Pool ideal ≈ Ncpu</strong> (ou <code>Ncpu + 1</code> para cobrir uma falha de página/pausa ocasional, recomendação de Goetz). Exemplo: 8 núcleos → ~8-9 threads.</p>
+</li>
+<li>
+<p><strong>IO-bound:</strong> a tarefa passa a maior parte do tempo <strong>bloqueada esperando</strong> I/O (chamada de rede, query de banco, leitura de disco). Durante a espera, o núcleo fica <strong>livre</strong> para outra thread. Logo, podem-se ter <strong>muito mais threads que núcleos</strong>, mantendo os núcleos ocupados enquanto a maioria das threads espera. <strong>Pool &gt;&gt; Ncpu.</strong> Exemplo: tarefa que gasta 90ms esperando e 10ms computando, em 8 núcleos → dezenas de threads.</p>
+</li>
+</ul>
+<p>A fórmula de <strong>Brian Goetz</strong> (Java Concurrency in Practice, seção 8.2) torna isso quantitativo:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Nthreads = Ncpu × Ucpu × (1 + W/C)
+</code></pre></div>
+<p>onde:</p>
+<ul>
+<li><strong>Ncpu</strong> = número de núcleos (<code>Runtime.getRuntime().availableProcessors()</code>).</li>
+<li><strong>Ucpu</strong> = utilização-alvo de CPU, entre 0 e 1 (ex.: 0.8 para deixar folga).</li>
+<li><strong>W/C</strong> = razão entre tempo de <strong>espera</strong> (Wait) e tempo de <strong>computação</strong> (Compute) por tarefa.</li>
+</ul>
+<p>Interpretação:</p>
+<ul>
+<li><strong>CPU-bound:</strong> <code>W≈0</code>, logo <code>W/C≈0</code>, e <code>Nthreads ≈ Ncpu × Ucpu</code> ≈ Ncpu. Confirma "pool ≈ núcleos".</li>
+<li><strong>IO-bound:</strong> <code>W/C</code> grande. Ex.: W=90ms, C=10ms → <code>W/C=9</code>, e com Ucpu=1, Ncpu=8 → <code>Nthreads = 8 × 1 × (1+9) = 80</code>. Oitenta threads para oito núcleos — porque 90% do tempo estão esperando.</li>
+</ul>
+<p>Essa fórmula é a manifestação prática da <strong>Lei de Little</strong> aplicada ao pool: o número de threads em execução concorrente que mantém os núcleos no nível de utilização desejado é função da razão espera/computação.</p>
+<h3 id="filas-e-rejection-policies">Filas e rejection policies<a class="headerlink" href="#filas-e-rejection-policies" title="Permanent link">&para;</a></h3>
+<p>A escolha da <code>workQueue</code> é uma decisão de arquitetura:</p>
+<ul>
+<li><strong><code>SynchronousQueue</code> (capacidade 0):</strong> nenhum buffer — toda tarefa exige um worker disponível imediatamente, senão cria thread (até max) ou rejeita. Sem acúmulo escondido.</li>
+<li><strong><code>ArrayBlockingQueue(n)</code> (limitada):</strong> buffer de tamanho fixo. Dá backpressure: quando enche, o pool cria threads até max; quando max também esgota, rejeita. <strong>A escolha recomendada para produção.</strong></li>
+<li><strong><code>LinkedBlockingQueue</code> (ilimitada por default):</strong> acumula sem limite — esconde sobrecarga e arrisca OOM. Pode ser limitada passando capacidade.</li>
+<li><strong><code>PriorityBlockingQueue</code>:</strong> tarefas ordenadas por prioridade.</li>
+</ul>
+<p>As <strong>rejection policies</strong> (<code>RejectedExecutionHandler</code>) quando o pool e a fila estão cheios:</p>
+<ul>
+<li><strong><code>AbortPolicy</code> (default):</strong> lança <code>RejectedExecutionException</code>. Falha rápido e explícito.</li>
+<li><strong><code>CallerRunsPolicy</code>:</strong> a <strong>própria thread que submeteu</strong> executa a tarefa. Isso desacelera o produtor (ele para de submeter enquanto executa) — uma forma elegante de <strong>backpressure</strong> que retarda a fonte em vez de descartar.</li>
+<li><strong><code>DiscardPolicy</code>:</strong> descarta a tarefa silenciosamente (perigoso — perda silenciosa).</li>
+<li><strong><code>DiscardOldestPolicy</code>:</strong> descarta a tarefa mais antiga na fila e tenta de novo.</li>
+</ul>
+<h3 id="virtual-threads-goroutines-mudando-o-calculo-de-io">Virtual threads / Goroutines: mudando o cálculo de IO<a class="headerlink" href="#virtual-threads-goroutines-mudando-o-calculo-de-io" title="Permanent link">&para;</a></h3>
+<p>O modelo tradicional acima assume <strong>threads de plataforma</strong> caras. Project Loom (Java 21+) introduz <strong>virtual threads</strong>: threads leves gerenciadas pela JVM, multiplexadas sobre poucas threads de plataforma (carrier threads). Custam ~poucos KB, e milhões delas cabem. Quando uma virtual thread bloqueia em I/O, ela é <strong>desmontada</strong> da carrier thread, liberando-a para rodar outra virtual thread. Isso torna o estilo <strong>thread-per-request bloqueante</strong> viável de novo para cargas IO-bound massivas — sem precisar dimensionar pools nem migrar para reactive. As <strong>Goroutines</strong> do Go fazem o mesmo há mais tempo (multiplexadas sobre threads de SO via o scheduler M:N). O raciocínio CPU vs IO não desaparece: para <strong>CPU-bound</strong>, virtual threads não ajudam (o gargalo continua sendo os núcleos físicos — Loom inclusive usa um <code>ForkJoinPool</code> dimensionado por núcleos para as carriers); para <strong>IO-bound</strong>, elas eliminam a necessidade de pools enormes.</p>
+<h3 id="glossario-rapido">Glossário rápido<a class="headerlink" href="#glossario-rapido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Thread pool:</strong> conjunto reusável de workers consumindo uma fila de tarefas (producer-consumer).</li>
+<li><strong>Worker thread:</strong> thread de longa duração que executa tarefas da fila em loop.</li>
+<li><strong>CPU-bound:</strong> tarefa limitada por computação (ocupa o núcleo); pool ≈ Ncpu.</li>
+<li><strong>IO-bound:</strong> tarefa limitada por espera de I/O (libera o núcleo); pool &gt;&gt; Ncpu.</li>
+<li><strong>Fórmula de Goetz:</strong> <code>Nthreads = Ncpu × Ucpu × (1 + W/C)</code>.</li>
+<li><strong>corePoolSize / maximumPoolSize:</strong> threads mantidas vivas / teto de threads.</li>
+<li><strong>Work queue:</strong> fila de tarefas pendentes; limitada (backpressure) ou ilimitada (risco OOM).</li>
+<li><strong>Rejection policy:</strong> ação quando pool+fila cheios (Abort, CallerRuns, Discard).</li>
+<li><strong>CallerRunsPolicy:</strong> submitter executa a tarefa → backpressure no produtor.</li>
+<li><strong>Work-stealing:</strong> workers ociosos roubam tarefas de outros (ForkJoinPool).</li>
+<li><strong>Context-switch:</strong> custo de o SO trocar a thread em execução num núcleo.</li>
+<li><strong>Virtual thread / Goroutine:</strong> thread leve multiplexada (M:N), barata para I/O.</li>
+</ul>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>O ciclo de vida de uma tarefa num <code>ThreadPoolExecutor</code> com fila limitada:</p>
+<ol>
+<li><strong>Submissão.</strong> <code>executor.submit(tarefa)</code>. O executor decide: se há &lt; <code>corePoolSize</code> threads, cria uma e roda; senão, tenta enfileirar.</li>
+<li><strong>Enfileiramento.</strong> A tarefa entra na <code>workQueue</code> (limitada). Se a fila tem espaço, a tarefa aguarda ali.</li>
+<li><strong>Crescimento.</strong> Se a fila está <strong>cheia</strong> e há &lt; <code>maximumPoolSize</code> threads, cria uma thread adicional (até o max) para drenar.</li>
+<li><strong>Rejeição.</strong> Se a fila está cheia <strong>e</strong> já há <code>maximumPoolSize</code> threads, dispara a rejection policy (ex.: <code>CallerRunsPolicy</code> → o submitter executa, aplicando backpressure).</li>
+<li><strong>Execução.</strong> Um worker livre retira a tarefa da fila (<code>take()</code> — bloqueia se vazia) e a executa.</li>
+<li><strong>Encolhimento.</strong> Threads acima do core que ficam ociosas por <code>keepAliveTime</code> são destruídas (o pool volta ao tamanho do core).</li>
+</ol>
+<p>O ponto que liga tudo ao producer-consumer: a <code>workQueue</code> é o <strong>bounded buffer</strong>, os submitters são <strong>produtores</strong> e os workers são <strong>consumidores</strong> que fazem <code>take()</code> bloqueante (dormindo eficientemente quando não há trabalho). O <strong>dimensionamento</strong> é onde a Lei de Little entra: se você sabe a <strong>taxa de chegada</strong> de tarefas (λ) e o <strong>tempo de serviço</strong> por tarefa (que inclui W de espera + C de computação), a concorrência necessária para não acumular fila é <code>L = λ × (W+C)</code> (número médio de tarefas "em voo"); o pool precisa de threads suficientes para sustentar esse L sem que a fila cresça sem limite — e a fórmula de Goetz refina isso pela utilização de CPU alvo.</p>
+<p>O <strong>tuning</strong> na prática é iterativo: começar pela fórmula (estimativa de W/C a partir de medições), aplicar, <strong>medir</strong> sob carga real (utilização de CPU, profundidade da fila, latência p99, throughput), e ajustar. Sinais de pool <strong>pequeno demais</strong>: fila sempre crescendo, latência alta, CPUs ociosas (em carga IO-bound). Sinais de pool <strong>grande demais</strong>: alto context-switch, contenção de locks/cache, throughput estagnado ou caindo apesar de mais threads (USL em ação).</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama mostra a árvore de decisão do <code>ThreadPoolExecutor</code> ao submeter uma tarefa; o segundo contrasta o dimensionamento CPU-bound vs IO-bound.</p>
+<pre class="mermaid"><code>flowchart TB
+    SUB["submit(tarefa)"] --&gt; Q1{"threads &lt; corePoolSize?"}
+    Q1 --&gt;|"sim"| NEW1["cria thread no core e executa"]
+    Q1 --&gt;|"não"| Q2{"fila tem espaço?"}
+    Q2 --&gt;|"sim"| ENQ["enfileira (aguarda worker)"]
+    Q2 --&gt;|"não"| Q3{"threads &lt; maximumPoolSize?"}
+    Q3 --&gt;|"sim"| NEW2["cria thread extra e executa"]
+    Q3 --&gt;|"não"| REJ["rejection policy&lt;br/&gt;(Abort / CallerRuns / Discard)"]
+    ENQ --&gt; WK["worker faz take() e executa"]
+    NEW1 --&gt; WK
+    NEW2 --&gt; WK</code></pre>
+<pre class="mermaid"><code>flowchart LR
+    subgraph CPU["Carga CPU-bound"]
+        C1["8 núcleos"] --&gt; C2["pool ~ Ncpu (8-9)"]
+        C2 --&gt; C3["mais threads = só&lt;br/&gt;context-switch, sem ganho"]
+    end
+    subgraph IO["Carga IO-bound (W=90ms, C=10ms)"]
+        I1["8 núcleos"] --&gt; I2["W/C = 9"]
+        I2 --&gt; I3["pool = 8 × (1+9) = 80"]
+        I3 --&gt; I4["threads esperam I/O;&lt;br/&gt;núcleos seguem ocupados"]
+    end</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p>Cenário: o backend de <strong>checkout</strong> de um e-commerce brasileiro, em Java, na Black Friday.</p>
+<p><strong>O incidente do pool único.</strong> Originalmente, o serviço tinha <strong>um único</strong> <code>newFixedThreadPool(50)</code> para tudo: render da página (CPU-bound, montar JSON), chamadas ao serviço de <code>pricing</code> (IO-bound, ~150ms de rede) e chamadas ao gateway de <code>pagamentos</code> (IO-bound, ~400ms, dependência externa instável). Quando o gateway de pagamentos degradou (subiu para 8s por chamada), as tarefas de pagamento foram <strong>prendendo as 50 threads</strong> uma a uma; em segundos, o pool inteiro estava ocupado esperando pagamentos, e até as requisições que só precisavam renderizar a página (rápidas, sem I/O externo) <strong>ficaram presas na fila ilimitada</strong>, que crescia rumo ao OOM. Um serviço inteiro caiu por causa de uma dependência lenta — falha em cascata clássica.</p>
+<p><strong>A correção — separar pools por carga (bulkhead) e dimensionar.</strong> O time quebrou em três pools:</p>
+<ul>
+<li><strong>Pool de CPU</strong> (render/serialização): <code>ThreadPoolExecutor</code> com <code>core = max = Ncpu+1 = 9</code>, fila limitada de 1000, <code>CallerRunsPolicy</code>. CPU-bound → ~núcleos.</li>
+<li><strong>Pool de pricing</strong> (IO-bound, W/C medido ≈ 150ms/15ms = 10): pela fórmula, <code>9 × 0.8 × (1+10) ≈ 79</code>; arredondaram para 80, fila limitada de 500, <code>CallerRunsPolicy</code>.</li>
+<li><strong>Pool de pagamentos</strong> (IO-bound, mas <strong>dependência crítica e instável</strong>): pool dedicado de 40 com fila pequena (200) e timeout agressivo. Por ser isolado (bulkhead), quando o gateway degradou de novo, <strong>só este pool</strong> saturou; render e pricing continuaram normais, e o checkout degradou <em>graciosamente</em> (mensagem "tente novamente o pagamento") em vez de cair inteiro.</li>
+</ul>
+<p><strong>A descoberta do CallerRunsPolicy como backpressure.</strong> No pico, o pool de pricing encheu fila e threads. Com <code>CallerRunsPolicy</code>, a thread que submetia (a thread de request) passou a <strong>executar a chamada ela mesma</strong>, o que naturalmente <strong>desacelerou a aceitação de novas requisições</strong> (a thread está ocupada, não aceita a próxima) — propagando backpressure até o load balancer, que começou a ver respostas mais lentas e parou de mandar tanto tráfego. Em vez de descartar trabalho ou estourar memória, o sistema se autorregulou.</p>
+<p><strong>Tuning guiado por dados, não por achismo.</strong> O número 80 não foi chutado: mediram W e C reais em produção (tracing distribuído deu o tempo de espera vs CPU por tarefa), aplicaram a fórmula de Goetz como <strong>ponto de partida</strong>, e então observaram utilização de CPU, profundidade de fila e p99 sob carga, ajustando. Notaram que acima de ~100 threads de pricing o throughput <strong>parava de crescer</strong> (USL: contenção e context-switch dominando), confirmando que o ótimo estava na faixa prevista.</p>
+<p>Pseudo-configuração (Java, pool dimensionado explicitamente):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>// Pool IO-bound dimensionado pela fórmula de Goetz, com backpressure
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>int ncpu = Runtime.getRuntime().availableProcessors();   // 8
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>double ucpu = 0.8;
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>double wc = 10.0;                                         // W/C medido (espera/cpu)
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>int n = (int)(ncpu * ucpu * (1 + wc));                    // ~80
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>ExecutorService pricingPool = new ThreadPoolExecutor(
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    n, n, 60, SECONDS,
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    new ArrayBlockingQueue&lt;&gt;(500),                        // fila LIMITADA → backpressure
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    new ThreadFactoryBuilder().setNameFormat(&quot;pricing-%d&quot;).build(),
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    new ThreadPoolExecutor.CallerRunsPolicy());           // submitter executa = backpressure
+</code></pre></div>
+<p>Ferramentas/realidade: em Java, <code>ThreadPoolExecutor</code>/<code>Executors</code>, <code>ForkJoinPool</code> (work-stealing, base de <code>parallelStream</code>/<code>CompletableFuture</code>), e virtual threads (Loom, Java 21+) para IO-bound massivo; em Go, o runtime scheduler M:N com goroutines (<code>GOMAXPROCS</code> controla os núcleos para CPU-bound); em .NET, o <code>ThreadPool</code> e <code>Task</code>; em Node.js, o event loop single-thread + <code>libuv</code> thread pool para I/O de disco/DNS.</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Thread pool:</strong> use praticamente sempre que houver tarefas concorrentes recorrentes — é o default sobre thread-per-task. <strong>Evite</strong> thread-per-task (<code>new Thread()</code> por requisição) em qualquer sistema sob carga (não escala, sem limite, OOM).</p>
+<p><strong>Pool ≈ Ncpu (CPU-bound):</strong> use para cálculo intensivo, processamento de dados, compressão, serialização pesada. <strong>Evite</strong> inflar além de Ncpu+1 — só adiciona context-switch.</p>
+<p><strong>Pool &gt;&gt; Ncpu (IO-bound):</strong> use para tarefas dominadas por espera de rede/banco/disco. Dimensione pela fórmula de Goetz com W/C medido. <strong>Evite</strong> o exagero cego — acima de certo ponto, a contenção (locks, conexões, USL) limita; meça onde o throughput para de crescer.</p>
+<p><strong>Fila limitada + rejection policy:</strong> use <strong>sempre</strong> em produção (backpressure, sem OOM). <strong>Evite</strong> fila ilimitada (<code>newFixedThreadPool</code> default), que esconde sobrecarga até estourar.</p>
+<p><strong>Pools separados por carga (bulkhead):</strong> use <strong>sempre</strong> que houver cargas heterogêneas (CPU vs IO) ou múltiplas dependências (uma lenta não pode prender as threads de todas). <strong>Evite</strong> o pool único compartilhado — é a receita da cascata.</p>
+<p><strong>Virtual threads / Goroutines:</strong> use para cargas <strong>IO-bound</strong> de altíssima concorrência (milhares de conexões), eliminando a necessidade de pools enormes. <strong>Evite</strong> esperar que ajudem em <strong>CPU-bound</strong> (o gargalo continua sendo os núcleos); e cuidado com <code>synchronized</code> que "pina" virtual threads à carrier (use <code>ReentrantLock</code>).</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Pool único para CPU e IO (e para tudo).</strong> Mistura cargas com tamanhos ótimos opostos; uma dependência IO lenta prende as threads que deveriam servir tarefas CPU rápidas — cascata. <strong>Separe pools por tipo de carga e por dependência (bulkhead).</strong></li>
+<li><strong>Fila ilimitada escondendo sobrecarga.</strong> <code>newFixedThreadPool</code> usa <code>LinkedBlockingQueue</code> ilimitada; sob rajada, a fila cresce rumo ao OOM e o <code>maximumPoolSize</code> nunca é usado. Use fila limitada + rejection policy.</li>
+<li><strong>Dimensionar por achismo.</strong> Chutar "100 threads porque parece bastante" ignora a natureza da carga. Use a fórmula de Goetz com <strong>W/C medido</strong> como ponto de partida e ajuste com dados (utilização, p99, profundidade de fila).</li>
+<li><strong>Pool grande demais em CPU-bound.</strong> 200 threads para 8 núcleos numa carga de cálculo só adiciona context-switch e contenção de cache — throughput igual ou pior, latência maior.</li>
+<li><strong>Pool pequeno demais em IO-bound.</strong> 8 threads para 8 núcleos numa carga que espera 90% do tempo deixa os núcleos ociosos esperando I/O; o throughput fica muito abaixo do possível.</li>
+<li><strong>Ignorar a rejection policy (deixar <code>AbortPolicy</code> sem tratar).</strong> Tarefas rejeitadas viram exceção não-tratada e trabalho perdido silenciosamente. Decida conscientemente: <code>CallerRunsPolicy</code> (backpressure) é o default sensato para a maioria.</li>
+<li><strong><code>CallerRunsPolicy</code> num pool cuja thread submitter é crítica.</strong> Se quem submete é a thread de I/O do servidor (ex.: event loop), fazê-la executar a tarefa bloqueia o aceite de novas conexões. Avalie o contexto.</li>
+<li><strong>Tarefas que bloqueiam dentro de um pool dimensionado para CPU.</strong> Submeter uma chamada de rede bloqueante a um <code>ForkJoinPool</code>/<code>commonPool</code> (que tem ~Ncpu threads) trava as poucas threads disponíveis e degrada <code>parallelStream</code>/<code>CompletableFuture</code> de toda a aplicação. Nunca bloqueie no commonPool.</li>
+<li><strong>Thread starvation por dependência interna do pool.</strong> Tarefas no pool que <strong>submetem outras tarefas ao mesmo pool e esperam o resultado</strong> podem deadlockar: todas as threads ficam esperando subtarefas que não têm thread para rodar. Use pools separados ou work-stealing com cuidado.</li>
+<li><strong><code>synchronized</code> pinando virtual threads.</strong> Em Loom, bloquear dentro de um bloco <code>synchronized</code> (ou método nativo) impede o desmonte da virtual thread, prendendo a carrier — anula o benefício. Prefira <code>ReentrantLock</code> em código que rodará em virtual threads.</li>
+<li><strong>Não nomear as threads do pool.</strong> Threads anônimas dificultam diagnóstico em thread dumps e profilers. Use uma <code>ThreadFactory</code> que nomeie por pool.</li>
+</ul>
+<h3 id="por-que-mais-threads-nao-significa-mais-velocidade-usl">Por que mais threads não significa mais velocidade (USL)<a class="headerlink" href="#por-que-mais-threads-nao-significa-mais-velocidade-usl" title="Permanent link">&para;</a></h3>
+<p>Vale aprofundar a intuição que conecta tuning à Universal Scalability Law. Adicionar threads aumenta o throughput <strong>enquanto</strong> houver recurso ocioso para elas usarem: em IO-bound, há núcleos livres durante a espera, então mais threads = mais paralelismo útil, até o ponto em que os núcleos ficam saturados ou outro recurso (conexões de banco, largura de rede) se torna o gargalo. A partir daí, mais threads só adicionam <strong>contenção</strong> (disputa por locks, conexões) e <strong>coerência</strong> (context-switch, invalidação de cache, sincronização) — os termos α e β da USL — e a curva de throughput <strong>achata e depois desce</strong>. É por isso que existe um <em>ponto ótimo</em> e não "quanto mais, melhor": o pool deve ter threads suficientes para saturar o recurso limitante (núcleos em CPU-bound; o tempo de espera em IO-bound) e <strong>nenhuma a mais</strong>. Medir onde o throughput para de crescer é encontrar empiricamente o joelho da curva USL.</p>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Producer-Consumer</strong> (ver <code>14-concorrencia-e-paralelismo/07</code>): o thread pool <strong>é</strong> um producer-consumer — submitters produzem, workers consomem, a work queue é o bounded buffer. As armadilhas (fila ilimitada → OOM, backpressure) são as mesmas.</li>
+<li><strong>Lei de Little e Lei de Amdahl / USL</strong> (ver <code>07-performance-e-escalabilidade/06</code>): Little's Law dimensiona a concorrência necessária (<code>L = λ × T</code>); a fórmula de Goetz é sua aplicação ao pool; a USL explica por que existe um teto e o throughput pode decrescer com threads em excesso.</li>
+<li><strong>Connection pooling, async I/O e reactive</strong> (ver <code>07-performance-e-escalabilidade/05</code>): o connection pool é dimensionado pelo mesmo raciocínio (Little); reactive e async I/O são a alternativa ao pool grande para IO-bound (poucas threads, não-bloqueante).</li>
+<li><strong>Bulkhead / padrões de resiliência</strong> (ver <code>04-sistemas-distribuidos/10</code>): separar pools por dependência é literalmente o bulkhead — contém o dano de uma dependência lenta a um compartimento.</li>
+<li><strong>Memory model</strong> (ver <code>14-concorrencia-e-paralelismo/06</code>): a work queue e o estado compartilhado do pool dependem de happens-before para serem thread-safe; submeter uma tarefa publica seguramente seu estado para o worker.</li>
+<li><strong>Async/await, Futures e Reactive Streams</strong> (ver <code>14-concorrencia-e-paralelismo/09</code>): <code>CompletableFuture</code> roda no <code>ForkJoinPool.commonPool</code> por default; entender o pool subjacente evita bloquear o commonPool.</li>
+</ul>
+<h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
+<p>Três ideias para carregar:</p>
+<ol>
+<li><strong>A natureza da carga define o tamanho.</strong> CPU-bound → pool ≈ núcleos (mais threads só dá context-switch). IO-bound → pool muito maior, proporcional a quanto a tarefa <em>espera</em> (fórmula de Goetz <code>Ncpu × Ucpu × (1+W/C)</code>). Nunca dimensione sem saber se a carga computa ou espera.</li>
+<li><strong>A fila e a rejeição são tão importantes quanto o tamanho.</strong> Fila ilimitada esconde sobrecarga e arrisca OOM; fila limitada + rejection policy (<code>CallerRunsPolicy</code> para backpressure) protege o sistema. O pool é um producer-consumer — trate a fila como bounded buffer.</li>
+<li><strong>Separe pools e dimensione com dados.</strong> Um pool por tipo de carga e por dependência crítica (bulkhead) contém falhas em cascata. E o tamanho ótimo vem de <strong>medir</strong> (W/C real, utilização, p99, joelho da curva de throughput), não de chutar — a fórmula é ponto de partida, a medição é a verdade.</li>
+</ol>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Thread pool</strong> reusa workers consumindo uma work queue — é um <strong>producer-consumer</strong>; evita o custo, o estouro e o context-switch do thread-per-task.</li>
+<li><strong>CPU-bound → pool ≈ Ncpu (ou Ncpu+1)</strong>; mais threads só adiciona context-switch sem ganho (não há núcleos livres).</li>
+<li><strong>IO-bound → pool &gt;&gt; Ncpu</strong>; enquanto a thread espera I/O, o núcleo serve outra. Dimensione pela <strong>fórmula de Goetz: <code>Nthreads = Ncpu × Ucpu × (1 + W/C)</code></strong>.</li>
+<li><code>ThreadPoolExecutor</code>: cria até <code>corePoolSize</code>, <strong>depois enfileira</strong>, e só cria até <code>maximumPoolSize</code> <strong>quando a fila enche</strong> — por isso fila ilimitada nunca usa o max.</li>
+<li><strong>Fila limitada + rejection policy</strong> (use <code>CallerRunsPolicy</code> para backpressure) em produção; fila ilimitada (<code>newFixedThreadPool</code> default) arrisca OOM.</li>
+<li><strong>Separe pools por carga e por dependência (bulkhead)</strong> — pool único compartilhado entre CPU e IO, ou entre dependências, propaga falha em cascata.</li>
+<li>A <strong>USL</strong> explica o teto: mais threads ajudam até saturar o recurso limitante; além disso, contenção e coerência fazem o throughput <strong>achatar e cair</strong>. Há um ótimo, não "quanto mais melhor".</li>
+<li><strong>Virtual threads (Loom) e Goroutines</strong> tornam threads baratas para <strong>IO-bound</strong> (thread-per-request volta a escalar), mas não ajudam CPU-bound; cuidado com <code>synchronized</code> pinando virtual threads.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html">ThreadPoolExecutor (Java SE 17) — Oracle</a></li>
+<li><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/Executors.html">Executors (Java SE 21) — Oracle</a></li>
+<li><a href="https://docs.oracle.com/javase/tutorial/essential/concurrency/pools.html">Thread Pools — The Java Tutorials (Oracle)</a></li>
+<li><a href="https://flylib.com/books/en/2.558.1/sizing_thread_pools.html">Sizing Thread Pools — Java Concurrency in Practice (Goetz et al., cap. 8.2)</a></li>
+<li><a href="https://engineering.zalando.com/posts/2019/04/how-to-set-an-ideal-thread-pool-size.html">How to set an ideal thread pool size — Zalando Engineering Blog</a></li>
+<li><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ForkJoinPool.html">ForkJoinPool (Java SE 21) — Oracle (work-stealing)</a></li>
+<li><a href="https://openjdk.org/jeps/444">JEP 444: Virtual Threads (Project Loom) — OpenJDK</a></li>
+<li><a href="https://jcip.net/">Java Concurrency in Practice — Brian Goetz et al.</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../07-problemas-classicos-producer-consumer-readers-writers-dining-philosophers/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Problemas clássicos">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Problemas clássicos
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../09-async-await-futures-promises-reactive-streams/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Async/await, Futures, Reactive Streams">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Async/await, Futures, Reactive Streams
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

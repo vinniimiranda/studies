@@ -1,0 +1,2499 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/16-redes-e-protocolos/09-long-polling-sse-websockets/">
+      
+      
+        <link rel="prev" href="../08-cors-csrf-xss/">
+      
+      
+        <link rel="next" href="../../17-system-design/01-encurtador-de-url/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Long polling, SSE, WebSockets - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#long-polling-server-sent-events-e-websockets-quando-usar-cada-tecnica-de-tempo-real" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Long polling, SSE, WebSockets
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_18" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_18" id="__nav_18_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_18_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_18">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    16 · Redes e protocolos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelo OSI e TCP/IP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-tcp-vs-udp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TCP vs UDP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-http1-http2-http3-quic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP/1.1, HTTP/2, HTTP/3 (QUIC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-https-tls-handshake-e-certificados/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTPS, TLS handshake e certificados
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-dns-resolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DNS resolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-rest-graphql-grpc-websockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST, GraphQL, gRPC, WebSockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-semantica-http-idempotencia-e-status-codes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semântica HTTP (idempotência, status codes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-cors-csrf-xss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS, CSRF, XSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long polling, SSE, WebSockets
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long polling, SSE, WebSockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polling-e-long-polling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Polling e Long polling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#server-sent-events-sse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Server-Sent Events (SSE)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#websockets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebSockets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-comparativa-long-polling-sse-websocket" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela comparativa: Long polling × SSE × WebSocket
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-progressao-da-curva-de-trade-off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A progressão da curva de trade-off
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-detalhe-operacional-que-decide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O detalhe operacional que decide
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polling-e-long-polling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Polling e Long polling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#server-sent-events-sse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Server-Sent Events (SSE)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#websockets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebSockets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-comparativa-long-polling-sse-websocket" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela comparativa: Long polling × SSE × WebSocket
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-progressao-da-curva-de-trade-off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A progressão da curva de trade-off
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-detalhe-operacional-que-decide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O detalhe operacional que decide
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="long-polling-server-sent-events-e-websockets-quando-usar-cada-tecnica-de-tempo-real">Long polling, Server-Sent Events e WebSockets: quando usar cada técnica de tempo real<a class="headerlink" href="#long-polling-server-sent-events-e-websockets-quando-usar-cada-tecnica-de-tempo-real" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Redes e protocolos · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~28 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>A web nasceu <strong>pull</strong>: o cliente pergunta, o servidor responde. Mas muita coisa é <strong>push</strong>: o servidor tem algo novo (notificação, mensagem, cotação, status) e quer entregar <strong>na hora</strong>, sem o cliente perguntar. Três técnicas resolvem esse "tempo real" com trade-offs diferentes, e escolher errado custa caro. <strong>Polling/Long polling:</strong> o cliente pergunta repetidamente; no <em>long polling</em> o servidor <strong>segura a requisição aberta</strong> até ter dados (ou timeout), reduzindo chamadas vazias. Funciona em qualquer infraestrutura HTTP, mas tem overhead de re-conexão e latência irregular — é o <strong>fallback universal</strong>. <strong>Server-Sent Events (SSE):</strong> um canal <strong>unidirecional</strong> (servidor → cliente) sobre HTTP, via <code>EventSource</code>, com <strong>reconexão automática</strong> e formato <code>text/event-stream</code>. Simples, roda sobre HTTP/1.1+ e atravessa proxies — ideal quando o cliente <strong>só recebe</strong> (feeds, notificações, progresso, atualizações de status). <strong>WebSockets:</strong> canal <strong>full-duplex</strong> persistente sobre TCP (após handshake HTTP); cliente e servidor falam nos dois sentidos a qualquer momento — necessário quando o cliente também <strong>envia em tempo real</strong> (chat, jogos, colaboração, trading). Regra de decisão: <strong>fluxo só servidor→cliente, pouco frequente ou compatibilidade máxima → long polling; só servidor→cliente, contínuo → SSE; ambos os lados em tempo real → WebSocket.</strong> O erro caro mais comum é usar WebSocket (stateful, complexo de escalar) quando SSE (mais simples, sobre HTTP) bastaria — ou usar polling agressivo quando SSE/WebSocket dariam tempo real de verdade com menos carga.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>O modelo HTTP clássico é <strong>request/response iniciado pelo cliente</strong>: o navegador faz <code>GET /mensagens</code>, o servidor responde com as mensagens <em>daquele instante</em>, e a conexão fecha. Para saber se chegou mensagem nova, o cliente precisa <strong>perguntar de novo</strong>. Mas pense em casos onde a novidade é gerada <strong>no servidor, de forma assíncrona</strong>:</p>
+<ul>
+<li>Um chat: a mensagem do outro usuário chega ao servidor <em>quando ele a manda</em> — o seu cliente não tem como saber disso a não ser perguntando.</li>
+<li>Um dashboard de monitoramento: a métrica muda continuamente; você quer ver ao vivo.</li>
+<li>O status de um pedido/entrega: muda quando o sistema processa, não quando você abre a tela.</li>
+<li>Uma cotação de bolsa, o placar de um jogo, "fulano está digitando".</li>
+</ul>
+<p>Em todos, o <strong>gatilho</strong> está no servidor, mas o modelo HTTP só deixa o <strong>cliente</strong> iniciar. A solução ingênua — <strong>polling</strong>: o cliente pergunta a cada X segundos (<code>GET /mensagens</code> num loop) — tem dois problemas opostos e insolúveis simultaneamente: se o intervalo é <strong>curto</strong>, há muitas requisições vazias (desperdício de CPU, banda, bateria — a maioria retorna "nada novo"); se é <strong>longo</strong>, a latência da entrega é alta (a mensagem pode esperar até o próximo poll). Você troca eficiência por latência sem nunca ter ambas.</p>
+<p>A pergunta central: <strong>"Como o servidor entrega dados ao cliente assim que eles existem (push), em tempo real, sem o desperdício do polling e sem complexidade desnecessária — escolhendo a técnica proporcional ao requisito real de direção e frequência do fluxo?"</strong> As três técnicas — long polling, SSE e WebSocket — são pontos diferentes nessa curva de trade-off entre <strong>simplicidade/compatibilidade</strong> e <strong>eficiência/bidirecionalidade</strong>. A arte é escolher a <strong>mais simples que atende o requisito</strong>, não a mais poderosa.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="polling-e-long-polling">Polling e Long polling<a class="headerlink" href="#polling-e-long-polling" title="Permanent link">&para;</a></h3>
+<p><strong>Polling simples (short polling):</strong> o cliente faz requisições HTTP repetidas em intervalo fixo (<code>GET /updates</code> a cada 5s). Cada requisição é independente, completa, e a maioria volta vazia. É trivial de implementar e roda em qualquer lugar, mas é ineficiente (requisições vazias) e a latência é, em média, metade do intervalo.</p>
+<p><strong>Long polling:</strong> uma evolução que reduz o desperdício. O cliente faz a requisição, mas o <strong>servidor não responde imediatamente</strong> — ele <strong>segura a conexão aberta</strong> até que (a) haja um dado novo para enviar, ou (b) um timeout seja atingido (ex.: 30s). Assim que há dado, o servidor responde e a conexão fecha; o cliente <strong>imediatamente abre outra</strong> requisição long poll, e o ciclo continua. Benefício: a latência de entrega cai quase a zero (o servidor responde <em>no instante</em> em que tem o dado), e não há requisições vazias frequentes. Custos: para cada mensagem (ou timeout), há o overhead de <strong>fechar e reabrir</strong> a conexão HTTP (handshake, headers); sob alta frequência de mensagens, isso se aproxima do custo de polling; e manter muitas conexões "penduradas" no servidor consome recursos. É a técnica de <strong>maior compatibilidade</strong> — funciona em qualquer infra HTTP, atravessa qualquer proxy — e por isso é o <strong>fallback histórico</strong> (e o que bibliotecas como Socket.IO usam quando WebSocket não está disponível).</p>
+<h3 id="server-sent-events-sse">Server-Sent Events (SSE)<a class="headerlink" href="#server-sent-events-sse" title="Permanent link">&para;</a></h3>
+<p><strong>SSE</strong> é um padrão web para o servidor enviar um <strong>fluxo unidirecional</strong> de eventos ao cliente sobre uma <strong>conexão HTTP persistente</strong>. O cliente abre via a API <strong><code>EventSource</code></strong> (<code>new EventSource('/stream')</code>), e o servidor mantém a resposta aberta, com <code>Content-Type: text/event-stream</code>, <strong>empurrando</strong> eventos no formato de texto (<code>data: ...\n\n</code>, com campos opcionais <code>event:</code>, <code>id:</code>, <code>retry:</code>). Características centrais:</p>
+<ul>
+<li><strong>Unidirecional:</strong> dados fluem <strong>apenas servidor → cliente</strong>. O cliente não envia mensagens por esse canal (se precisar falar com o servidor, usa uma requisição HTTP normal, separada).</li>
+<li><strong>Sobre HTTP:</strong> usa HTTP comum (não muda de protocolo), então atravessa proxies, funciona com HTTP/1.1 e melhor ainda com HTTP/2 (que resolve o limite de conexões por host do HTTP/1.1).</li>
+<li><strong>Reconexão automática nativa:</strong> se a conexão cai, o <code>EventSource</code> do navegador <strong>reconecta sozinho</strong> após um intervalo (configurável via <code>retry:</code>), e pode retomar de onde parou usando o header <code>Last-Event-ID</code> (o servidor reenvia o que faltou). Isso é uma grande vantagem operacional — você não implementa reconexão manualmente.</li>
+<li><strong>Texto UTF-8:</strong> o formato é texto; para binário, é menos adequado que WebSocket.</li>
+</ul>
+<p>SSE é a escolha "simples e suficiente" quando o cliente <strong>só recebe</strong>: notificações, feeds de atividade, progresso de uma tarefa longa, atualizações de status, streaming de tokens de uma resposta de IA, dashboards de leitura.</p>
+<h3 id="websockets">WebSockets<a class="headerlink" href="#websockets" title="Permanent link">&para;</a></h3>
+<p><strong>WebSocket</strong> (RFC 6455) estabelece um canal <strong>full-duplex</strong> (bidirecional simultâneo) <strong>persistente</strong> sobre uma única conexão TCP. Inicia com <strong>handshake HTTP</strong> (<code>GET</code> com <code>Upgrade: websocket</code>); aceito o upgrade (<code>101 Switching Protocols</code>), a conexão deixa de ser HTTP e passa a trafegar <strong>frames</strong> WebSocket — e a partir daí <strong>ambos os lados enviam mensagens a qualquer momento</strong>, sem ciclo request/response. Características:</p>
+<ul>
+<li><strong>Full-duplex:</strong> cliente <strong>e</strong> servidor empurram mensagens independentemente, simultaneamente. É a única das três técnicas onde o <strong>cliente também envia em tempo real</strong> pelo mesmo canal.</li>
+<li><strong>Baixa latência e overhead:</strong> após o handshake, os frames têm cabeçalho mínimo — ótimo para alta frequência de mensagens pequenas (jogos, trading).</li>
+<li><strong>Texto ou binário:</strong> suporta ambos nativamente.</li>
+<li><strong>Stateful:</strong> o servidor mantém a conexão viva por cliente; escalar horizontalmente exige <strong>sticky sessions</strong> ou um <strong>backplane de pub/sub</strong> (Redis, etc.) para rotear mensagens entre instâncias, além de <strong>heartbeats</strong> (ping/pong) para detectar conexões mortas e estratégia de <strong>reconexão</strong> (que você implementa — não é automática como no SSE).</li>
+</ul>
+<p>WebSocket é necessário quando o requisito é <strong>bidirecional em tempo real</strong>; usá-lo para fluxo unidirecional é overkill (complexidade de estado sem o benefício do full-duplex).</p>
+<h3 id="tabela-comparativa-long-polling-sse-websocket">Tabela comparativa: Long polling × SSE × WebSocket<a class="headerlink" href="#tabela-comparativa-long-polling-sse-websocket" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Dimensão</th>
+<th>Long polling</th>
+<th>SSE (Server-Sent Events)</th>
+<th>WebSocket</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Direção</strong></td>
+<td>Servidor → cliente (resposta)</td>
+<td><strong>Servidor → cliente</strong> (unidirecional)</td>
+<td><strong>Full-duplex</strong> (ambos)</td>
+</tr>
+<tr>
+<td><strong>Protocolo</strong></td>
+<td>HTTP (requisições repetidas)</td>
+<td>HTTP (<code>text/event-stream</code>)</td>
+<td>TCP (após handshake HTTP → <code>101</code>)</td>
+</tr>
+<tr>
+<td><strong>API no cliente</strong></td>
+<td><code>fetch</code>/<code>XHR</code> em loop</td>
+<td><code>EventSource</code></td>
+<td><code>WebSocket</code></td>
+</tr>
+<tr>
+<td><strong>Conexão</strong></td>
+<td>Aberta até resposta, depois reabre</td>
+<td>Persistente, uma só</td>
+<td>Persistente, uma só</td>
+</tr>
+<tr>
+<td><strong>Reconexão</strong></td>
+<td>Manual (reabre a cada ciclo)</td>
+<td><strong>Automática</strong> (nativa, <code>Last-Event-ID</code>)</td>
+<td>Manual (você implementa)</td>
+</tr>
+<tr>
+<td><strong>Payload</strong></td>
+<td>Texto/JSON</td>
+<td>Texto UTF-8</td>
+<td>Texto ou binário</td>
+</tr>
+<tr>
+<td><strong>Cliente envia em tempo real?</strong></td>
+<td>Não (só pergunta)</td>
+<td><strong>Não</strong> (canal só recebe)</td>
+<td><strong>Sim</strong></td>
+</tr>
+<tr>
+<td><strong>Atravessa proxies/firewalls</strong></td>
+<td>Excelente</td>
+<td>Bom (é HTTP)</td>
+<td>Bom (mas alguns proxies tropeçam no upgrade)</td>
+</tr>
+<tr>
+<td><strong>Overhead</strong></td>
+<td>Alto (reabertura por mensagem)</td>
+<td>Baixo</td>
+<td><strong>Muito baixo</strong> (frames mínimos)</td>
+</tr>
+<tr>
+<td><strong>Escala horizontal</strong></td>
+<td>Simples (stateless por ciclo)</td>
+<td>Moderada (conexões abertas)</td>
+<td><strong>Complexa</strong> (sticky/backplane)</td>
+</tr>
+<tr>
+<td><strong>Complexidade</strong></td>
+<td>Baixa</td>
+<td><strong>Baixa</strong></td>
+<td>Alta</td>
+</tr>
+<tr>
+<td><strong>Caso-alvo</strong></td>
+<td>Fallback universal, updates raros</td>
+<td>Feeds, notificações, status, streaming IA</td>
+<td>Chat, jogos, colaboração, trading</td>
+</tr>
+</tbody>
+</table>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>As três técnicas atacam o mesmo problema (entregar dados gerados no servidor) por caminhos distintos: long polling <strong>simula</strong> push reabrindo a requisição assim que ela responde; SSE mantém <strong>uma resposta HTTP aberta</strong> e escreve eventos nela continuamente; WebSocket <strong>troca de protocolo</strong> para um canal TCP onde frames fluem nos dois sentidos. Quanto mais "tempo real e bidirecional" o requisito, mais à direita da tabela você vai — pagando em complexidade e estado.</p>
+<h3 id="a-progressao-da-curva-de-trade-off">A progressão da curva de trade-off<a class="headerlink" href="#a-progressao-da-curva-de-trade-off" title="Permanent link">&para;</a></h3>
+<p>Pense numa escada de capacidade vs custo:</p>
+<ol>
+<li><strong>Polling simples:</strong> mais simples, pior eficiência/latência. Cliente pergunta no relógio.</li>
+<li><strong>Long polling:</strong> servidor segura a resposta até ter dado → latência cai, requisições vazias somem; custo: reabertura por mensagem, conexões penduradas. Máxima compatibilidade.</li>
+<li><strong>SSE:</strong> uma conexão persistente, servidor empurra eventos; reconexão automática; sobre HTTP. Eficiente para <strong>só receber</strong>; custo: unidirecional, texto.</li>
+<li><strong>WebSocket:</strong> canal full-duplex; ambos empurram; mínimo overhead por mensagem; custo: stateful, escala complexa, reconexão manual.</li>
+</ol>
+<p>A regra de ouro: <strong>suba a escada só até onde o requisito exige</strong>. Se o cliente só recebe, parar no SSE; subir para WebSocket adiciona complexidade de estado sem benefício. Se precisa de bidirecional, WebSocket. Se a infra é hostil ou o tráfego é raro, long polling como base/fallback.</p>
+<h3 id="o-detalhe-operacional-que-decide">O detalhe operacional que decide<a class="headerlink" href="#o-detalhe-operacional-que-decide" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Reconexão:</strong> SSE reconecta <strong>sozinho</strong> (vantagem enorme — uma rede móvel que oscila não exige código seu). WebSocket exige <strong>você</strong> detectar a queda (heartbeat) e reabrir, reautenticar e ressincronizar estado. Subestimar isso é causa comum de bugs em produção com WebSocket.</li>
+<li><strong>HTTP/2 e SSE:</strong> sob HTTP/1.1, o navegador limita conexões por host (~6), e cada <code>EventSource</code> consome uma — abrir vários SSE estoura o limite. Sob <strong>HTTP/2</strong> (multiplexação), isso deixa de ser problema. É um motivo concreto para SSE casar bem com HTTP/2.</li>
+<li><strong>Escala do WebSocket:</strong> N conexões vivas significam estado distribuído. Um evento publicado por qualquer serviço precisa achar <strong>em qual instância</strong> o destinatário está conectado — daí o <strong>backplane pub/sub</strong>. Sem isso, WebSocket "funciona na minha máquina" e quebra ao escalar para várias instâncias.</li>
+<li><strong>Backpressure:</strong> num canal contínuo (SSE/WebSocket), se o servidor produz mais rápido do que o cliente consome, é preciso tratar acúmulo (descartar, agregar, ou sinalizar) — conecta com o conceito de backpressure.</li>
+</ul>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama contrasta os três padrões de comunicação numa sequência; o segundo é a árvore de decisão para escolher a técnica.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant C as Cliente
+    participant S as Servidor
+    Note over C,S: Long polling
+    C-&gt;&gt;S: "GET /updates (servidor segura)"
+    S--&gt;&gt;C: "responde quando há dado (ou timeout)"
+    C-&gt;&gt;S: "reabre imediatamente"
+    Note over C,S: SSE (unidirecional, conexão persistente)
+    C-&gt;&gt;S: "EventSource('/stream') abre"
+    S--&gt;&gt;C: "event: status (push)"
+    S--&gt;&gt;C: "event: status (push)"
+    Note over C,S: WebSocket (full-duplex)
+    C-&gt;&gt;S: "handshake Upgrade -&gt; 101"
+    C-&gt;&gt;S: "mensagem do cliente"
+    S--&gt;&gt;C: "push do servidor"
+    C-&gt;&gt;S: "mensagem do cliente"</code></pre>
+<pre class="mermaid"><code>flowchart TB
+    Q1{"O cliente precisa ENVIAR&lt;br/&gt;em tempo real também?"}
+    Q1 --&gt;|"sim (bidirecional)"| WS["WebSocket&lt;br/&gt;(chat, jogos, colaboração)"]
+    Q1 --&gt;|"não (só recebe)"| Q2{"Infra HTTP comum e&lt;br/&gt;fluxo contínuo de eventos?"}
+    Q2 --&gt;|"sim"| SSE["SSE / EventSource&lt;br/&gt;(feeds, notificações, status, IA)"]
+    Q2 --&gt;|"infra hostil / updates raros /&lt;br/&gt;compatibilidade máxima"| LP["Long polling&lt;br/&gt;(fallback universal)"]</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p>Considere uma <strong>plataforma de e-commerce e logística brasileira</strong> com vários recursos de tempo real, cada um exigindo a técnica certa.</p>
+<p><strong>Acompanhamento de pedido ao vivo → SSE.</strong> A tela "rastreie sua entrega" mostra o status mudando: "separando", "saiu para entrega", "a 2 paradas", "entregue". O fluxo é <strong>só servidor → cliente</strong> — o usuário apenas <em>observa</em>, não envia nada por esse canal. A escolha certa é <strong>SSE</strong>: o cliente abre um <code>EventSource('/orders/789/stream')</code> e recebe os eventos de status conforme o sistema os gera. Benefícios concretos: reconexão <strong>automática</strong> (o app mobile entra e sai de cobertura o tempo todo — o <code>EventSource</code> reabre sozinho e retoma via <code>Last-Event-ID</code> sem perder eventos) e simplicidade (roda sobre HTTP, atravessa o proxy corporativo, nada de gerenciar estado de conexão full-duplex). Usar WebSocket aqui seria <strong>overkill</strong> — adicionaria complexidade de escala e reconexão manual para um fluxo que é puramente de leitura.</p>
+<p><strong>Chat de atendimento → WebSocket.</strong> O chat entre comprador e vendedor (ou com o suporte) exige que <strong>ambos</strong> os lados enviem mensagens em tempo real, mais indicadores de presença ("digitando...") e confirmação de leitura — tudo <strong>bidirecional e de baixa latência</strong>. Aqui SSE não basta (o cliente precisa <strong>enviar</strong>, não só receber). A escolha é <strong>WebSocket</strong>: canal full-duplex, mensagens pequenas e frequentes com overhead mínimo. Para escalar em horário de pico, as instâncias de WebSocket usam um <strong>backplane Redis pub/sub</strong> — quando o vendedor (conectado à instância A) manda mensagem para o comprador (conectado à instância B), o evento publicado no Redis chega à instância certa. Implementaram <strong>heartbeat</strong> (ping/pong a cada 30s) para derrubar conexões zumbis e lógica de <strong>reconexão</strong> no cliente com re-autenticação e ressincronização do histórico.</p>
+<p><strong>Notificações de promoção → SSE (ou long polling como fallback).</strong> Notificações push dentro do app ("sua wishlist baixou de preço") são <strong>unidirecionais</strong>. SSE resolve. Para navegadores/redes onde SSE tropeça, a biblioteca cai para <strong>long polling</strong> automaticamente — garantindo entrega em qualquer ambiente, ao custo de eficiência.</p>
+<p><strong>Disponibilidade de estoque em página de produto → long polling.</strong> Numa funcionalidade legada que precisa rodar atrás de um proxy corporativo antigo e hostil a conexões persistentes, optaram por <strong>long polling</strong>: o cliente pergunta "mudou o estoque?" e o servidor segura até mudar ou dar timeout de 30s. Não é elegante, mas <strong>funciona em qualquer lugar</strong> — o critério decisivo foi compatibilidade máxima, não eficiência.</p>
+<p><strong>O erro que evitaram.</strong> Numa proposta inicial, alguém quis usar <strong>WebSocket para tudo</strong> — inclusive o rastreamento de pedido (que é só leitura). O time recuou ao perceber o custo: WebSocket teria forçado sticky sessions/backplane, reconexão manual e estado distribuído para um caso onde <strong>SSE</strong> entregava o mesmo resultado com reconexão grátis e sem estado complexo. A lição: <strong>escolha a técnica proporcional ao requisito de direção do fluxo</strong> — bidirecional pede WebSocket; unidirecional contínuo, SSE; e long polling fica como o fallback universal robusto.</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Long polling:</strong></p>
+<ul>
+<li>Use como <strong>fallback universal</strong> (quando SSE/WebSocket não estão disponíveis na infra/cliente), para <strong>updates pouco frequentes</strong>, ou quando <strong>compatibilidade máxima</strong> com proxies/firewalls antigos é o critério decisivo.</li>
+<li><strong>Evite</strong> para fluxos de <strong>alta frequência</strong> (o overhead de reabrir conexão a cada mensagem aproxima-se do polling e desperdiça recursos) — aí SSE/WebSocket são superiores.</li>
+</ul>
+<p><strong>SSE:</strong></p>
+<ul>
+<li>Use quando o fluxo é <strong>só servidor → cliente</strong> e contínuo: feeds de atividade, notificações, progresso de tarefa longa, atualizações de status, <strong>streaming de tokens de IA</strong>, dashboards de leitura. Aproveite a <strong>reconexão automática</strong> e a simplicidade de rodar sobre HTTP (melhor com HTTP/2).</li>
+<li><strong>Evite</strong> quando o cliente precisa <strong>enviar</strong> dados em tempo real pelo mesmo canal (use WebSocket) ou para payload primariamente <strong>binário</strong> (SSE é texto UTF-8).</li>
+</ul>
+<p><strong>WebSocket:</strong></p>
+<ul>
+<li>Use quando o requisito é <strong>bidirecional em tempo real</strong>: chat, jogos multiplayer, edição colaborativa, presença, trading, qualquer caso onde <strong>cliente e servidor empurram</strong> mensagens com baixa latência.</li>
+<li><strong>Evite</strong> para fluxos <strong>unidirecionais</strong> (prefira SSE — menos complexidade, reconexão grátis) e para <strong>request/response simples</strong> (use HTTP normal). Considere o custo de <strong>estado/escala</strong> (sticky sessions, backplane, heartbeats, reconexão manual) antes de adotar.</li>
+</ul>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>WebSocket para fluxo unidirecional.</strong> O anti-padrão mais caro: usar WebSocket (stateful, escala complexa, reconexão manual) quando o cliente só <strong>recebe</strong>. SSE entrega o mesmo com reconexão automática e sem estado complexo. Use WebSocket só quando o cliente também <strong>envia</strong> em tempo real.</li>
+<li><strong>Polling agressivo onde push resolveria.</strong> Pollar a cada 1-2s "para parecer tempo real" gera carga enorme de requisições vazias e ainda tem latência. Se o requisito é tempo real, use SSE/WebSocket; se não é, pollar devagar.</li>
+<li><strong>Esquecer a escala stateful do WebSocket.</strong> Funciona com uma instância e quebra com várias: sem <strong>sticky sessions</strong> ou <strong>backplane pub/sub</strong>, um evento não acha em qual instância o cliente está. Planeje isso desde o início.</li>
+<li><strong>Não implementar heartbeat/reconexão no WebSocket.</strong> Conexões zumbis (TCP que parece vivo mas não está) e quedas de rede sem reconexão derrubam a experiência. WebSocket exige <strong>você</strong> tratar ping/pong e reabertura — não é automático como no SSE.</li>
+<li><strong>Ignorar o limite de conexões do SSE em HTTP/1.1.</strong> Sob HTTP/1.1, abrir vários <code>EventSource</code> estoura o limite de ~6 conexões por host e trava outras requisições. Use <strong>HTTP/2</strong> (multiplexação) ou consolide num único stream.</li>
+<li><strong>Tentar enviar dados do cliente pelo canal SSE.</strong> SSE é <strong>unidirecional</strong>; o cliente fala com o servidor por requisições HTTP separadas. Esperar bidirecionalidade do SSE é erro conceitual.</li>
+<li><strong>Ignorar backpressure em canal contínuo.</strong> Se o servidor empurra mais rápido que o cliente consome (SSE/WebSocket), o acúmulo precisa ser tratado (agregar, descartar, sinalizar). Ignorar leva a memória crescente e latência.</li>
+<li><strong>Não ter fallback.</strong> Ambientes corporativos/redes móveis às vezes bloqueiam WebSocket ou conexões persistentes. Bibliotecas maduras (Socket.IO) caem para long polling — desenhar sem fallback quebra para parte dos usuários.</li>
+<li><strong>Usar SSE/WebSocket para o que é request/response.</strong> Carregar um formulário ou buscar um recurso não precisa de canal persistente. Tempo real é para <strong>eventos assíncronos gerados no servidor</strong>, não para toda interação.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>REST vs GraphQL vs gRPC vs WebSockets (16/06):</strong> WebSocket é uma das opções de transporte de tempo real; GraphQL <strong>subscriptions</strong> tipicamente rodam sobre WebSocket; gRPC streaming é uma alternativa para tempo real <strong>interno</strong> entre serviços (não no browser).</li>
+<li><strong>HTTP/2 e HTTP/3 (16/03):</strong> SSE se beneficia muito de HTTP/2 (multiplexação resolve o limite de conexões por host); o transporte subjacente afeta a viabilidade das técnicas.</li>
+<li><strong>Semântica HTTP (16/07):</strong> long polling e SSE são HTTP comum (status codes, headers); WebSocket usa HTTP só no handshake (<code>101 Switching Protocols</code>) e depois sai do modelo request/response.</li>
+<li><strong>Backpressure / resiliência (04/10):</strong> canais contínuos exigem controle de backpressure; WebSocket/SSE precisam de reconexão e tratamento de queda, conectando com padrões de resiliência.</li>
+<li><strong>Mensageria e pub/sub (06):</strong> o backplane que escala WebSocket horizontalmente é tipicamente um pub/sub (Redis, Kafka); tempo real no cliente é frequentemente a ponta de um pipeline de eventos.</li>
+<li><strong>Segurança (16/08):</strong> WebSocket exige autenticação no handshake e por mensagem; o canal não tem a semântica HTTP de CORS/cookies da mesma forma — tratar auth e origem é responsabilidade explícita.</li>
+<li><strong>API Gateway / BFF (04/08):</strong> nem todo gateway lida bem com conexões persistentes/upgrade; a topologia de tempo real às vezes precisa de um serviço dedicado fora do caminho HTTP comum.</li>
+</ul>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li>A web é <strong>pull</strong>; tempo real é <strong>push</strong>. As três técnicas resolvem push com trade-offs entre simplicidade/compatibilidade e eficiência/bidirecionalidade.</li>
+<li><strong>Long polling:</strong> cliente pergunta, servidor <strong>segura a resposta</strong> até ter dado ou timeout, depois reabre. Máxima compatibilidade; overhead de reabertura; <strong>fallback universal</strong>.</li>
+<li><strong>SSE:</strong> canal <strong>unidirecional</strong> (servidor → cliente) sobre HTTP, via <code>EventSource</code>, com <strong>reconexão automática</strong> nativa (<code>Last-Event-ID</code>). Simples; ideal para o cliente que <strong>só recebe</strong> (feeds, status, streaming de IA). Texto UTF-8.</li>
+<li><strong>WebSocket:</strong> canal <strong>full-duplex</strong> persistente (handshake HTTP → <code>101</code>); ambos empurram em tempo real. Necessário para <strong>bidirecional</strong> (chat, jogos); stateful, escala complexa (sticky/backplane), reconexão manual.</li>
+<li><strong>Regra de decisão:</strong> cliente também envia em tempo real → <strong>WebSocket</strong>; só recebe, contínuo → <strong>SSE</strong>; raro/infra hostil/compatibilidade → <strong>long polling</strong>.</li>
+<li><strong>Erro caro mais comum:</strong> WebSocket para fluxo unidirecional (use SSE). Suba a escada de capacidade só até o requisito exigir.</li>
+<li>SSE casa com <strong>HTTP/2</strong> (evita o limite de ~6 conexões por host do HTTP/1.1).</li>
+<li>WebSocket exige planejar <strong>escala stateful</strong>, <strong>heartbeat</strong> e <strong>reconexão</strong> desde o início.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events">Using server-sent events — MDN Web Docs</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/EventSource">EventSource — Web APIs — MDN Web Docs</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events">Server-sent events — Web APIs — MDN Web Docs</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API">The WebSocket API (WebSockets) — MDN Web Docs</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers">Writing WebSocket servers — MDN Web Docs</a></li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc6455">RFC 6455 — The WebSocket Protocol</a></li>
+<li><a href="https://ably.com/blog/websockets-vs-sse">WebSockets vs Server-Sent Events — Ably</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../08-cors-csrf-xss/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: CORS, CSRF, XSS">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                CORS, CSRF, XSS
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../17-system-design/01-encurtador-de-url/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Encurtador de URL">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Encurtador de URL
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2481 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/12-estruturas-de-dados/03-hash-tables/">
+      
+      
+        <link rel="prev" href="../02-stacks-queues-deque-priority-queue/">
+      
+      
+        <link rel="next" href="../04-arvores-de-busca-bst-avl-red-black/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Hash Tables - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#hash-tables-funcao-hash-colisoes-load-factor-e-rehashing" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Hash Tables
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_14" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_14">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    12 · Estruturas de dados
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-arrays-e-linked-lists/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arrays e Linked Lists
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-stacks-queues-deque-priority-queue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stacks, Queues, Deque, Priority Queue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hash Tables
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hash Tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#funcao-hash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Função hash
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#colisoes-separate-chaining" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Colisões — Separate Chaining
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#colisoes-open-addressing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Colisões — Open Addressing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-factor-fator-de-carga" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load Factor (fator de carga)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rehashing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rehashing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-de-complexidades" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela de complexidades
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-arvores-de-busca-bst-avl-red-black/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Árvores de busca (BST, AVL, Red-Black)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-b-tree-e-b-plus-tree/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    B-Tree e B+Tree
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-heaps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Heaps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-tries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-graphs-representacao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Graphs (representação)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-skip-list-bloom-filter-lru-lfu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skip List, Bloom Filter, LRU/LFU
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-union-find-disjoint-set/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Union-Find (Disjoint Set)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-segment-tree-e-fenwick-tree/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Segment Tree e Fenwick Tree
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#funcao-hash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Função hash
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#colisoes-separate-chaining" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Colisões — Separate Chaining
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#colisoes-open-addressing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Colisões — Open Addressing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-factor-fator-de-carga" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load Factor (fator de carga)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rehashing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rehashing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-de-complexidades" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela de complexidades
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="hash-tables-funcao-hash-colisoes-load-factor-e-rehashing">Hash Tables: Função Hash, Colisões, Load Factor e Rehashing<a class="headerlink" href="#hash-tables-funcao-hash-colisoes-load-factor-e-rehashing" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Estruturas de dados · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~28 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>A <strong>hash table</strong> (tabela de espalhamento, ou hash map) é a estrutura que dá <strong>busca, inserção e remoção em O(1) no caso médio</strong> — o santo graal das coleções associativas chave→valor. O mecanismo: uma <strong>função hash</strong> transforma a chave num inteiro, que é reduzido (tipicamente por módulo) a um <strong>índice de um array de buckets</strong>, onde o valor é guardado. Acessar pela chave vira aritmética + um acesso a array, daí o O(1). O preço é que esse O(1) é <strong>probabilístico, não garantido</strong>: duas chaves diferentes podem mapear para o mesmo bucket — uma <strong>colisão</strong> — e a estrutura precisa de uma estratégia para resolvê-las. As duas grandes famílias são <strong>separate chaining</strong> (cada bucket é uma lista/estrutura de itens colididos) e <strong>open addressing</strong> (a colisão procura outro slot livre no próprio array, via linear/quadratic probing ou double hashing). O que mantém o O(1) vivo é o <strong>load factor</strong> (α = nº de elementos / nº de buckets): quando ele cresce demais, as colisões aumentam e a performance degrada para O(n); por isso a tabela faz <strong>rehashing</strong> — dobra o array e redistribui todos os elementos — ao cruzar um limiar (0.75 no <code>HashMap</code> do Java, ~0.66 no Python). O pior caso teórico é <strong>O(n)</strong> (todas as chaves colidindo no mesmo bucket), e proteger-se disso (boa função hash, defesa contra hash flooding, e em alguns casos converter cadeias longas em árvores) é o que separa uma hash table de brinquedo de uma de produção. Hash tables são onipresentes: dicionários de linguagens, caches em memória (Redis, Memcached), índices hash de bancos, deduplicação, e a base de Sets.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>A pergunta é: <strong>"como encontrar o valor associado a uma chave o mais rápido possível?"</strong>. As respostas anteriores não bastam. Num array, achar um valor por <strong>chave</strong> (não por índice) exige busca linear O(n), ou O(log n) se ordenado + busca binária — mas manter ordenado custa caro em inserção. Numa árvore balanceada (BST/red-black), busca é O(log n). A hash table quebra a barreira do logaritmo e entrega <strong>O(1) médio</strong> — encontrar uma chave entre um milhão de itens custa essencialmente o mesmo que entre dez.</p>
+<p>A ideia central é <strong>trocar comparações por cálculo de endereço</strong>. Numa busca tradicional, você <em>compara</em> a chave procurada com chaves armazenadas (O(n) ou O(log n) comparações). Numa hash table, você <strong>calcula diretamente onde a chave deveria estar</strong>: <code>índice = hash(chave) % tamanho</code>. Não há busca pela posição — há aritmética que aponta para ela. É a mesma intuição do acesso O(1) por índice de array, generalizada de "índice inteiro sequencial" para "qualquer chave hasheável".</p>
+<p>Mas essa mágica esbarra num problema fundamental e inevitável: o <strong>pigeonhole principle</strong> (princípio das gavetas). O espaço de chaves possíveis (todas as strings, todos os objetos) é gigantesco — efetivamente infinito —, mas o array de buckets é finito. Logo, <strong>é impossível</strong> que a função hash seja injetora; necessariamente <strong>chaves diferentes vão colidir</strong> no mesmo bucket. A hash table não pode evitar colisões; ela só pode <strong>gerenciá-las bem</strong>. Toda a engenharia de hash tables gira em torno de duas perguntas:</p>
+<ol>
+<li><strong>Como espalhar as chaves uniformemente</strong> pelos buckets (boa função hash) para que colisões sejam <em>raras</em>?</li>
+<li><strong>O que fazer quando uma colisão ocorre</strong> (estratégia de resolução), para que o custo continue baixo?</li>
+</ol>
+<p>Há ainda um terceiro problema, operacional: o array de buckets tem tamanho fixo, mas o número de elementos cresce. Conforme ele enche, o <strong>load factor</strong> sobe, as colisões se multiplicam e o O(1) vira O(n). A solução é o <strong>rehashing</strong>: detectar quando a densidade fica perigosa e <strong>realocar para um array maior</strong>, redistribuindo tudo — análogo ao resize do array dinâmico, mas com o custo extra de <strong>recalcular o bucket de cada elemento</strong> (porque o módulo mudou). Entender esses três problemas — função hash, colisões, e load factor/rehashing — é entender hash tables.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="funcao-hash">Função hash<a class="headerlink" href="#funcao-hash" title="Permanent link">&para;</a></h3>
+<p>A <strong>função hash</strong> mapeia uma chave de tamanho arbitrário para um inteiro de tamanho fixo (o "hash code"), que depois é reduzido ao intervalo de índices do array (geralmente <code>hash % tamanho</code>, ou <code>hash &amp; (tamanho-1)</code> quando o tamanho é potência de 2). Uma <strong>boa função hash</strong> para uso em hash tables tem três propriedades:</p>
+<ul>
+<li><strong>Determinística:</strong> a mesma chave sempre produz o mesmo hash (óbvio, mas crucial — se mudar, você não acha mais a chave).</li>
+<li><strong>Distribuição uniforme:</strong> espalha as chaves o mais uniformemente possível pelos buckets, minimizando colisões. Chaves "parecidas" devem cair em buckets distantes (efeito avalanche).</li>
+<li><strong>Rápida de calcular:</strong> o hash é computado em toda operação; se for caro, mata o O(1).</li>
+</ul>
+<p>Note: a função hash de uma <strong>hash table</strong> (rápida, foco em distribuição) é diferente de uma função hash <strong>criptográfica</strong> (SHA-256, lenta, resistente a colisões adversárias). Em Java, <code>hashCode()</code> retorna o hash; o <code>HashMap</code> aplica ainda um "spread" (mistura os bits altos) antes do módulo, porque <code>hashCode</code> mal-distribuídos (ex.: só variando nos bits altos) causariam colisões em massa com tabelas pequenas.</p>
+<h3 id="colisoes-separate-chaining">Colisões — Separate Chaining<a class="headerlink" href="#colisoes-separate-chaining" title="Permanent link">&para;</a></h3>
+<p>No <strong>separate chaining</strong> (encadeamento separado, ou "closed addressing"), cada bucket aponta para uma <strong>estrutura que guarda todos os itens que colidiram</strong> ali — classicamente uma <strong>linked list</strong>. Inserir: calcula o bucket, adiciona o item à lista daquele bucket. Buscar: calcula o bucket, percorre a lista comparando chaves. Se a função hash distribui bem e α é baixo, as listas têm comprimento ~1 e tudo é O(1). Se degenera (muitas colisões num bucket), a lista fica longa e a busca naquele bucket vira O(n).</p>
+<ul>
+<li><strong>Vantagens:</strong> simples; a tabela nunca "enche" (sempre cabe mais um na lista); robusta a load factors altos e a funções hash medianas.</li>
+<li><strong>Desvantagens:</strong> cache locality ruim (as listas são nós espalhados — saltos de ponteiro), e overhead de memória (ponteiros). Cadeias longas degradam para O(n).</li>
+<li><strong>Otimização de produção:</strong> o <code>HashMap</code> do Java (desde o Java 8) <strong>converte a lista de um bucket em uma árvore red-black</strong> quando ela passa de 8 elementos (treeification), limitando o pior caso daquele bucket a <strong>O(log n)</strong> em vez de O(n) — uma defesa importante contra hash flooding.</li>
+</ul>
+<h3 id="colisoes-open-addressing">Colisões — Open Addressing<a class="headerlink" href="#colisoes-open-addressing" title="Permanent link">&para;</a></h3>
+<p>No <strong>open addressing</strong> (endereçamento aberto), <strong>todos os elementos vivem no próprio array de buckets</strong> — não há listas externas. Quando o bucket calculado está ocupado, a estrutura <strong>procura (probes) outro slot</strong> seguindo uma sequência determinística, até achar um vazio (na inserção) ou a chave (na busca). Esquemas de probing:</p>
+<ul>
+<li><strong>Linear probing:</strong> tenta <code>h, h+1, h+2, ...</code> (mod tamanho). Simples e com <strong>excelente cache locality</strong> (slots adjacentes), mas sofre de <strong>primary clustering</strong> — blocos contíguos de slots ocupados crescem e se fundem, alongando os probes.</li>
+<li><strong>Quadratic probing:</strong> tenta <code>h, h+1², h+2², h+3², ...</code>. Reduz o primary clustering, mas tem <strong>secondary clustering</strong> (chaves com o mesmo hash inicial seguem a mesma sequência).</li>
+<li>
+<p><strong>Double hashing:</strong> o passo do probe é dado por uma <strong>segunda função hash</strong> (<code>h, h+1·h2, h+2·h2, ...</code>), espalhando as sequências e minimizando clustering — o melhor dos três em qualidade de distribuição, ao custo de calcular dois hashes.</p>
+</li>
+<li>
+<p><strong>Vantagens:</strong> <strong>cache locality excelente</strong> (tudo no mesmo array contíguo), sem overhead de ponteiros — frequentemente mais rápido que chaining na prática moderna por causa do cache.</p>
+</li>
+<li><strong>Desvantagens:</strong> a tabela <strong>pode encher</strong> (α deve ficar bem abaixo de 1, tipicamente &lt; 0.7); <strong>remoção é complicada</strong> (não dá para só esvaziar um slot — quebraria as sequências de probe; usa-se um marcador "tombstone"); degrada feio quando α se aproxima de 1.</li>
+</ul>
+<h3 id="load-factor-fator-de-carga">Load Factor (fator de carga)<a class="headerlink" href="#load-factor-fator-de-carga" title="Permanent link">&para;</a></h3>
+<p>O <strong>load factor</strong> α = (número de elementos) / (número de buckets) mede a <strong>densidade</strong> da tabela e é o principal preditor de colisões. Em separate chaining, α é o comprimento médio esperado das listas (pode passar de 1). Em open addressing, α deve ficar &lt; 1 (e bem abaixo na prática), pois o número médio de probes explode conforme α → 1 (em linear probing, ~<code>1/(1-α)</code>). Limiares típicos: <strong>0.75 no <code>HashMap</code> do Java</strong>, <strong>~0.66 (2/3) no <code>dict</code> do Python</strong> (que usa open addressing). Load factor baixo = menos colisões, mais memória desperdiçada; alto = menos memória, mais colisões. É o knob central do trade-off tempo×espaço da hash table.</p>
+<h3 id="rehashing">Rehashing<a class="headerlink" href="#rehashing" title="Permanent link">&para;</a></h3>
+<p><strong>Rehashing</strong> é o processo de <strong>aumentar o array de buckets</strong> (tipicamente <strong>dobrando</strong>) e <strong>redistribuir todos os elementos</strong> quando o load factor cruza o limiar. Diferente do resize de um array dinâmico, aqui não basta copiar: como o índice é <code>hash % tamanho</code> e o <strong>tamanho mudou</strong>, cada elemento precisa ter seu <strong>bucket recalculado</strong> e ser reinserido na nova posição. Custo: <strong>O(n)</strong> — caro, mas <strong>amortizado O(1)</strong> por operação (acontece raramente, a cada duplicação, exatamente como o array dinâmico). O rehashing é o que mantém α controlado e, portanto, o O(1) médio vivo ao longo do crescimento. Detalhe sutil: o rehashing causa uma <strong>pausa de latência</strong> O(n) (o insert que o dispara é lento), relevante para sistemas de baixa latência — daí pré-dimensionar (<code>new HashMap&lt;&gt;(capacidadeEsperada)</code>) quando o tamanho é conhecido.</p>
+<h3 id="tabela-de-complexidades">Tabela de complexidades<a class="headerlink" href="#tabela-de-complexidades" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operação</th>
+<th>Caso médio</th>
+<th>Pior caso</th>
+<th>Observação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Busca (get)</td>
+<td><strong>O(1)</strong></td>
+<td>O(n)</td>
+<td>pior caso = todas as chaves no mesmo bucket</td>
+</tr>
+<tr>
+<td>Inserção (put)</td>
+<td><strong>O(1)</strong> amortizado</td>
+<td>O(n)</td>
+<td>O(n) quando dispara rehashing</td>
+</tr>
+<tr>
+<td>Remoção (delete)</td>
+<td><strong>O(1)</strong></td>
+<td>O(n)</td>
+<td>open addressing usa tombstones</td>
+</tr>
+<tr>
+<td>Iterar todos</td>
+<td>O(n + m)</td>
+<td>O(n + m)</td>
+<td>n elementos + m buckets (sem ordem)</td>
+</tr>
+<tr>
+<td>Espaço</td>
+<td>O(n + m)</td>
+<td>O(n + m)</td>
+<td>buckets ociosos contam (load factor)</td>
+</tr>
+</tbody>
+</table>
+<p>Pior caso com treeification (Java 8+): a busca num bucket degenerado cai de O(n) para <strong>O(log n)</strong>.</p>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p><strong>Fluxo de um <code>get(chave)</code>:</strong></p>
+<ol>
+<li><code>h = hash(chave)</code> — calcula o hash code (e, no Java, mistura os bits).</li>
+<li><code>i = h % tamanho</code> (ou <code>h &amp; (tamanho-1)</code>) — reduz ao índice do bucket.</li>
+<li>Vai ao bucket <code>i</code>. <strong>Chaining:</strong> percorre a lista comparando chaves com <code>equals</code> até achar (ou esgotar). <strong>Open addressing:</strong> examina o slot; se a chave bate, retorna; se está ocupado por outra chave, faz probe para o próximo da sequência; se acha vazio, a chave não existe.</li>
+</ol>
+<p>O passo 3 é onde colisões cobram seu preço: com boa distribuição e α baixo, é ~1 comparação (O(1)); com degeneração, vira O(n) (ou O(log n) com treeification).</p>
+<p><strong>Por que <code>equals</code> e <code>hashCode</code> precisam ser consistentes (Java).</strong> Dois objetos iguais (<code>equals</code> true) <strong>devem</strong> ter o mesmo <code>hashCode</code>. Se não tiverem, eles podem cair em buckets diferentes e a hash table "perde" a chave — você guarda com um objeto e não acha com outro igual. É o contrato <code>equals/hashCode</code>, e violá-lo é um dos bugs mais traiçoeiros em Java (e a razão de usar objetos <strong>imutáveis</strong> como chave — se o hash muda depois de inserido, a chave fica inacessível).</p>
+<p><strong>Mecânica do rehashing:</strong> ao cruzar α limiar, aloca <code>novoArray</code> de tamanho <code>2×</code>, percorre o array antigo e, para cada elemento, recalcula <code>hash % novoTamanho</code> e o insere no novo array; descarta o antigo. Com tamanho potência de 2, há uma otimização: o novo bucket de um elemento é ou o mesmo índice ou <code>índice + tamanhoAntigo</code>, decidido por um único bit do hash — o que o <code>HashMap</code> do Java explora para rehash rápido.</p>
+<p><strong>Defesa contra hash flooding (DoS).</strong> Se um atacante conhece a função hash, pode forjar milhares de chaves que colidem no mesmo bucket, degradando a tabela para O(n) e derrubando o serviço (hash flooding / algorithmic complexity attack). Defesas: <strong>hash com semente aleatória</strong> (SipHash, usado por padrão em Rust, Python 3, Perl), e <strong>treeification</strong> (Java) que limita o dano a O(log n). Um arquiteto deve saber que hash tables têm essa superfície de ataque.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama mostra o fluxo função hash → módulo → bucket; o segundo mostra separate chaining (listas nos buckets) com uma colisão; o terceiro mostra o rehashing (dobrar e redistribuir).</p>
+<pre class="mermaid"><code>flowchart LR
+    K["chave 'cpf:123'"] --&gt; H["função hash&lt;br/&gt;→ 8675309"]
+    H --&gt; M["% tamanho (8)&lt;br/&gt;→ índice 5"]
+    M --&gt; B["bucket[5]"]
+    B --&gt; V["valor armazenado/buscado"]</code></pre>
+<pre class="mermaid"><code>flowchart LR
+    subgraph Buckets["array de buckets (separate chaining)"]
+        B0["bucket[0]"] --&gt; N0["null"]
+        B1["bucket[1]"] --&gt; A["('ana', v1)"]
+        B2["bucket[2]"] --&gt; C["('bia', v2)"]
+        C --&gt;|"colisão!"| D["('caio', v3)"]
+        B3["bucket[3]"] --&gt; N3["null"]
+    end
+    HASH["hash('bia')%4 = 2&lt;br/&gt;hash('caio')%4 = 2"] -.-&gt; B2</code></pre>
+<pre class="mermaid"><code>flowchart TB
+    OLD["tabela antiga&lt;br/&gt;8 buckets, α=0.75 (6 elementos)"] --&gt;|"insert dispara rehash"| STEP["aloca 16 buckets&lt;br/&gt;recalcula hash % 16 de cada elemento"]
+    STEP --&gt; NEW["tabela nova&lt;br/&gt;16 buckets, α=0.375&lt;br/&gt;colisões reduzidas → O(1) restaurado"]</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p><strong>Caso 1 — Cache de sessão em memória (Redis / hash table).</strong> Numa plataforma de e-commerce brasileira, cada usuário logado tem uma sessão (<code>session:token → dados</code>). O Redis, no fundo, é uma <strong>hash table gigante distribuída</strong>: <code>GET session:abc123</code> calcula o hash da chave, vai ao bucket e retorna em O(1) — milhões de sessões, tempo de acesso constante. É o exemplo de como a estrutura "hash table" vira a base de um sistema de cache inteiro. O <code>MAXMEMORY</code> e a política de evicção (LRU/LFU) lidam com o crescimento, e o sharding (consistent hashing) distribui os buckets entre nós — conectando hash table com <a href="../../05-dados-e-persistencia/08-cache-patterns/">Cache Patterns</a> e sharding.</p>
+<p><strong>Caso 2 — Deduplicação de eventos / idempotência.</strong> Para garantir que um pagamento não seja processado duas vezes (idempotência), o sistema guarda as chaves de idempotência já vistas num <strong>Set</strong> (que é uma hash table só com chaves). Verificar "já processei este evento?" é um <code>contains</code> O(1). Para milhões de eventos/dia, só uma hash table dá essa verificação em tempo constante — uma BST seria O(log n), e busca linear, inviável. (Quando a memória aperta, troca-se exatidão por um <strong>Bloom filter</strong>, uma hash table probabilística que admite falsos positivos.)</p>
+<p><strong>Caso 3 — Índice de produtos por SKU.</strong> Para resolver <code>SKU → produto</code> num catálogo, uma hash table em memória (ou um <strong>índice hash</strong> no banco, como o <code>USING HASH</code> do PostgreSQL para igualdade exata) dá lookup O(1). Detalhe arquitetural: índice hash serve <strong>só igualdade</strong> (<code>=</code>), não range (<code>&lt;</code>, <code>BETWEEN</code>, <code>ORDER BY</code>) — para isso, B-Tree. Saber quando usar índice hash vs B-Tree é decisão de design de banco (veja <a href="../05-b-tree-e-b-plus-tree/">B-Tree e B+Tree</a>).</p>
+<p><strong>Caso 4 — A armadilha do load factor em produção.</strong> Um serviço carregava 10 milhões de registros num <code>HashMap</code> criado com o tamanho default (16). Resultado: <strong>dezenas de rehashings</strong> durante o carregamento (cada um O(n)), cada um uma pausa de latência crescente, somando minutos de overhead e picos de GC. A correção: <code>new HashMap&lt;&gt;(13_400_000)</code> (≈ 10M / 0.75, pré-dimensionado), eliminando todos os rehashings. Conhecer load factor e rehashing transforma um carregamento lento e cheio de soluços num carregamento liso — exatamente o tipo de otimização que um sênior identifica.</p>
+<p>Pseudocódigo de <code>put</code> com rehashing:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>function put(table, chave, valor):
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    if (table.size + 1) / table.numBuckets &gt; table.maxLoadFactor:
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        rehash(table, table.numBuckets * 2)        // O(n), raro
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    i = hash(chave) % table.numBuckets
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    insereNoBucket(table.buckets[i], chave, valor)  // chaining ou probing
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    table.size += 1
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>function rehash(table, novoTamanho):
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    novos = arrayDeBuckets(novoTamanho)
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    for (chave, valor) in todosOsElementos(table):
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        j = hash(chave) % novoTamanho               // recalcula!
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        insereNoBucket(novos[j], chave, valor)
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    table.buckets = novos
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    table.numBuckets = novoTamanho
+</code></pre></div>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Use hash table quando:</strong></p>
+<ul>
+<li>Você precisa de <strong>lookup/inserção/remoção por chave em O(1) médio</strong> — o caso de uso dominante de mapas e sets.</li>
+<li>A operação é <strong>igualdade exata</strong> ("dá-me o valor desta chave").</li>
+<li>Não importa a <strong>ordem</strong> dos elementos.</li>
+<li>Implementar cache em memória, deduplicação, contagem de frequências, índices de igualdade, junção (hash join).</li>
+</ul>
+<p><strong>Evite/use outra coisa quando:</strong></p>
+<ul>
+<li>Você precisa de <strong>ordem</strong> (iterar em ordem de chave), <strong>range queries</strong> (<code>entre X e Y</code>), <strong>min/max</strong>, ou <strong>predecessor/sucessor</strong> — hash tables não suportam; use <strong>árvore balanceada</strong> (red-black / B-Tree) ou skip list. Esse é o trade-off fundamental: hash table = O(1) mas sem ordem; árvore = O(log n) mas ordenada.</li>
+<li>O <strong>pior caso O(n)</strong> é inaceitável e há risco adversarial (hash flooding) — então exija função hash com semente aleatória e/ou estrutura com pior caso garantido (árvore).</li>
+<li>O conjunto é <strong>pequeno e fixo</strong> — um array linear pode ser mais rápido (cabe no cache, sem overhead de hash).</li>
+<li>Você precisa de <strong>persistência ordenada em disco</strong> — B+Tree é o substrato de índices de banco, não hash table (exceto índices hash para igualdade).</li>
+</ul>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Violar o contrato <code>equals</code>/<code>hashCode</code> (Java).</strong> Sobrescrever <code>equals</code> mas não <code>hashCode</code> (ou vice-versa) faz a hash table "perder" chaves — objetos iguais em buckets diferentes. Bug clássico e traiçoeiro. Use objetos <strong>imutáveis</strong> como chave.</li>
+<li><strong>Mutar uma chave depois de inseri-la.</strong> Se o hash da chave muda após a inserção (ex.: alterar um campo usado no <code>hashCode</code>), o elemento fica num bucket "errado" e se torna <strong>inacessível</strong>. Chaves devem ser imutáveis.</li>
+<li><strong>Confundir "O(1)" com "sempre rápido".</strong> O O(1) é <strong>médio e amortizado</strong>; o pior caso é O(n), e o insert que dispara rehashing é O(n). Em sistemas de latência crítica (p99), os soluços de rehashing importam — pré-dimensione.</li>
+<li><strong>Não pré-dimensionar ao carregar muitos dados.</strong> Carregar N elementos numa tabela default dispara múltiplos rehashings O(n). Pré-dimensionar (capacidade ≈ N / load factor) elimina-os.</li>
+<li><strong>Assumir ordem de iteração.</strong> A ordem de iteração de uma hash table é <strong>arbitrária</strong> (e pode mudar entre versões ou após rehash). Código que depende dela é frágil. Para ordem de inserção use <code>LinkedHashMap</code>; para ordem de chave, <code>TreeMap</code>.</li>
+<li><strong>Ignorar hash flooding.</strong> Em serviços que recebem chaves de input não-confiável (parâmetros HTTP, JSON), um atacante pode forjar colisões e degradar para O(n) — DoS. Use hash com semente (SipHash) ou estruturas com pior caso O(log n).</li>
+<li><strong>Usar hash table para range/ordenação.</strong> Tentar fazer "todos os pedidos entre duas datas" ou "top N" com hash table não funciona — não há ordem. Use árvore/índice ordenado.</li>
+<li><strong>Open addressing com remoção ingênua.</strong> Esvaziar um slot em open addressing quebra as sequências de probe (chaves "depois" ficam inacessíveis). Use <strong>tombstones</strong> (marcador de removido) e rehash periódico para limpá-los.</li>
+<li><strong>Função hash ruim (ex.: <code>hashCode</code> constante ou só os bits baixos).</strong> Concentra tudo em poucos buckets, degradando para O(n). Uma boa distribuição é metade do trabalho.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Arrays e Linked Lists:</strong> a hash table é construída sobre um <strong>array</strong> (os buckets) e, em separate chaining, <strong>linked lists</strong> (as cadeias) — herda a cache locality do array e o overhead de ponteiros da lista. Veja <a href="../01-arrays-e-linked-lists/">Arrays e Linked Lists</a>.</li>
+<li><strong>Árvores balanceadas:</strong> são a <strong>alternativa ordenada</strong> à hash table (O(log n) com ordem vs O(1) sem ordem); e o <code>HashMap</code> do Java usa <strong>red-black trees</strong> para treeification de buckets degenerados. Veja <a href="../04-arvores-de-busca-bst-avl-red-black/">Árvores de Busca: BST, AVL, Red-Black</a>.</li>
+<li><strong>Complexidade algorítmica / análise amortizada:</strong> o O(1) médio, o pior caso O(n) e o rehashing amortizado O(1) são exemplos centrais de por que distinguir caso médio, pior caso e amortizado importa. Veja <a href="../11-complexidade-algoritmica/01-notacao-assintotica-big-o.md">Complexidade Algorítmica</a>.</li>
+<li><strong>Consistent hashing &amp; sharding:</strong> distribuir chaves entre nós de um cache/banco distribuído é "hash table no nível de cluster"; consistent hashing minimiza o "rehashing" (remapeamento) quando nós entram/saem. Veja <a href="../../04-sistemas-distribuidos/11-leader-election-sharding-consistent-hashing/">Leader Election, Sharding, Consistent Hashing</a>.</li>
+<li><strong>Cache patterns:</strong> caches em memória (Redis, Memcached, cache local) são hash tables com política de evicção; o LRU combina hash table + doubly linked list. Veja <a href="../../05-dados-e-persistencia/08-cache-patterns/">Cache Patterns</a>.</li>
+<li><strong>Índices de banco:</strong> índices hash servem igualdade O(1); B-Tree serve range/ordem. A escolha é decisão de design de schema. Veja <a href="../05-b-tree-e-b-plus-tree/">B-Tree e B+Tree</a>.</li>
+<li><strong>Algoritmos:</strong> hash join, deduplicação, contagem de frequência e detecção de duplicatas usam hash tables como ferramenta central. Veja <a href="../13-algoritmos-essenciais/01-bfs-dfs-grafos.md">Algoritmos Essenciais</a>.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://www.geeksforgeeks.org/dsa/hash-table-data-structure/">Hash Table Data Structure — GeeksforGeeks</a></li>
+<li><a href="https://www.geeksforgeeks.org/dsa/separate-chaining-collision-handling-technique-in-hashing/">Separate Chaining Collision Handling Technique in Hashing — GeeksforGeeks</a></li>
+<li><a href="https://www.geeksforgeeks.org/dsa/open-addressing-collision-handling-technique-in-hashing/">Open Addressing Collision Handling technique in Hashing — GeeksforGeeks</a></li>
+<li><a href="https://www.geeksforgeeks.org/dsa/load-factor-and-rehashing/">Load Factor and Rehashing — GeeksforGeeks</a></li>
+<li><a href="https://visualgo.net/en/hashtable">Hash Table (Chaining, Linear/Quadratic Probing, Double Hashing) — VisuAlgo</a></li>
+<li><a href="https://www.bigocheatsheet.com/">Big-O Algorithm Complexity Cheat Sheet — Common Data Structures</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Hash_table">Hash table — Wikipedia</a></li>
+<li><a href="https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html">HashMap (Java Platform SE) — Oracle Docs</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../02-stacks-queues-deque-priority-queue/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Stacks, Queues, Deque, Priority Queue">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Stacks, Queues, Deque, Priority Queue
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../04-arvores-de-busca-bst-avl-red-black/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Árvores de busca (BST, AVL, Red-Black)">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Árvores de busca (BST, AVL, Red-Black)
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

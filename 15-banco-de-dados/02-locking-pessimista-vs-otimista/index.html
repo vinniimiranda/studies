@@ -1,0 +1,2455 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/15-banco-de-dados/02-locking-pessimista-vs-otimista/">
+      
+      
+        <link rel="prev" href="../01-niveis-de-isolamento-e-anomalias/">
+      
+      
+        <link rel="next" href="../03-indices-de-banco-btree-hash-composite-covering/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Locking pessimista vs otimista - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#locking-pessimista-vs-otimista-granularidade-row-level-vs-table-level-e-deadlocks" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Locking pessimista vs otimista
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_17" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_17" id="__nav_17_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_17_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_17">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    15 · Banco de dados
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Níveis de isolamento e anomalias
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Locking pessimista vs otimista
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Locking pessimista vs otimista
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#locking-pessimista" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locking pessimista
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#locking-otimista" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locking otimista
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#granularidade-do-lock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Granularidade do lock
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deadlocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deadlocks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#como-evitar-e-tratar-deadlocks-recomendacoes-dos-manuais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como evitar e tratar deadlocks (recomendações dos manuais)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-indices-de-banco-btree-hash-composite-covering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Índices (B-Tree, Hash, composite, covering)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-query-optimization-explain-e-n-mais-1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query optimization (EXPLAIN, N+1)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-normalizacao-vs-desnormalizacao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Normalização vs desnormalização
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-sql-vs-nosql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SQL vs NoSQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#locking-pessimista" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locking pessimista
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#locking-otimista" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locking otimista
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#granularidade-do-lock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Granularidade do lock
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deadlocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deadlocks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#como-evitar-e-tratar-deadlocks-recomendacoes-dos-manuais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como evitar e tratar deadlocks (recomendações dos manuais)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="locking-pessimista-vs-otimista-granularidade-row-level-vs-table-level-e-deadlocks">Locking: Pessimista vs Otimista, Granularidade (Row-level vs Table-level) e Deadlocks<a class="headerlink" href="#locking-pessimista-vs-otimista-granularidade-row-level-vs-table-level-e-deadlocks" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Banco de dados · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~26 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>Quando duas transações disputam o mesmo dado, o banco precisa de uma estratégia para impedir corrupção (lost update, principalmente). Há duas filosofias opostas. O <strong>locking pessimista</strong> assume que o conflito é <strong>provável</strong> e <strong>bloqueia o dado antes de usá-lo</strong> (<code>SELECT ... FOR UPDATE</code>): quem chegar depois espera (ou recebe erro). Garante exclusividade, mas serializa o acesso, reduz concorrência e abre a porta para <strong>deadlocks</strong> e esperas longas. O <strong>locking otimista</strong> assume que o conflito é <strong>raro</strong> e <strong>não bloqueia nada</strong>: deixa todos trabalharem livremente e, na hora de gravar, <strong>verifica se o dado mudou desde que foi lido</strong> (via uma coluna <code>version</code> ou timestamp); se mudou, a escrita falha e o cliente decide (retry, merge, erro). Não há lock mantido, então a concorrência é alta — mas sob contenção real, os retries se acumulam. A escolha depende da <strong>probabilidade de conflito</strong> e do <strong>custo de refazer o trabalho</strong>. Ortogonal a isso está a <strong>granularidade do lock</strong> — row-level (uma linha), table-level (a tabela inteira), além de page/gap locks — que negocia overhead de gerenciamento contra concorrência. E o fenômeno que assombra o locking pessimista é o <strong>deadlock</strong>: duas transações esperando uma pela outra em ordem circular, que o banco resolve <strong>detectando o ciclo e abortando uma vítima</strong>.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>O padrão mais perigoso da concorrência é <strong>leitura-modificação-escrita</strong> (read-modify-write): uma transação lê um valor, decide algo com base nele e grava de volta. Se duas transações fazem isso ao mesmo tempo sobre o mesmo dado, uma sobrescreve a outra — o <strong>lost update</strong> detalhado em <code>01-niveis-de-isolamento-e-anomalias.md</code>. O exemplo canônico: dois pedidos baixando o último item de estoque, ambos leem <code>quantidade = 1</code>, ambos gravam <code>0</code>, e duas unidades são vendidas de uma que existia.</p>
+<p>Subir o nível de isolamento (Serializable) resolve, mas é um instrumento global e caro. Frequentemente o que se quer é <strong>proteger uma operação específica</strong> sem pagar o preço de Serializable em toda a transação. É aí que entram as estratégias de <strong>locking explícito</strong>, e a decisão central é <em>quando pagar o custo da exclusividade</em>:</p>
+<ul>
+<li><strong>Pagar adiantado (pessimista):</strong> bloqueio o dado <em>antes</em> de usá-lo. Ninguém mais mexe enquanto seguro o lock. Custo: serialização, espera, risco de deadlock. Benefício: nunca refaço trabalho — quando consigo o lock, sei que vou conseguir gravar.</li>
+<li><strong>Pagar no final, só se necessário (otimista):</strong> não bloqueio nada; trabalho livremente e, no commit, <em>verifico</em> se alguém mexeu. Custo: posso ter feito trabalho em vão e ter que refazer (retry). Benefício: nenhuma espera no caminho feliz, concorrência máxima quando conflitos são raros.</li>
+</ul>
+<p>A pergunta de engenharia: <strong>"qual é a probabilidade de dois clientes disputarem este dado, e quanto custa refazer o trabalho se houver conflito?"</strong> Conflito raro + trabalho barato de refazer → otimista. Conflito frequente + trabalho caro de refazer (ou efeitos colaterais externos) → pessimista. Essa é a decisão arquitetural que organiza todo o assunto.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="locking-pessimista">Locking pessimista<a class="headerlink" href="#locking-pessimista" title="Permanent link">&para;</a></h3>
+<p>O <strong>locking pessimista</strong> adquire um lock sobre o dado <strong>no momento da leitura</strong> e o mantém até o fim da transação (commit/rollback), impedindo que outras transações o modifiquem (e, dependendo do tipo de lock, até que o leiam). A premissa é "vou colidir, então protejo antes".</p>
+<p>No SQL, materializa-se com <strong>locking reads</strong>:</p>
+<ul>
+<li><strong><code>SELECT ... FOR UPDATE</code>:</strong> adquire um lock <strong>exclusivo</strong> nas linhas lidas — outras transações não podem atualizá-las, deletá-las, nem fazer <code>FOR UPDATE</code>/<code>FOR SHARE</code> sobre elas; ficam <strong>bloqueadas esperando</strong> (ou recebem erro com <code>NOWAIT</code>/<code>SKIP LOCKED</code>). É o lock para "vou modificar isto".</li>
+<li><strong><code>SELECT ... FOR SHARE</code></strong> (MySQL) / <strong><code>FOR SHARE</code></strong> (PostgreSQL): lock <strong>compartilhado</strong> — outros podem ler, mas ninguém pode modificar. É o lock para "preciso que isto não mude enquanto leio, mas outros leitores são OK".</li>
+</ul>
+<p>Tipos de lock subjacentes:</p>
+<ul>
+<li><strong>Shared lock (S, leitura):</strong> vários podem segurar simultaneamente; bloqueia escritores.</li>
+<li><strong>Exclusive lock (X, escrita):</strong> apenas um pode segurar; bloqueia todos os outros (leitores e escritores que pedem lock).</li>
+</ul>
+<p>O modelo formal por trás é o <strong>Two-Phase Locking (2PL)</strong>: a transação adquire locks numa fase de "crescimento" e os libera numa fase de "encolhimento" (na prática, todos no commit — <em>strict 2PL</em>). 2PL garante serializabilidade, ao custo de contenção.</p>
+<h3 id="locking-otimista">Locking otimista<a class="headerlink" href="#locking-otimista" title="Permanent link">&para;</a></h3>
+<p>O <strong>locking otimista</strong> (também <em>optimistic concurrency control</em>, OCC) <strong>não adquire lock algum</strong> durante a leitura e o processamento. Em vez disso, anexa um <strong>token de versão</strong> ao dado — tipicamente uma coluna <code>version</code> (inteiro incrementado) ou <code>updated_at</code> (timestamp). O fluxo:</p>
+<ol>
+<li><strong>Leio</strong> a linha junto com sua versão atual (ex.: <code>version = 7</code>).</li>
+<li><strong>Trabalho</strong> com o dado (na aplicação, possivelmente por segundos ou minutos — sem segurar nada).</li>
+<li><strong>Gravo</strong> com uma condição: <code>UPDATE ... SET ..., version = 8 WHERE id = ? AND version = 7</code>.</li>
+<li>Verifico <strong>linhas afetadas</strong>: se for <strong>1</strong>, ninguém mexeu, sucesso. Se for <strong>0</strong>, alguém alterou a linha (a versão já não é 7) — <strong>conflito detectado</strong>; aborto e decido (retry, merge, mensagem ao usuário).</li>
+</ol>
+<p>A premissa é "provavelmente não vou colidir, então não pago o custo do lock; só verifico no fim". É exatamente o padrão <strong>Compare-And-Swap (CAS)</strong> aplicado a banco: comparo o valor esperado, troco atomicamente, falho se mudou. Martin Fowler o catalogou como <strong>Optimistic Offline Lock</strong> em <em>Patterns of Enterprise Application Architecture</em>. ORMs como Hibernate/JPA implementam-no nativamente com a anotação <code>@Version</code>.</p>
+<p>O ganho decisivo: <strong>funciona mesmo em "transações de negócio" longas que atravessam várias requisições HTTP</strong> (ex.: um usuário abre um formulário de edição, vai almoçar e salva 40 min depois) — algo que o lock pessimista não consegue, pois não dá para segurar um lock de banco por 40 minutos.</p>
+<h3 id="granularidade-do-lock">Granularidade do lock<a class="headerlink" href="#granularidade-do-lock" title="Permanent link">&para;</a></h3>
+<p>Independente de pessimista/otimista, o lock incide sobre um <strong>escopo</strong>, e quanto menor o escopo, maior a concorrência (mas maior o overhead de gerenciar muitos locks):</p>
+<ul>
+<li><strong>Row-level lock (linha):</strong> bloqueia apenas as linhas afetadas. Máxima concorrência (transações em linhas diferentes não se atrapalham). É o default do InnoDB e do PostgreSQL para DML. Custo: o banco gerencia muitos locks.</li>
+<li><strong>Page-level lock (página):</strong> bloqueia uma página de disco (várias linhas). Meio-termo; usado por alguns bancos.</li>
+<li><strong>Table-level lock (tabela):</strong> bloqueia a tabela inteira. Mínima concorrência (uma escrita trava todos), mínimo overhead. Usado para DDL (<code>ALTER TABLE</code>), alguns bulk operations, ou <code>LOCK TABLE</code> explícito.</li>
+<li><strong>Gap lock / next-key lock (InnoDB):</strong> bloqueia o <strong>intervalo entre índices</strong> (não só linhas existentes), para impedir inserções que criariam <strong>phantoms</strong>. É como o InnoDB previne phantoms em Repeatable Read. Também é fonte frequente de deadlocks surpreendentes.</li>
+</ul>
+<p>Bancos modernos fazem <strong>lock escalation/de-escalation</strong> e escolhem a granularidade automaticamente, mas o engenheiro precisa entender que um <code>UPDATE</code> sem índice adequado pode escalar para varredura com locks amplos, derrubando a concorrência.</p>
+<h3 id="deadlocks">Deadlocks<a class="headerlink" href="#deadlocks" title="Permanent link">&para;</a></h3>
+<p>Um <strong>deadlock</strong> ocorre quando duas (ou mais) transações formam um <strong>ciclo de espera</strong>: T1 segura o lock de A e quer B; T2 segura o lock de B e quer A. Nenhuma cede, nenhuma progride — esperariam para sempre. Os bancos relacionais resolvem com <strong>detecção de deadlock</strong>: mantêm um <em>wait-for graph</em> (grafo de "quem espera por quem"); ao detectar um ciclo, <strong>escolhem uma vítima</strong> (geralmente a transação que desfez menos trabalho) e a <strong>abortam</strong> com erro (ex.: <code>ERROR 1213</code> no MySQL, <code>40P01</code> no PostgreSQL), liberando seus locks. A aplicação <strong>deve tratar esse erro e retentar</strong> a transação.</p>
+<p>Deadlocks são fenômeno do <strong>locking pessimista</strong> — o otimista não os causa (não há locks mantidos para formar ciclo), embora possa sofrer <em>livelock</em> (retries repetidos que nunca progridem sob contenção extrema).</p>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>A tabela central do tema, contrastando as duas filosofias:</p>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Locking pessimista</th>
+<th>Locking otimista</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Premissa</strong></td>
+<td>Conflito é provável</td>
+<td>Conflito é raro</td>
+</tr>
+<tr>
+<td><strong>Quando age</strong></td>
+<td>Bloqueia <em>antes</em> de usar o dado</td>
+<td>Verifica <em>no momento de gravar</em></td>
+</tr>
+<tr>
+<td><strong>Mecanismo</strong></td>
+<td><code>SELECT ... FOR UPDATE</code>, locks S/X, 2PL</td>
+<td>Coluna <code>version</code>/timestamp + <code>WHERE version = ?</code> (CAS)</td>
+</tr>
+<tr>
+<td><strong>Concorrência</strong></td>
+<td>Baixa (serializa o acesso ao dado)</td>
+<td>Alta (ninguém espera no caminho feliz)</td>
+</tr>
+<tr>
+<td><strong>Custo no conflito</strong></td>
+<td>Espera (outros bloqueados)</td>
+<td>Retry (refaz o trabalho)</td>
+</tr>
+<tr>
+<td><strong>Risco característico</strong></td>
+<td><strong>Deadlock</strong>, esperas longas, lock leak</td>
+<td><strong>Retry storm</strong> / livelock sob alta contenção</td>
+</tr>
+<tr>
+<td><strong>Transações longas / multi-request</strong></td>
+<td>Inviável (não segure lock por minutos)</td>
+<td><strong>Funciona</strong> (versão sobrevive entre requests)</td>
+</tr>
+<tr>
+<td><strong>Efeitos colaterais externos</strong></td>
+<td>Seguro (exclusividade garantida)</td>
+<td>Cuidado (pode ter agido e depois abortar)</td>
+</tr>
+<tr>
+<td><strong>Implementação típica</strong></td>
+<td>Banco / SQL explícito</td>
+<td>ORM (<code>@Version</code>), app-level, REST (ETag/If-Match)</td>
+</tr>
+</tbody>
+</table>
+<p>A tabela de granularidade:</p>
+<table>
+<thead>
+<tr>
+<th>Granularidade</th>
+<th>Concorrência</th>
+<th>Overhead de locks</th>
+<th>Uso típico</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Row-level</strong></td>
+<td>Alta</td>
+<td>Alto (muitos locks)</td>
+<td>DML normal (default InnoDB/PostgreSQL)</td>
+</tr>
+<tr>
+<td><strong>Page-level</strong></td>
+<td>Média</td>
+<td>Médio</td>
+<td>Alguns SGBDs, compromisso</td>
+</tr>
+<tr>
+<td><strong>Table-level</strong></td>
+<td>Baixa</td>
+<td>Baixo</td>
+<td>DDL, bulk, <code>LOCK TABLE</code> explícito</td>
+</tr>
+<tr>
+<td><strong>Gap/next-key</strong></td>
+<td>Variável</td>
+<td>Médio</td>
+<td>Prevenção de phantom (InnoDB RR)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="como-evitar-e-tratar-deadlocks-recomendacoes-dos-manuais">Como evitar e tratar deadlocks (recomendações dos manuais)<a class="headerlink" href="#como-evitar-e-tratar-deadlocks-recomendacoes-dos-manuais" title="Permanent link">&para;</a></h3>
+<p>A documentação do InnoDB é explícita sobre redução de deadlocks:</p>
+<ul>
+<li><strong>Ordem consistente de aquisição.</strong> Se todas as transações sempre travam recursos na <strong>mesma ordem</strong> (ex.: sempre a conta de menor id antes da de maior id numa transferência), não há ciclo possível. Esta é a defesa mais eficaz.</li>
+<li><strong>Transações curtas e pequenas.</strong> Quanto menos tempo segurando locks e menos linhas tocadas, menor a janela de colisão.</li>
+<li><strong>Índices adequados.</strong> Um <code>UPDATE</code>/<code>DELETE</code> sem índice varre e trava mais linhas/gaps do que o necessário, multiplicando a chance de deadlock. Bons índices reduzem o escopo do lock.</li>
+<li><strong>Isolamento mais baixo quando possível.</strong> O InnoDB recomenda usar Read Committed (em vez de Repeatable Read) com locking reads, pois reduz gap locks e, com eles, deadlocks.</li>
+<li><strong>Sempre tratar o erro e retentar.</strong> Deadlock é esperado sob concorrência; a aplicação deve capturar o código de erro e <strong>refazer a transação inteira</strong> (com backoff/jitter para não recolidir — ver padrões de resiliência).</li>
+</ul>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama mostra o ciclo de espera de um deadlock clássico. O segundo, o fluxo do locking otimista (CAS via coluna de versão).</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant T1
+    participant A as "Linha A"
+    participant B as "Linha B"
+    participant T2
+    T1-&gt;&gt;A: "lock X em A (ok)"
+    T2-&gt;&gt;B: "lock X em B (ok)"
+    T1-&gt;&gt;B: "quer lock em B → ESPERA (T2 segura)"
+    T2-&gt;&gt;A: "quer lock em A → ESPERA (T1 segura)"
+    Note over T1,T2: "Ciclo: T1→B→T2→A→T1. DEADLOCK"
+    Note over T2: "Detector escolhe VÍTIMA → ROLLBACK T2&lt;br/&gt;(libera B). T1 prossegue. App retenta T2."</code></pre>
+<pre class="mermaid"><code>flowchart TB
+    READ["SELECT id, dados, version FROM x WHERE id=42&lt;br/&gt;(lê version = 7) — SEM lock"] --&gt; WORK["app processa&lt;br/&gt;(pode levar minutos, vários requests)"]
+    WORK --&gt; WRITE["UPDATE x SET ..., version = 8&lt;br/&gt;WHERE id = 42 AND version = 7"]
+    WRITE --&gt; CHK{"linhas afetadas?"}
+    CHK --&gt;|"1"| OK["sucesso — ninguém mexeu"]
+    CHK --&gt;|"0"| CONFLICT["CONFLITO: alguém alterou (version ≠ 7)"]
+    CONFLICT --&gt; DECIDE{"política"}
+    DECIDE --&gt;|"retry"| READ
+    DECIDE --&gt;|"merge"| WORK
+    DECIDE --&gt;|"abortar"| ERR["erro ao usuário: 'registro foi alterado'"]</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p><strong>Cenário 1 — Baixa de estoque na Black Friday (pessimista).</strong> Disputa <strong>alta e frequente</strong> pelo último item; refazer o trabalho repetidamente (otimista) geraria retry storm. Locking pessimista serializa o acesso à linha:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">BEGIN</span><span class="p">;</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1">-- Bloqueia a linha do produto; concorrentes esperam aqui</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">quantidade</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">estoque</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">produto_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="k">UPDATE</span><span class="p">;</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1">-- app: 1 &gt;= 1, pode vender</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">UPDATE</span><span class="w"> </span><span class="n">estoque</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">quantidade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">quantidade</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">produto_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">pedido_item</span><span class="w"> </span><span class="p">(...)</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="p">(...);</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">COMMIT</span><span class="p">;</span><span class="w">  </span><span class="c1">-- libera o lock; o próximo concorrente prossegue</span>
+</code></pre></div>
+<p>Sob contenção extrema (todos disputando 1 item), considere <code>SELECT ... FOR UPDATE SKIP LOCKED</code> para padrões de fila/worker, ou um <code>UPDATE</code> atômico condicional sem lock explícito (<code>SET quantidade = quantidade - 1 WHERE produto_id = 42 AND quantidade &gt;= 1</code>), que é o mais enxuto para esse caso.</p>
+<p><strong>Cenário 2 — Edição de cadastro de produto pelo seller (otimista).</strong> O vendedor abre o formulário de edição (lê <code>version = 12</code>), edita por vários minutos e salva. Conflito é <strong>raro</strong> (só se dois admins editarem o mesmo produto ao mesmo tempo), e segurar lock de banco por minutos é inviável:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">-- Salvamento:</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">UPDATE</span><span class="w"> </span><span class="n">produto</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">   </span><span class="k">SET</span><span class="w"> </span><span class="n">nome</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Notebook X&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">preco</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3499</span><span class="p">.</span><span class="mi">00</span><span class="p">,</span><span class="w"> </span><span class="k">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">13</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">77</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="k">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12</span><span class="p">;</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1">-- se 0 linhas afetadas: outro admin salvou no meio-tempo →</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1">-- &quot;Este produto foi alterado por outra pessoa. Recarregue e tente de novo.&quot;</span>
+</code></pre></div>
+<p>Com <strong>Hibernate/JPA</strong>, isso é automático: anotar o campo com <code>@Version</code> faz o ORM gerar o <code>WHERE version = ?</code> e lançar <code>OptimisticLockException</code> no conflito. No mundo REST, o mesmo padrão aparece como <strong>ETag + <code>If-Match</code></strong> (HTTP 412 Precondition Failed no conflito).</p>
+<p><strong>Cenário 3 — Deadlock numa transferência bancária (e a cura).</strong> Duas transferências cruzadas:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">-- T1: transfere de conta A para B    -- T2: transfere de conta B para A</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">UPDATE</span><span class="w"> </span><span class="n">conta</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">saldo</span><span class="o">=</span><span class="n">saldo</span><span class="o">-</span><span class="mi">100</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">id</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">;</span><span class="w">  </span><span class="c1">-- T1 trava A</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">                                                 </span><span class="c1">-- T2 trava B (saldo-50 id=&#39;B&#39;)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">UPDATE</span><span class="w"> </span><span class="n">conta</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">saldo</span><span class="o">=</span><span class="n">saldo</span><span class="o">+</span><span class="mi">100</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">id</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">;</span><span class="w">  </span><span class="c1">-- T1 quer B → espera</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">                                                 </span><span class="c1">-- T2 quer A → espera → DEADLOCK</span>
+</code></pre></div>
+<p>O banco detecta o ciclo, aborta uma (vítima), a outra completa, e o app <strong>retenta a vítima</strong>. A <strong>cura preventiva</strong>: sempre travar as contas em <strong>ordem canônica</strong> (ex.: ordenar por id) — <code>id='A'</code> antes de <code>id='B'</code> em <em>ambas</em> as transações elimina o ciclo. Esta é a recomendação número um do manual do InnoDB.</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Locking pessimista — usar quando:</strong></p>
+<ul>
+<li>A <strong>probabilidade de conflito é alta</strong> (hotspot disputado por muitos: estoque de item escasso, contador quente).</li>
+<li>Refazer o trabalho é <strong>caro</strong> ou tem <strong>efeitos colaterais externos</strong> (chamou um gateway de pagamento, enviou e-mail) — você não quer descobrir o conflito <em>depois</em> de agir.</li>
+<li>A operação é <strong>curta</strong> e cabe numa única transação de banco. <strong>Evite</strong> segurar locks por operações longas ou que esperam I/O externo (você bloqueia outros e arrisca deadlock).</li>
+</ul>
+<p><strong>Locking otimista — usar quando:</strong></p>
+<ul>
+<li>O <strong>conflito é raro</strong> (a maioria dos casos CRUD de UI).</li>
+<li>A operação é <strong>longa ou multi-request</strong> (formulário web, transação de negócio que atravessa telas) — onde o pessimista é inviável.</li>
+<li>Você quer <strong>máxima concorrência</strong> e pode tolerar retries ocasionais. <strong>Evite</strong> quando a contenção é tão alta que os retries dominam (vira livelock) ou quando refazer o trabalho é proibitivamente caro.</li>
+</ul>
+<p><strong>Granularidade:</strong> prefira <strong>row-level</strong> (default) para DML de alta concorrência. Use table-level conscientemente para DDL e bulk. Atente para que <code>UPDATE</code>/<code>DELETE</code> sem índice não escalem o escopo do lock.</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Locking pessimista para transações longas / multi-request.</strong> Segurar <code>FOR UPDATE</code> enquanto se espera input do usuário ou I/O externo bloqueia concorrentes por tempo indefinido e convida deadlocks. Para esses casos, otimista (versão) é a resposta.</li>
+<li><strong>Não tratar o erro de deadlock.</strong> Deadlock é <strong>esperado</strong> sob concorrência, não excepcional. Código que não captura e retenta a vítima falha intermitentemente em produção sob carga.</li>
+<li><strong>Ordem de aquisição de lock inconsistente.</strong> A causa raiz da maioria dos deadlocks evitáveis. Travar recursos em ordem canônica (por id, por nome) elimina o ciclo. Negligenciar isso é o erro nº 1.</li>
+<li><strong>Optimistic locking sem retry/merge.</strong> Detectar o conflito (0 linhas afetadas) e simplesmente engolir o erro silenciosamente perde a atualização — pior que o lost update original. Sempre haja uma política explícita: retry, merge ou erro ao usuário.</li>
+<li><strong>Esquecer de incrementar a versão.</strong> Optimistic locking só funciona se <em>toda</em> escrita incrementa <code>version</code> e <em>toda</em> leitura-modificação-escrita verifica. Um caminho de escrita que ignora a versão fura a proteção.</li>
+<li><strong><code>UPDATE</code>/<code>DELETE</code> sem índice adequado.</strong> Força varredura com locks amplos (muitas linhas/gaps travados), derrubando a concorrência e multiplicando deadlocks. Indexe as colunas do <code>WHERE</code>.</li>
+<li><strong>Confundir locking otimista com "sem controle de concorrência".</strong> Otimista <em>é</em> controle de concorrência — só que verificado na escrita. Não usar nem lock nem versão é o que gera lost update.</li>
+<li><strong>Gap locks surpresa (InnoDB Repeatable Read).</strong> Deadlocks aparecem "do nada" por causa de gap/next-key locks em ranges. Entender o nível de isolamento e, quando apropriado, baixar para Read Committed reduz a superfície.</li>
+<li><strong>Lock leak / transação que não fecha.</strong> Esquecer commit/rollback (ou uma exceção não tratada) deixa locks pendurados, bloqueando o sistema. Use transações com escopo bem definido (try/finally, gerenciadores de transação).</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Níveis de isolamento e anomalias:</strong> locking é <em>como</em> os níveis altos são implementados (2PL/strict 2PL) e <em>como</em> se resolve lost update sem subir o isolamento global. <code>FOR UPDATE</code> e versão são as ferramentas táticas. Ver <code>01-niveis-de-isolamento-e-anomalias.md</code>.</li>
+<li><strong>CAS / concorrência (atomicidade de hardware):</strong> o locking otimista <em>é</em> o padrão Compare-And-Swap aplicado a uma linha — comparar versão, trocar, falhar se mudou. A mesma ideia do CAS em memória/concorrência de threads. Ver bloco de concorrência.</li>
+<li><strong>Padrões de resiliência (retry com backoff):</strong> o retry após deadlock/conflito otimista deve usar <strong>backoff exponencial + jitter</strong> para não recolidir em massa. Ver <code>../04-sistemas-distribuidos/10-padroes-de-resiliencia.md</code>.</li>
+<li><strong>Idempotência:</strong> retentar uma transação (após deadlock ou conflito) exige que a operação seja segura de repetir — caso contrário o retry duplica efeitos. Ver bloco de mensageria/resiliência.</li>
+<li><strong>Optimistic Offline Lock / Pessimistic Offline Lock (Fowler):</strong> os padrões de aplicação para concorrência em transações de negócio longas, base do <code>@Version</code> dos ORMs.</li>
+<li><strong>ACID:</strong> locking é o mecanismo que materializa o <strong>I</strong> (isolamento) do ACID. Ver <code>../05-dados-e-persistencia/09-acid-vs-base.md</code>.</li>
+</ul>
+<h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
+<p>Três ideias para carregar:</p>
+<ol>
+<li><strong>A escolha é sobre quando pagar o custo do conflito.</strong> Pessimista paga adiantado (espera, exclusividade) supondo que vai colidir; otimista paga no fim, só se colidir (retry). Mapeie pela <strong>probabilidade de conflito</strong> × <strong>custo de refazer</strong>. Hotspot disputado e efeito colateral caro → pessimista; CRUD de UI raro e longo → otimista.</li>
+<li><strong>Deadlock é problema do pessimista e é gerenciável.</strong> Não é falha rara e misteriosa: é consequência de ordem de aquisição inconsistente. Trave recursos em ordem canônica, mantenha transações curtas e indexadas, e <strong>sempre trate o erro com retry</strong>. O banco já detecta e aborta a vítima por você.</li>
+<li><strong>Granularidade é o terceiro eixo.</strong> Row-level dá concorrência; table-level dá simplicidade ao custo dela. <code>UPDATE</code> sem índice transforma row-level em quase-table-level silenciosamente. Saber o escopo real dos seus locks é parte de projetar concorrência.</li>
+</ol>
+<p>O fio condutor: o inimigo é o <strong>lost update</strong> (e, mais amplamente, qualquer interleaving que corrompa o read-modify-write). Pessimista o impede com exclusividade prévia; otimista o detecta com verificação posterior. Ambos são corretos — o que muda é o perfil de desempenho. Escolher errado não gera bug (ambos protegem); gera <em>gargalo</em> (pessimista onde sobraria otimista) ou <em>retry storm</em> (otimista onde faltava pessimista).</p>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Pessimista:</strong> bloqueia antes (<code>SELECT ... FOR UPDATE</code>), supõe conflito provável; baixa concorrência, risco de <strong>deadlock</strong>.</li>
+<li><strong>Otimista:</strong> não bloqueia, verifica na escrita (<code>WHERE version = ?</code> — um <strong>CAS</strong>), supõe conflito raro; alta concorrência, risco de <strong>retry</strong>.</li>
+<li>Locks <strong>S (shared/leitura)</strong> coexistem; <strong>X (exclusive/escrita)</strong> é único e bloqueia todos.</li>
+<li><strong>Granularidade:</strong> row-level (alta concorrência, default) → table-level (baixa, DDL/bulk); gap/next-key locks previnem phantoms no InnoDB.</li>
+<li><strong>Deadlock</strong> = ciclo de espera; o banco detecta (wait-for graph), <strong>aborta uma vítima</strong> (erro 1213/40P01); o app <strong>deve retentar</strong>.</li>
+<li>Cura nº 1 de deadlock: <strong>ordem canônica e consistente</strong> de aquisição de locks. Mais: transações curtas, índices adequados, isolamento mais baixo.</li>
+<li>Otimista é a única opção viável para <strong>transações longas / multi-request</strong> (formulário web); o pessimista não segura lock por minutos.</li>
+<li>ORMs implementam otimista com <strong><code>@Version</code></strong>; REST com <strong>ETag/If-Match</strong> (HTTP 412).</li>
+<li><strong>Sempre</strong> tenha política de conflito (retry/merge/erro) e use <strong>backoff + jitter</strong> nos retries.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://dev.mysql.com/doc/refman/8.4/en/innodb-locking-reads.html">MySQL :: 17.7.2.4 Locking Reads (SELECT ... FOR UPDATE / FOR SHARE)</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/8.4/en/innodb-locking.html">MySQL :: 17.7.1 InnoDB Locking (shared/exclusive, gap, next-key)</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/8.4/en/innodb-deadlocks.html">MySQL :: 17.7.5 Deadlocks in InnoDB</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/9.7/en/innodb-deadlocks-handling.html">MySQL :: 17.7.5.3 How to Minimize and Handle Deadlocks</a></li>
+<li><a href="https://www.postgresql.org/docs/current/explicit-locking.html">PostgreSQL: 13.3. Explicit Locking (documentação oficial)</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Optimistic_concurrency_control">Optimistic concurrency control — Wikipedia</a></li>
+<li><a href="https://martinfowler.com/eaaCatalog/optimisticOfflineLock.html">Optimistic Offline Lock — Martin Fowler (P of EAA)</a></li>
+<li><a href="https://martinfowler.com/eaaCatalog/pessimisticOfflineLock.html">Pessimistic Offline Lock — Martin Fowler (P of EAA)</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../01-niveis-de-isolamento-e-anomalias/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Níveis de isolamento e anomalias">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Níveis de isolamento e anomalias
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../03-indices-de-banco-btree-hash-composite-covering/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Índices (B-Tree, Hash, composite, covering)">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Índices (B-Tree, Hash, composite, covering)
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

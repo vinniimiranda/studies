@@ -1,0 +1,2524 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/">
+      
+      
+        <link rel="prev" href="../../15-banco-de-dados/06-sql-vs-nosql/">
+      
+      
+        <link rel="next" href="../02-tcp-vs-udp/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Modelo OSI e TCP/IP - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#modelo-osi-7-camadas-e-modelo-tcpip-mapeamento-encapsulamento-e-onde-cada-protocolo-vive" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Modelo OSI e TCP/IP
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_18" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_18" id="__nav_18_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_18_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_18">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    16 · Redes e protocolos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelo OSI e TCP/IP
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelo OSI e TCP/IP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-modelo-osi-7-camadas-de-cima-para-baixo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O modelo OSI — 7 camadas (de cima para baixo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-modelo-tcpip-4-camadas-o-que-a-internet-roda" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O modelo TCP/IP — 4 camadas (o que a Internet roda)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-mapeamento-entre-os-dois-modelos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O mapeamento entre os dois modelos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#encapsulamento-como-os-dados-descem-e-sobem-a-pilha" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Encapsulamento: como os dados descem e sobem a pilha
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-tcp-vs-udp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TCP vs UDP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-http1-http2-http3-quic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP/1.1, HTTP/2, HTTP/3 (QUIC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-https-tls-handshake-e-certificados/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTPS, TLS handshake e certificados
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-dns-resolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DNS resolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-rest-graphql-grpc-websockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST, GraphQL, gRPC, WebSockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-semantica-http-idempotencia-e-status-codes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semântica HTTP (idempotência, status codes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-cors-csrf-xss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS, CSRF, XSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-long-polling-sse-websockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long polling, SSE, WebSockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-modelo-osi-7-camadas-de-cima-para-baixo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O modelo OSI — 7 camadas (de cima para baixo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-modelo-tcpip-4-camadas-o-que-a-internet-roda" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O modelo TCP/IP — 4 camadas (o que a Internet roda)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-mapeamento-entre-os-dois-modelos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O mapeamento entre os dois modelos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#encapsulamento-como-os-dados-descem-e-sobem-a-pilha" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Encapsulamento: como os dados descem e sobem a pilha
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="modelo-osi-7-camadas-e-modelo-tcpip-mapeamento-encapsulamento-e-onde-cada-protocolo-vive">Modelo OSI (7 camadas) e Modelo TCP/IP: Mapeamento, Encapsulamento e Onde Cada Protocolo Vive<a class="headerlink" href="#modelo-osi-7-camadas-e-modelo-tcpip-mapeamento-encapsulamento-e-onde-cada-protocolo-vive" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Redes e protocolos · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~26 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>Redes de computadores são organizadas em <strong>camadas</strong> porque o problema de "fazer dois processos em máquinas diferentes conversarem" é grande demais para uma solução monolítica. Cada camada resolve uma fatia do problema, oferece um serviço bem definido para a camada acima e consome os serviços da camada abaixo — sem precisar saber <em>como</em> essa camada funciona por dentro. Dois modelos de camadas dominam o vocabulário: o <strong>modelo OSI</strong> (Open Systems Interconnection, ISO), didático e com <strong>7 camadas</strong> (Física, Enlace, Rede, Transporte, Sessão, Apresentação, Aplicação), e o <strong>modelo TCP/IP</strong> (também chamado modelo da Internet), pragmático e com <strong>4 camadas</strong> (Acesso à rede/Link, Internet, Transporte, Aplicação), que é o que a Internet <em>de fato</em> implementa. O mapeamento aproximado: TCP/IP "Aplicação" agrupa OSI 5+6+7; TCP/IP "Transporte" = OSI 4; TCP/IP "Internet" = OSI 3; TCP/IP "Link" agrupa OSI 1+2. O mecanismo que faz tudo funcionar é o <strong>encapsulamento</strong>: cada camada envolve os dados da camada de cima com seu próprio cabeçalho (e às vezes trailer), formando a <strong>PDU</strong> daquela camada (segmento na L4, pacote/datagrama na L3, quadro/frame na L2). Na recepção, <strong>desencapsula</strong> na ordem inversa. O ponto arquitetural para o engenheiro: a <strong>camada 7 (HTTP/gRPC/DNS)</strong>, a <strong>camada 4 (TCP/UDP)</strong> e a <strong>camada 3 (IP)</strong> são onde quase todas as decisões de sistemas distribuídos acontecem — e confundir camadas (ex.: chamar de "load balancer L7" algo que só roteia por IP:porta, que é L4) é fonte clássica de erro de design. OSI é o vocabulário; TCP/IP é a implementação.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>Imagine que você precise projetar, do zero, como o navegador de um cliente em São Paulo abre a página de uma loja virtual hospedada num data center em Virginia. O escopo é assustador: há sinais elétricos/ópticos viajando por fibra, há um Wi-Fi doméstico com ruído e colisões, há roteadores espalhados pelo mundo que precisam decidir o próximo salto, há a possibilidade de pacotes se perderem ou chegarem fora de ordem, há a necessidade de identificar <em>qual</em> dos 200 processos abertos na máquina destino deve receber os dados, há criptografia, e há finalmente o significado da requisição ("me dê o HTML da home"). Resolver tudo isso num único bloco de software seria impossível de construir, testar, evoluir ou interoperar entre fabricantes.</p>
+<p>A resposta da engenharia de redes é <strong>decomposição em camadas</strong> (layering). Cada camada tem uma responsabilidade única e expõe uma <strong>interface</strong> estável para a camada acima, escondendo sua implementação interna. Isso traz três benefícios decisivos:</p>
+<ol>
+<li><strong>Abstração / separação de responsabilidades.</strong> O HTTP (camada de aplicação) não precisa saber se os bytes viajam por fibra, Wi-Fi ou 5G — ele confia que a camada de transporte entrega um fluxo confiável de bytes. Quem escreve um servidor web nunca lida com retransmissão de pacotes ou roteamento.</li>
+<li><strong>Interoperabilidade.</strong> Como as interfaces entre camadas são padronizadas (por RFCs e padrões ISO/IEEE), equipamentos de fabricantes diferentes conversam. Um roteador Cisco encaminha pacotes IP gerados por um Linux que rodam HTTP servido por um Nginx.</li>
+<li><strong>Evolução independente.</strong> É possível trocar a tecnologia de uma camada sem mexer nas outras. A migração de IPv4 para IPv6 (camada 3) não exigiu reescrever o HTTP (camada 7). A chegada do Wi-Fi 6 (camada 1/2) não mexeu no TCP. Essa é a mesma lógica de <strong>encapsulamento e baixo acoplamento</strong> que orienta arquitetura de software — redes são, talvez, o exemplo mais bem-sucedido de modularização em camadas da história da computação.</li>
+</ol>
+<p>O <strong>modelo OSI</strong> nasceu como tentativa da ISO de criar um padrão universal e neutro de fabricante. Ele acabou <em>não</em> sendo implementado literalmente (a pilha OSI completa fracassou comercialmente), mas seu <strong>vocabulário de 7 camadas</strong> venceu e é hoje a língua franca para falar de redes. O <strong>modelo TCP/IP</strong>, mais antigo e mais simples, é o que a Internet realmente roda — ele foi projetado de forma pragmática, "funcionando primeiro, padronizando depois". A pergunta que estes modelos respondem: <strong>"como dividir a comunicação entre dois processos remotos em responsabilidades isoláveis, e em qual camada cada protocolo e cada decisão de arquitetura vive?"</strong></p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="o-modelo-osi-7-camadas-de-cima-para-baixo">O modelo OSI — 7 camadas (de cima para baixo)<a class="headerlink" href="#o-modelo-osi-7-camadas-de-cima-para-baixo" title="Permanent link">&para;</a></h3>
+<p>O modelo OSI organiza a comunicação em sete camadas. Convém numerá-las de baixo (1, mais perto do meio físico) para cima (7, mais perto da aplicação), mas pensá-las de cima para baixo (a jornada de um dado saindo da aplicação) ajuda a fixar:</p>
+<ul>
+<li><strong>Camada 7 — Aplicação.</strong> É onde os protocolos que a aplicação usa diretamente vivem: <strong>HTTP, HTTPS, DNS, SMTP, FTP, gRPC, WebSocket</strong>. Não é a aplicação em si (o navegador), mas o protocolo que ela fala. Define o <em>significado</em> da troca: "GET /produtos", "resolva loja.com.br".</li>
+<li><strong>Camada 6 — Apresentação.</strong> Cuida da <strong>representação</strong> dos dados: serialização, codificação de caracteres (UTF-8), compressão e, classicamente, criptografia. Na prática moderna, o <strong>TLS</strong> é frequentemente situado aqui (ou entre 6 e 7) — é onde os bytes da aplicação são cifrados/decifrados.</li>
+<li><strong>Camada 5 — Sessão.</strong> Gerencia o <strong>diálogo</strong> entre os dois lados: abertura, manutenção e encerramento de sessões, pontos de sincronização, retomada. Exemplos conceituais: controle de quem fala (half/full duplex), checkpoints. Na Internet real, essa responsabilidade é difusa (parte fica no TCP, parte na aplicação).</li>
+<li><strong>Camada 4 — Transporte.</strong> Entrega <strong>processo a processo</strong> (host a host com identificação de porta). É onde vivem <strong>TCP</strong> (confiável, orientado a conexão, ordenado) e <strong>UDP</strong> (sem conexão, sem garantia de entrega/ordem). Cuida de <strong>portas</strong> (multiplexação de qual processo recebe), e — no caso do TCP — de <strong>confiabilidade, ordenação, controle de fluxo e controle de congestionamento</strong>. A PDU é o <strong>segmento</strong> (TCP) ou <strong>datagrama</strong> (UDP).</li>
+<li><strong>Camada 3 — Rede.</strong> Entrega <strong>host a host fim a fim atravessando redes diferentes</strong> (inter-rede). É o domínio do <strong>IP</strong> (IPv4/IPv6), do <strong>endereçamento lógico</strong> (endereços IP) e do <strong>roteamento</strong> (decidir o próximo salto entre redes). Protocolos auxiliares: ICMP (ping), roteamento (BGP, OSPF). A PDU é o <strong>pacote</strong>/datagrama IP. Roteadores operam aqui.</li>
+<li><strong>Camada 2 — Enlace (Data Link).</strong> Entrega <strong>nó a nó dentro do mesmo segmento de rede local</strong> (um salto). Usa <strong>endereçamento físico (MAC)</strong>, detecta/corrige erros do meio, controla acesso ao meio. Exemplos: <strong>Ethernet, Wi-Fi (802.11), ARP</strong> (resolve IP→MAC), switches. A PDU é o <strong>quadro (frame)</strong>.</li>
+<li><strong>Camada 1 — Física.</strong> Transmite <strong>bits crus</strong> pelo meio: voltagens, pulsos de luz, ondas de rádio, conectores, pinagem. Cabos, fibra, rádio Wi-Fi, hubs. A "PDU" são bits.</li>
+</ul>
+<p>Mnemônico clássico (de cima para baixo): <em>All People Seem To Need Data Processing</em> (Application, Presentation, Session, Transport, Network, Data link, Physical).</p>
+<h3 id="o-modelo-tcpip-4-camadas-o-que-a-internet-roda">O modelo TCP/IP — 4 camadas (o que a Internet roda)<a class="headerlink" href="#o-modelo-tcpip-4-camadas-o-que-a-internet-roda" title="Permanent link">&para;</a></h3>
+<p>O modelo TCP/IP é mais enxuto e foi desenhado em torno dos protocolos que já existiam e funcionavam:</p>
+<ul>
+<li><strong>Aplicação.</strong> Agrupa o que o OSI separa em <strong>Aplicação + Apresentação + Sessão</strong> (camadas 7, 6, 5). Aqui vivem HTTP, DNS, TLS, gRPC, SMTP — toda a lógica "de cima" fica nas mãos da aplicação e suas bibliotecas.</li>
+<li><strong>Transporte.</strong> Idêntico em escopo à <strong>camada 4 do OSI</strong>: TCP e UDP, portas, confiabilidade/ordenação (TCP).</li>
+<li><strong>Internet.</strong> Corresponde à <strong>camada 3 do OSI</strong>: IP, endereçamento e roteamento entre redes. (O nome "Internet" aqui é a camada <em>inter-rede</em>, não "a Internet" como rede global.)</li>
+<li><strong>Acesso à rede / Link.</strong> Agrupa <strong>camadas 2 e 1 do OSI</strong>: a tecnologia de enlace e o meio físico (Ethernet, Wi-Fi, etc.). Algumas versões chamam de "Link" ou "Host-to-network".</li>
+</ul>
+<p>Existe também uma variante de <strong>5 camadas</strong> (muito usada em didática, ex.: Tanenbaum/Kurose) que separa Link em "Enlace" e "Física", ficando: Aplicação, Transporte, Rede, Enlace, Física. É o melhor dos dois mundos: o pragmatismo do TCP/IP com a granularidade física do OSI.</p>
+<h3 id="o-mapeamento-entre-os-dois-modelos">O mapeamento entre os dois modelos<a class="headerlink" href="#o-mapeamento-entre-os-dois-modelos" title="Permanent link">&para;</a></h3>
+<p>A tabela a seguir é a referência canônica. Memorize-a: ela responde "em que camada está X" em qualquer dos dois vocabulários.</p>
+<table>
+<thead>
+<tr>
+<th>OSI (7 camadas)</th>
+<th>TCP/IP (4 camadas)</th>
+<th>PDU</th>
+<th>Endereçamento</th>
+<th>Exemplos de protocolos</th>
+<th>Equipamentos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7 Aplicação</td>
+<td>Aplicação</td>
+<td>dados/mensagem</td>
+<td>— (nomes, URLs)</td>
+<td>HTTP, HTTPS, DNS, gRPC, SMTP, WebSocket</td>
+<td>(processos)</td>
+</tr>
+<tr>
+<td>6 Apresentação</td>
+<td>Aplicação</td>
+<td>dados</td>
+<td>—</td>
+<td>TLS/SSL, codificação, compressão</td>
+<td>—</td>
+</tr>
+<tr>
+<td>5 Sessão</td>
+<td>Aplicação</td>
+<td>dados</td>
+<td>—</td>
+<td>(difusa: NetBIOS, RPC)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>4 Transporte</td>
+<td>Transporte</td>
+<td>segmento / datagrama</td>
+<td><strong>porta</strong></td>
+<td><strong>TCP, UDP</strong>, QUIC*</td>
+<td>(firewall L4, LB L4)</td>
+</tr>
+<tr>
+<td>3 Rede</td>
+<td>Internet</td>
+<td>pacote / datagrama IP</td>
+<td><strong>endereço IP</strong></td>
+<td>IP (v4/v6), ICMP, BGP, OSPF</td>
+<td><strong>roteador</strong></td>
+</tr>
+<tr>
+<td>2 Enlace</td>
+<td>Acesso à rede / Link</td>
+<td>quadro (frame)</td>
+<td><strong>MAC</strong></td>
+<td>Ethernet, Wi-Fi 802.11, ARP, PPP</td>
+<td><strong>switch</strong>, bridge</td>
+</tr>
+<tr>
+<td>1 Física</td>
+<td>Acesso à rede / Link</td>
+<td>bit</td>
+<td>—</td>
+<td>cabo, fibra, rádio, USB, Bluetooth físico</td>
+<td>hub, repetidor, cabo</td>
+</tr>
+</tbody>
+</table>
+<p>* QUIC é um caso peculiar e instrutivo: roda <em>sobre</em> UDP (L4) mas implementa em espaço de usuário funções que tradicionalmente seriam de transporte (streams confiáveis, controle de congestionamento) — borrando as fronteiras de camada de propósito. Detalhado no arquivo de HTTP/3.</p>
+<h3 id="encapsulamento-como-os-dados-descem-e-sobem-a-pilha">Encapsulamento: como os dados descem e sobem a pilha<a class="headerlink" href="#encapsulamento-como-os-dados-descem-e-sobem-a-pilha" title="Permanent link">&para;</a></h3>
+<p>O mecanismo concreto que faz as camadas cooperarem é o <strong>encapsulamento</strong>. Quando um dado <em>desce</em> a pilha no emissor, <strong>cada camada adiciona seu próprio cabeçalho</strong> (header) — e a camada 2 adiciona também um trailer (para detecção de erro). O payload de uma camada é a PDU inteira (header + dados) da camada de cima:</p>
+<ol>
+<li>A <strong>aplicação</strong> produz a mensagem (ex.: <code>GET /produtos HTTP/1.1\r\nHost: loja.com.br...</code>).</li>
+<li>A <strong>camada de transporte</strong> (TCP) prefixa o <strong>cabeçalho TCP</strong> (portas de origem/destino, número de sequência, flags) → vira um <strong>segmento</strong>.</li>
+<li>A <strong>camada de rede</strong> (IP) prefixa o <strong>cabeçalho IP</strong> (IP origem/destino, TTL) → vira um <strong>pacote</strong>.</li>
+<li>A <strong>camada de enlace</strong> (Ethernet) prefixa o <strong>cabeçalho Ethernet</strong> (MAC origem/destino) e adiciona um <strong>trailer</strong> (FCS, checksum) → vira um <strong>quadro</strong>.</li>
+<li>A <strong>camada física</strong> transmite os <strong>bits</strong> do quadro pelo meio.</li>
+</ol>
+<p>No receptor, o processo é inverso — <strong>desencapsulamento</strong>: a camada física entrega os bits; o enlace lê e remove seu header/trailer e passa o pacote para cima; a camada de rede remove o header IP e passa o segmento; o transporte remove o header TCP e entrega a mensagem à aplicação. Cada camada só "enxerga" seu próprio cabeçalho — é a <strong>regra de ouro do layering</strong>: uma camada não inspeciona o conteúdo das camadas acima (com a exceção deliberada de dispositivos de inspeção profunda, como firewalls L7).</p>
+<p>Uma consequência prática importante é o <strong>overhead de cabeçalhos</strong> e a <strong>MTU</strong> (Maximum Transmission Unit): cada camada adiciona bytes, e o quadro Ethernet tem tamanho máximo (tipicamente 1500 bytes de payload IP). Pacotes maiores são <strong>fragmentados</strong> — daí a relevância de conceitos como MSS (Maximum Segment Size) no TCP e Path MTU Discovery.</p>
+<h3 id="glossario-rapido">Glossário rápido<a class="headerlink" href="#glossario-rapido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>PDU (Protocol Data Unit):</strong> a unidade de dado de uma camada (bit, frame, packet, segment, message).</li>
+<li><strong>Encapsulamento:</strong> envolver a PDU da camada superior com o header (e trailer) da camada atual.</li>
+<li><strong>Porta (port):</strong> número (0–65535) que identifica o processo/serviço dentro de um host (L4).</li>
+<li><strong>Endereço IP:</strong> identificador lógico de host na inter-rede (L3); roteável globalmente.</li>
+<li><strong>Endereço MAC:</strong> identificador físico da interface de rede (L2); local ao segmento.</li>
+<li><strong>MTU/MSS:</strong> tamanho máximo de quadro (L2) / de segmento TCP (L4).</li>
+<li><strong>Socket:</strong> abstração (IP + porta + protocolo) que a aplicação usa para falar com a pilha de rede.</li>
+<li><strong>Roteamento (routing):</strong> decisão de próximo salto entre redes (L3); <strong>comutação/switching</strong> é encaminhamento dentro do segmento (L2).</li>
+</ul>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>A melhor forma de internalizar as camadas é seguir um dado real. Considere a aplicação <code>checkout</code> num servidor querendo enviar a resposta HTTP de volta ao navegador do cliente. Os dados <strong>descem</strong> a pilha no servidor, atravessam a rede (subindo e descendo a pilha parcialmente em cada roteador no caminho) e <strong>sobem</strong> a pilha no cliente.</p>
+<p>No <strong>emissor</strong>, cada camada faz seu trabalho e delega para baixo:</p>
+<ul>
+<li>A <strong>aplicação</strong> decide <em>o quê</em> enviar (o corpo da resposta HTTP) e <em>para quem</em> em termos de nome/URL. Entrega ao transporte via socket.</li>
+<li>O <strong>transporte</strong> decide <em>como</em> enviar de forma confiável: o TCP quebra o stream em segmentos, numera cada byte (sequence number), e gerencia confirmações, retransmissão, controle de fluxo e congestionamento. Escolhe as <strong>portas</strong> (origem = porta do processo servidor, ex.: 443; destino = porta efêmera do navegador). É aqui que a confiabilidade vive — assunto do arquivo TCP vs UDP.</li>
+<li>A <strong>rede</strong> decide <em>por onde</em> ir: anexa IPs de origem e destino e entrega ao enlace. Cada roteador no caminho lê <strong>apenas o header IP</strong> (camada 3), consulta sua tabela de roteamento, decrementa o TTL e encaminha ao próximo salto — roteadores <strong>não sobem</strong> até a camada 4 ou 7 em operação normal (por isso são rápidos e "burros" quanto ao conteúdo).</li>
+<li>O <strong>enlace</strong> entrega ao <em>próximo nó físico</em>: resolve o IP do próximo salto em MAC (via ARP), monta o quadro e o coloca no meio.</li>
+<li>A <strong>física</strong> transmite os <strong>bits</strong>.</li>
+</ul>
+<p>A observação arquitetural decisiva: <strong>a comunicação é "horizontal" em cada camada (peer-to-peer lógico) mas "vertical" na implementação</strong>. A camada de transporte do servidor "conversa" logicamente com a camada de transporte do cliente (mesmo número de sequência, mesmas portas), como se houvesse um canal direto entre elas — mas fisicamente os bytes descem toda a pilha, viajam, e sobem toda a pilha do outro lado. Cada camada mantém a <em>ilusão</em> de falar diretamente com sua par remota. Essa é a essência da abstração em camadas.</p>
+<p>Outro ponto: <strong>dispositivos diferentes operam em camadas diferentes</strong>, e isso define o que cada um "entende":</p>
+<ul>
+<li>Um <strong>switch</strong> (L2) só lê endereços MAC — encaminha quadros dentro da LAN sem saber de IP ou HTTP.</li>
+<li>Um <strong>roteador</strong> (L3) lê IPs — decide rotas entre redes, mas não inspeciona o conteúdo HTTP.</li>
+<li>Um <strong>load balancer L4</strong> (ex.: AWS NLB) roteia por <strong>IP:porta</strong> (TCP/UDP) — rápido, mas cego ao conteúdo da requisição; não sabe se é <code>GET /api</code> ou <code>GET /imagens</code>.</li>
+<li>Um <strong>load balancer L7</strong> (ex.: AWS ALB, Nginx, Envoy) sobe até a camada de aplicação, <strong>lê o HTTP</strong> (path, headers, cookies) e pode rotear <code>/api/*</code> para um pool e <code>/static/*</code> para outro, fazer TLS termination, etc. — mais inteligente, porém com mais overhead.</li>
+</ul>
+<p>Confundir L4 e L7 é um dos erros mais comuns em desenho de infraestrutura, e o modelo de camadas é exatamente a ferramenta para não errar: pergunte sempre "<strong>que camada esse componente precisa ler para tomar sua decisão?</strong>".</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama mostra o mapeamento OSI ↔ TCP/IP lado a lado; o segundo mostra o encapsulamento (dados descendo a pilha no emissor e subindo no receptor, atravessando roteadores que só sobem até a L3).</p>
+<pre class="mermaid"><code>flowchart LR
+    subgraph OSI["Modelo OSI (7 camadas)"]
+        direction TB
+        O7["7 Aplicacao - HTTP DNS gRPC"]
+        O6["6 Apresentacao - TLS codificacao"]
+        O5["5 Sessao - dialogo"]
+        O4["4 Transporte - TCP UDP portas"]
+        O3["3 Rede - IP roteamento"]
+        O2["2 Enlace - Ethernet Wi-Fi MAC"]
+        O1["1 Fisica - bits cabo fibra radio"]
+        O7 --&gt; O6 --&gt; O5 --&gt; O4 --&gt; O3 --&gt; O2 --&gt; O1
+    end
+    subgraph TCPIP["Modelo TCP/IP (4 camadas)"]
+        direction TB
+        T4["Aplicacao - HTTP DNS TLS"]
+        T3["Transporte - TCP UDP"]
+        T2["Internet - IP"]
+        T1["Acesso a rede - Ethernet Wi-Fi"]
+        T4 --&gt; T3 --&gt; T2 --&gt; T1
+    end
+    O7 -.mapeia.-&gt; T4
+    O6 -.mapeia.-&gt; T4
+    O5 -.mapeia.-&gt; T4
+    O4 -.mapeia.-&gt; T3
+    O3 -.mapeia.-&gt; T2
+    O2 -.mapeia.-&gt; T1
+    O1 -.mapeia.-&gt; T1</code></pre>
+<pre class="mermaid"><code>sequenceDiagram
+    participant App as "Aplicacao (L7)"
+    participant TCP as "Transporte (L4)"
+    participant IP as "Rede (L3)"
+    participant Link as "Enlace/Fisica (L2/L1)"
+    participant Router as "Roteador (so L3)"
+    participant CLink as "Enlace cliente (L2/L1)"
+    participant CIP as "Rede cliente (L3)"
+    participant CTCP as "Transporte cliente (L4)"
+    participant CApp as "Aplicacao cliente (L7)"
+
+    App-&gt;&gt;TCP: mensagem HTTP
+    TCP-&gt;&gt;IP: + header TCP (segmento)
+    IP-&gt;&gt;Link: + header IP (pacote)
+    Link-&gt;&gt;Router: + header Ethernet (quadro / bits)
+    Router-&gt;&gt;CLink: le so header IP, decide rota, encaminha
+    CLink-&gt;&gt;CIP: remove header Ethernet
+    CIP-&gt;&gt;CTCP: remove header IP
+    CTCP-&gt;&gt;CApp: remove header TCP, entrega mensagem
+    Note over App,CApp: cada camada so le seu proprio cabecalho</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p>Vamos seguir o evento mais corriqueiro possível: <strong>um cliente em Recife digita <code>loja.com.br</code> no navegador e aperta Enter</strong> para abrir uma loja virtual. Esse único gesto aciona praticamente todas as camadas, e mapeá-lo é o melhor exercício de fixação. (Os arquivos subsequentes deste bloco detalham cada protocolo; aqui interessa <em>onde</em> cada um vive.)</p>
+<ol>
+<li><strong>DNS (L7 sobre UDP/L4).</strong> O navegador precisa traduzir <code>loja.com.br</code> em um IP. Dispara uma consulta <strong>DNS</strong> — protocolo de <strong>aplicação (L7)</strong> que tradicionalmente roda sobre <strong>UDP (L4)</strong> na porta 53. A resposta volta com, digamos, <code>200.147.x.x</code>. (Detalhado no arquivo de DNS.)</li>
+<li><strong>TCP handshake (L4).</strong> Com o IP em mãos, o navegador abre uma conexão <strong>TCP</strong> com <code>200.147.x.x:443</code>. O <strong>3-way handshake</strong> (SYN, SYN-ACK, ACK) acontece na <strong>camada de transporte (L4)</strong>, estabelecendo um canal confiável e ordenado. (Detalhado em TCP vs UDP.)</li>
+<li><strong>IP e roteamento (L3).</strong> Cada segmento TCP é encapsulado em pacotes <strong>IP (L3)</strong>. Os pacotes saem do Wi-Fi de Recife, passam pelo roteador doméstico, pelo provedor, por roteadores de backbone, e chegam ao data center — <strong>roteadores ao longo do caminho leem só o header IP (L3)</strong> para decidir o próximo salto. Eles não veem o HTTP, nem mesmo o TCP em si.</li>
+<li><strong>Enlace e física (L2/L1).</strong> Em cada salto, os pacotes IP viajam dentro de <strong>quadros Ethernet/Wi-Fi (L2)</strong> sobre o <strong>meio físico (L1)</strong> — fibra no backbone, rádio no Wi-Fi local. O <strong>ARP (L2)</strong> resolve, em cada rede local, qual MAC corresponde ao IP do próximo salto.</li>
+<li><strong>TLS handshake (L6/L7).</strong> Como é <code>https://</code>, antes do HTTP vem o <strong>TLS handshake</strong>, situado entre <strong>apresentação (L6) e aplicação (L7)</strong>: cliente e servidor negociam cifras e estabelecem chaves de sessão para criptografar tudo. (Detalhado em HTTPS/TLS.)</li>
+<li><strong>HTTP (L7).</strong> Só agora o navegador envia a requisição de <strong>aplicação (L7)</strong>: <code>GET / HTTP/2</code>. O servidor responde com o HTML. (Detalhado em HTTP/1.1 vs 2 vs 3.)</li>
+</ol>
+<p>A sequência <strong>DNS → TCP → TLS → HTTP</strong> percorre L7→L4→L3→L2→L1 e de volta, milhares de vezes, para renderizar uma única página. Entender que cada etapa vive numa camada distinta é o que permite <strong>diagnosticar problemas com precisão cirúrgica</strong>: "a página não abre" pode ser falha de DNS (L7), de conectividade IP (L3 — testa-se com <code>ping</code>), de TCP (L4 — <code>telnet host 443</code>), de TLS (handshake/certificado), ou de aplicação (HTTP 5xx). Cada camada tem sua ferramenta de diagnóstico (<code>ping</code>/L3, <code>traceroute</code>/L3, <code>nslookup</code>/DNS, <code>openssl s_client</code>/TLS, <code>curl -v</code>/L7).</p>
+<p>Um caso real de design: ao escolher um <strong>load balancer</strong> para a loja, a equipe decide entre um <strong>NLB (L4)</strong> — ultrarrápido, ideal para encaminhar conexões TCP brutas, TLS passthrough — e um <strong>ALB (L7)</strong> — que termina TLS, lê o path HTTP e roteia <code>/api/*</code> para o backend de pedidos e <code>/*</code> para o frontend. A decisão depende inteiramente de <strong>qual camada precisa ser inspecionada</strong> para rotear corretamente. (Ver Service Discovery &amp; Load Balancing.)</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p>Aqui "usar" significa "qual modelo/camada usar como referência mental e operacional", já que ninguém "escolhe" implementar OSI ou TCP/IP — a Internet já é TCP/IP.</p>
+<p><strong>Use o vocabulário OSI (7 camadas)</strong> para <strong>comunicação e diagnóstico</strong>: é a língua franca em entrevistas, documentação de fornecedores (firewalls "L3/L4/L7"), e troubleshooting. Dizer "o problema está na camada 4" é mais preciso e universal do que descrições vagas. É também superior didaticamente por separar claramente sessão, apresentação e aplicação.</p>
+<p><strong>Use o modelo TCP/IP (4 camadas)</strong> para <strong>raciocinar sobre a Internet real</strong>: é o que os sistemas de fato implementam. Quando você programa um socket, configura um firewall, ou desenha uma topologia de rede em nuvem, está pensando em TCP/IP (aplicação, transporte, IP, link).</p>
+<p><strong>Evite</strong> tratar o OSI como descrição literal da implementação: a pilha OSI completa <strong>não</strong> é o que roda na Internet, e as camadas 5 e 6 não têm correspondência limpa (estão "espalhadas" entre aplicação e bibliotecas como o TLS). Forçar TLS a ser "exatamente camada 6" ou procurar uma "camada de sessão" pura na pilha real leva a confusão — o consenso prático é que TLS opera <em>entre</em> L4 e L7, e que sessão/apresentação são responsabilidades da aplicação no mundo TCP/IP.</p>
+<p><strong>Evite</strong> também usar o modelo de camadas como dogma rígido em tecnologias que <strong>deliberadamente cruzam camadas</strong> por performance (QUIC implementa transporte em espaço de usuário sobre UDP; alguns protocolos fazem "cross-layer optimization"). O modelo é um mapa, não o território.</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Confundir camada 4 e camada 7 em load balancers/firewalls.</strong> Chamar de "balanceamento L7" algo que só distribui por IP:porta (que é L4), ou esperar que um LB L4 roteie por path HTTP (que ele não enxerga). Regra: pergunte <em>qual camada o dispositivo precisa ler</em> para decidir.</li>
+<li><strong>Assumir que roteadores leem o conteúdo da aplicação.</strong> Roteadores operam na L3 (IP); não inspecionam HTTP nem TCP em operação normal. Esperar que um roteador "veja" a URL é erro conceitual (isso é trabalho de proxy/firewall L7).</li>
+<li><strong>Tratar TLS como uma camada fixa e única.</strong> TLS não encaixa limpo numa camada OSI; está entre L4 e L7. Discutir interminavelmente "TLS é L5 ou L6?" é menos útil do que entender <em>o que</em> ele faz (cifra os bytes da aplicação sobre o transporte confiável).</li>
+<li><strong>Ignorar a MTU e o overhead de encapsulamento.</strong> Cada camada adiciona cabeçalhos; pacotes maiores que a MTU são fragmentados ou descartados. Problemas de "conexão trava em arquivos grandes" frequentemente são MTU/MSS mal configurada (ex.: VPN/encapsulamento reduzindo a MTU efetiva).</li>
+<li><strong>Misturar endereçamento de camadas.</strong> Confundir MAC (L2, local ao segmento) com IP (L3, roteável). MAC não atravessa roteadores; IP sim. Esperar "alcançar uma máquina por MAC" através da Internet é impossível.</li>
+<li><strong>Achar que "camada superior é melhor".</strong> Camadas não são hierarquia de qualidade; são responsabilidades. Subir até a L7 (ler HTTP) custa CPU e latência — um LB L4 é mais rápido justamente por <em>não</em> subir. A escolha é trade-off, não "mais é melhor".</li>
+<li><strong>Tratar a numeração OSI como ordem de execução universal.</strong> Nem toda comunicação usa as 7 camadas (uma comunicação puramente L2 numa LAN não envolve IP). E o modelo de 5 camadas (sem sessão/apresentação separadas) é frequentemente mais fiel à realidade.</li>
+<li><strong>Esquecer que QUIC/HTTP3 borra as fronteiras.</strong> Tratar "transporte = TCP" como dogma faz perder de vista que QUIC roda transporte confiável <em>sobre</em> UDP em espaço de usuário — uma escolha arquitetural intencional de cruzar camadas (ver HTTP/3).</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>TCP vs UDP (camada 4):</strong> os dois protagonistas da camada de transporte; toda decisão de confiabilidade vs latência mora na L4. Ver <code>16-redes-e-protocolos/02-tcp-vs-udp.md</code>.</li>
+<li><strong>HTTP/1.1, HTTP/2, HTTP/3 (camada 7):</strong> os protocolos de aplicação mais usados; HTTP/3 (QUIC) é o caso onde a fronteira L4/L7 se borra. Ver <code>16-redes-e-protocolos/03-http1-http2-http3-quic.md</code>.</li>
+<li><strong>HTTPS/TLS (camadas 6/7):</strong> segurança da comunicação, situada entre transporte e aplicação. Ver <code>16-redes-e-protocolos/04-https-tls-handshake-e-certificados.md</code>.</li>
+<li><strong>DNS (camada 7 sobre UDP):</strong> o primeiro passo de quase toda comunicação; protocolo de aplicação que roda sobre transporte. Ver <code>16-redes-e-protocolos/05-dns-resolution.md</code>.</li>
+<li><strong>mTLS entre serviços:</strong> autenticação mútua na camada de segurança (L6/L7), base de zero trust. Ver <code>08-seguranca-arquitetural/03-mtls-entre-servicos.md</code>.</li>
+<li><strong>Service Discovery &amp; Load Balancing:</strong> a distinção LB L4 vs L7 é diretamente um problema de "em que camada inspecionar". Ver <code>04-sistemas-distribuidos/07-service-discovery-e-load-balancing.md</code>.</li>
+<li><strong>Latência vs throughput e percentis:</strong> o empilhamento de camadas (DNS+TCP+TLS+HTTP) soma latência; cada round-trip conta e aparece nos percentis. Ver <code>07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis.md</code>.</li>
+</ul>
+<h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
+<p>Três ideias para carregar:</p>
+<ol>
+<li><strong>OSI é o vocabulário; TCP/IP é a implementação.</strong> Fale em OSI para comunicar e diagnosticar (camada 3, 4, 7), pense em TCP/IP para raciocinar sobre a Internet real. Os dois mapeiam um no outro: aplicação(7+6+5) → transporte(4) → internet(3) → link(2+1).</li>
+<li><strong>Pergunte sempre "que camada precisa ser lida".</strong> É a chave para escolher entre LB L4 e L7, entender o que um firewall/roteador/switch faz, e diagnosticar onde uma falha mora. Camadas mais altas são mais expressivas mas mais caras; mais baixas são mais rápidas mas cegas ao conteúdo.</li>
+<li><strong>Encapsulamento é o mecanismo, abstração é o ganho.</strong> Cada camada envolve a de cima com seu cabeçalho e confia que a de baixo entrega. Isso permitiu IPv4→IPv6, Wi-Fi novo, TLS evoluindo — tudo sem reescrever as outras camadas. É a mesma lição de modularidade e baixo acoplamento que vale em arquitetura de software.</li>
+</ol>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>OSI tem 7 camadas</strong> (Física, Enlace, Rede, Transporte, Sessão, Apresentação, Aplicação); <strong>TCP/IP tem 4</strong> (Link, Internet, Transporte, Aplicação) — e é o que a Internet roda.</li>
+<li>Mapeamento: <strong>App(7)+Apresentação(6)+Sessão(5) → Aplicação TCP/IP</strong>; <strong>Transporte(4) ↔ Transporte</strong>; <strong>Rede(3) ↔ Internet</strong>; <strong>Enlace(2)+Física(1) → Link</strong>.</li>
+<li><strong>PDUs:</strong> bit (L1) → quadro/frame (L2) → pacote (L3) → segmento (L4) → mensagem (L7).</li>
+<li><strong>Endereçamento:</strong> MAC (L2, local), IP (L3, roteável), porta (L4, identifica processo).</li>
+<li><strong>Encapsulamento:</strong> cada camada adiciona seu cabeçalho ao descer; desencapsula ao subir; cada camada lê só o próprio header.</li>
+<li><strong>Dispositivos por camada:</strong> switch (L2), roteador (L3), LB/firewall L4 (IP:porta), LB/proxy L7 (lê HTTP).</li>
+<li><strong>TCP/UDP vivem na L4; IP na L3; HTTP/DNS na L7; TLS entre L6 e L7.</strong></li>
+<li><strong>QUIC borra fronteiras</strong>: transporte confiável sobre UDP em espaço de usuário.</li>
+<li>Diagnóstico por camada: <code>ping</code>/<code>traceroute</code> (L3), <code>nslookup</code> (DNS), <code>telnet host:porta</code> (L4), <code>openssl s_client</code> (TLS), <code>curl -v</code> (L7).</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc9293">RFC 9293 — Transmission Control Protocol (TCP)</a></li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc1122">RFC 1122 — Requirements for Internet Hosts (modelo de camadas TCP/IP)</a></li>
+<li><a href="https://www.cloudflare.com/learning/ddos/glossary/open-systems-interconnection-model-osi/">What is the OSI Model? — Cloudflare Learning Center</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP">HTTP overview — MDN Web Docs</a></li>
+<li><a href="https://hpbn.co/">High Performance Browser Networking — Ilya Grigorik (livro online gratuito)</a></li>
+<li><a href="https://www.cloudflare.com/learning/network-layer/what-is-the-network-layer/">What is the network layer? — Cloudflare Learning Center</a></li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc1180">Internetworking with TCP/IP — overview RFC 1180 (A TCP/IP Tutorial)</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../../15-banco-de-dados/06-sql-vs-nosql/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: SQL vs NoSQL">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                SQL vs NoSQL
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../02-tcp-vs-udp/" class="md-footer__link md-footer__link--next" aria-label="Próximo: TCP vs UDP">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                TCP vs UDP
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

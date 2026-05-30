@@ -2,298 +2,558 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://vinniimiranda.github.io/studies/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/BIBLIOGRAFIA/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/01-fundamentos-arquiteturais/01-atributos-de-qualidade/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/01-fundamentos-arquiteturais/02-architecture-decision-records-adr/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/01-fundamentos-arquiteturais/03-fitness-functions/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/01-fundamentos-arquiteturais/04-conway-law-e-inverse-conway-maneuver/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/01-fundamentos-arquiteturais/05-c4-model/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/02-estilos-e-padroes/01-layered-n-tier-architecture/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/02-estilos-e-padroes/02-hexagonal-ports-and-adapters/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/02-estilos-e-padroes/03-clean-architecture/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/02-estilos-e-padroes/04-onion-architecture/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/02-estilos-e-padroes/05-vertical-slice-architecture/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/02-estilos-e-padroes/06-modular-monolith/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/02-estilos-e-padroes/07-microservices/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/02-estilos-e-padroes/08-service-oriented-architecture-soa/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/02-estilos-e-padroes/09-event-driven-architecture-eda/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/02-estilos-e-padroes/10-space-based-architecture/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/02-estilos-e-padroes/11-pipes-and-filters/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/02-estilos-e-padroes/12-serverless-faas/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/03-design-tatico-ddd/02-ddd-aggregates-entities-value-objects-domain-events/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/03-design-tatico-ddd/03-ddd-context-mapping-patterns-acl-shared-kernel-customer-supplier/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/03-design-tatico-ddd/04-cqrs/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/03-design-tatico-ddd/05-event-sourcing/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/03-design-tatico-ddd/06-saga-pattern/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/03-design-tatico-ddd/07-outbox-e-inbox-pattern/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/04-sistemas-distribuidos/01-teorema-cap-e-pacelc/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/04-sistemas-distribuidos/02-modelos-de-consistencia/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/04-sistemas-distribuidos/03-consenso-distribuido-paxos-raft-2pc-3pc/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/04-sistemas-distribuidos/04-idempotencia-e-semanticas-de-entrega/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/04-sistemas-distribuidos/05-vector-clocks-e-lamport-timestamps/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/04-sistemas-distribuidos/06-crdts/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/04-sistemas-distribuidos/07-service-discovery-e-load-balancing/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/04-sistemas-distribuidos/08-api-gateway-vs-bff/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/04-sistemas-distribuidos/09-service-mesh-sidecar/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/04-sistemas-distribuidos/10-padroes-de-resiliencia/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/04-sistemas-distribuidos/11-leader-election-sharding-consistent-hashing/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/04-sistemas-distribuidos/12-quorum-reads-writes-n-r-w/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/04-sistemas-distribuidos/13-relogios-fisicos-clock-skew-ntp-truetime/</loc>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/05-dados-e-persistencia/01-polyglot-persistence/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/05-dados-e-persistencia/02-database-per-service/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/05-dados-e-persistencia/03-read-replicas-sharding-particionamento/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/05-dados-e-persistencia/04-materialized-views-e-projecoes/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/05-dados-e-persistencia/05-cdc-change-data-capture-debezium/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/05-dados-e-persistencia/06-data-lake-warehouse-mesh-lakehouse/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/05-dados-e-persistencia/07-oltp-vs-olap-lambda-kappa/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/05-dados-e-persistencia/08-cache-patterns/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/05-dados-e-persistencia/09-acid-vs-base/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/06-mensageria-e-streaming/02-pubsub-queue-topic-partition-consumer-groups/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/06-mensageria-e-streaming/03-backpressure/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/06-mensageria-e-streaming/04-dead-letter-queue-e-poison-messages/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/06-mensageria-e-streaming/05-stream-processing-kafka-streams-flink-janelas/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/06-mensageria-e-streaming/06-event-carried-state-transfer-vs-event-notification/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/07-performance-e-escalabilidade/03-use-red-four-golden-signals/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/07-performance-e-escalabilidade/04-caching-em-multiplas-camadas/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/07-performance-e-escalabilidade/05-connection-pooling-thread-pooling-async-io-reactive/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/07-performance-e-escalabilidade/06-leis-little-amdahl-universal-scalability-law/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/08-seguranca-arquitetural/01-zero-trust-architecture/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/08-seguranca-arquitetural/02-oauth2-oidc-saml-jwt/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/08-seguranca-arquitetural/03-mtls-entre-servicos/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/08-seguranca-arquitetural/04-defense-in-depth-least-privilege-secure-by-default/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/08-seguranca-arquitetural/05-secrets-management-vault-kms/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/08-seguranca-arquitetural/06-threat-modeling-stride-pasta/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/09-observabilidade/02-distributed-tracing-opentelemetry-jaeger-zipkin/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/09-observabilidade/03-correlation-ids-e-propagacao-de-contexto/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/09-observabilidade/04-sli-slo-sla-error-budgets/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/10-evolucao-e-praticas/01-strangler-fig-pattern/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/10-evolucao-e-praticas/02-branch-by-abstraction-parallel-run-feature-toggles/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/10-evolucao-e-praticas/03-anti-corruption-layer-em-migracoes/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/10-evolucao-e-praticas/04-trunk-based-development/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/10-evolucao-e-praticas/05-gitops-iac-immutable-infrastructure/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
     </url>
     <url>
          <loc>https://vinniimiranda.github.io/studies/10-evolucao-e-praticas/06-platform-engineering-e-idps/</loc>
-         <lastmod>2026-05-29</lastmod>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/11-complexidade-algoritmica/02-pior-melhor-e-caso-medio/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/11-complexidade-algoritmica/03-complexidade-amortizada/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/11-complexidade-algoritmica/04-time-vs-space-complexity-tradeoffs/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/11-complexidade-algoritmica/05-analise-de-recursao-arvore-e-master-theorem/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/12-estruturas-de-dados/01-arrays-e-linked-lists/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/12-estruturas-de-dados/02-stacks-queues-deque-priority-queue/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/12-estruturas-de-dados/03-hash-tables/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/12-estruturas-de-dados/04-arvores-de-busca-bst-avl-red-black/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/12-estruturas-de-dados/05-b-tree-e-b-plus-tree/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/12-estruturas-de-dados/06-heaps/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/12-estruturas-de-dados/07-tries/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/12-estruturas-de-dados/08-graphs-representacao/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/12-estruturas-de-dados/09-skip-list-bloom-filter-lru-lfu/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/12-estruturas-de-dados/10-union-find-disjoint-set/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/12-estruturas-de-dados/11-segment-tree-e-fenwick-tree/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/13-algoritmos-essenciais/02-searching-busca-binaria-e-variacoes/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/13-algoritmos-essenciais/03-two-pointers-sliding-window-fast-slow/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/13-algoritmos-essenciais/04-recursao-e-backtracking/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/13-algoritmos-essenciais/05-divide-and-conquer/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/13-algoritmos-essenciais/06-greedy-algorithms/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/13-algoritmos-essenciais/07-dynamic-programming/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/13-algoritmos-essenciais/08-graph-algorithms/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/13-algoritmos-essenciais/09-string-algorithms-kmp-rabin-karp-z/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/14-concorrencia-e-paralelismo/02-race-condition-e-critical-section/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/14-concorrencia-e-paralelismo/03-deadlock-livelock-starvation/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/14-concorrencia-e-paralelismo/04-primitivas-de-sincronizacao-mutex-semaphore-monitor-spinlock/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/14-concorrencia-e-paralelismo/05-atomic-cas-lock-free-wait-free/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/14-concorrencia-e-paralelismo/06-memory-model-happens-before-volatile-barriers-false-sharing/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/14-concorrencia-e-paralelismo/07-problemas-classicos-producer-consumer-readers-writers-dining-philosophers/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/14-concorrencia-e-paralelismo/08-thread-pools-e-tuning/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/14-concorrencia-e-paralelismo/09-async-await-futures-promises-reactive-streams/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/15-banco-de-dados/02-locking-pessimista-vs-otimista/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/15-banco-de-dados/03-indices-de-banco-btree-hash-composite-covering/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/15-banco-de-dados/04-query-optimization-explain-e-n-mais-1/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/15-banco-de-dados/05-normalizacao-vs-desnormalizacao/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/15-banco-de-dados/06-sql-vs-nosql/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/16-redes-e-protocolos/02-tcp-vs-udp/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/16-redes-e-protocolos/03-http1-http2-http3-quic/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/16-redes-e-protocolos/04-https-tls-handshake-e-certificados/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/16-redes-e-protocolos/05-dns-resolution/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/16-redes-e-protocolos/06-rest-graphql-grpc-websockets/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/16-redes-e-protocolos/07-semantica-http-idempotencia-e-status-codes/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/16-redes-e-protocolos/08-cors-csrf-xss/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/16-redes-e-protocolos/09-long-polling-sse-websockets/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/17-system-design/01-encurtador-de-url/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/17-system-design/02-timeline-rede-social/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/17-system-design/03-sistema-de-chat/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/17-system-design/04-sistema-de-notificacoes-em-escala/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/17-system-design/05-rate-limiter/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/17-system-design/06-web-crawler-distribuido/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/17-system-design/07-sistema-de-busca/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/17-system-design/08-upload-de-arquivos/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/17-system-design/09-streaming-de-video/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/17-system-design/10-sistema-de-reservas/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/17-system-design/11-sistema-de-pagamentos/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/17-system-design/12-newsfeed-ranking-e-recomendacao/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/17-system-design/13-sistema-de-logs-distribuido/</loc>
+         <lastmod>2026-05-30</lastmod>
+    </url>
+    <url>
+         <loc>https://vinniimiranda.github.io/studies/17-system-design/14-top-k-trending-count-min-sketch/</loc>
+         <lastmod>2026-05-30</lastmod>
     </url>
 </urlset>

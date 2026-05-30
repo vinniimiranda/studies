@@ -1,0 +1,2686 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/13-algoritmos-essenciais/08-graph-algorithms/">
+      
+      
+        <link rel="prev" href="../07-dynamic-programming/">
+      
+      
+        <link rel="next" href="../09-string-algorithms-kmp-rabin-karp-z/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Graph Algorithms (BFS, DFS, Dijkstra…) - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#algoritmos-de-grafos-bfs-dfs-dijkstra-bellman-ford-floyd-warshall-a-topological-sort-kruskal-e-prim" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Graph Algorithms (BFS, DFS, Dijkstra…)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_15" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_15" id="__nav_15_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_15_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_15">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    13 · Algoritmos essenciais
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sorting (quick, merge, heap, radix, counting)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-searching-busca-binaria-e-variacoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Searching (busca binária e variações)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-two-pointers-sliding-window-fast-slow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Two Pointers, Sliding Window, Fast & Slow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-recursao-e-backtracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recursão e Backtracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-divide-and-conquer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Divide and Conquer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-greedy-algorithms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Greedy Algorithms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-dynamic-programming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic Programming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Graph Algorithms (BFS, DFS, Dijkstra…)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Graph Algorithms (BFS, DFS, Dijkstra…)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#travessia-bfs-e-dfs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Travessia: BFS e DFS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#single-source-shortest-path-dijkstra-bellman-ford-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single-source shortest path: Dijkstra, Bellman-Ford, A*
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#all-pairs-shortest-path-floyd-warshall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        All-pairs shortest path: Floyd-Warshall
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mst-kruskal-e-prim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MST: Kruskal e Prim
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ordenacao-topologica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ordenação topológica
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-comparativa-qual-usar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela comparativa: qual usar?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-coracao-comum-relaxamento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O coração comum: relaxamento
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dijkstra-por-que-falha-com-pesos-negativos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dijkstra: por que falha com pesos negativos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-dijkstra-com-um-gps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A*: Dijkstra com um GPS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kruskal-vs-prim-o-mesmo-otimo-estruturas-diferentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kruskal vs Prim: o mesmo ótimo, estruturas diferentes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-string-algorithms-kmp-rabin-karp-z/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    String Algorithms (KMP, Rabin-Karp, Z)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#travessia-bfs-e-dfs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Travessia: BFS e DFS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#single-source-shortest-path-dijkstra-bellman-ford-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single-source shortest path: Dijkstra, Bellman-Ford, A*
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#all-pairs-shortest-path-floyd-warshall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        All-pairs shortest path: Floyd-Warshall
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mst-kruskal-e-prim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MST: Kruskal e Prim
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ordenacao-topologica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ordenação topológica
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-comparativa-qual-usar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela comparativa: qual usar?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-coracao-comum-relaxamento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O coração comum: relaxamento
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dijkstra-por-que-falha-com-pesos-negativos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dijkstra: por que falha com pesos negativos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-dijkstra-com-um-gps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A*: Dijkstra com um GPS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kruskal-vs-prim-o-mesmo-otimo-estruturas-diferentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kruskal vs Prim: o mesmo ótimo, estruturas diferentes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="algoritmos-de-grafos-bfs-dfs-dijkstra-bellman-ford-floyd-warshall-a-topological-sort-kruskal-e-prim">Algoritmos de Grafos: BFS, DFS, Dijkstra, Bellman-Ford, Floyd-Warshall, A*, Topological Sort, Kruskal e Prim<a class="headerlink" href="#algoritmos-de-grafos-bfs-dfs-dijkstra-bellman-ford-floyd-warshall-a-topological-sort-kruskal-e-prim" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Algoritmos essenciais · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~36 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>Grafos modelam praticamente tudo que tem <strong>entidades e relações</strong>: mapas e rotas, dependências de build/deploy, redes sociais, grafos de chamadas de microsserviços, fluxos de dados. Os algoritmos de grafos se organizam em famílias por <strong>o que respondem</strong> e <strong>sob quais restrições</strong>. Para <strong>travessia/ordem</strong>: <strong>BFS</strong> (busca em largura, <code>O(V+E)</code>, dá o caminho com menos arestas em grafos não-ponderados e é a base de "níveis"/distância em saltos) e <strong>DFS</strong> (busca em profundidade, <code>O(V+E)</code>, base de detecção de ciclo, componentes e ordenação topológica). Para <strong>caminho mínimo de uma origem (single-source)</strong>: <strong>Dijkstra</strong> (<code>O((V+E) log V)</code> com heap; ótimo e rápido <strong>mas só com pesos não-negativos</strong> — é greedy), <strong>Bellman-Ford</strong> (<code>O(V·E)</code>; mais lento, porém <strong>aceita pesos negativos e detecta ciclos negativos</strong> — é DP) e <strong>A*</strong> (Dijkstra guiado por uma <strong>heurística admissível</strong>, que poda a busca e é o padrão em roteamento de mapas/jogos). Para <strong>caminho mínimo entre todos os pares (all-pairs)</strong>: <strong>Floyd-Warshall</strong> (<code>O(V³)</code>, DP, simples, aceita pesos negativos sem ciclo negativo, bom para grafos densos e pequenos/médios). Para <strong>árvore geradora mínima (MST)</strong> de grafo não-direcionado ponderado: <strong>Kruskal</strong> (greedy por aresta + <strong>union-find</strong>, melhor em grafos esparsos) e <strong>Prim</strong> (greedy por vértice + <strong>heap</strong>, melhor em densos). Para <strong>ordenação topológica</strong> de um <strong>DAG</strong>: Kahn (BFS por grau de entrada) ou DFS pós-ordem — usada em resolução de dependências (build, migrations, escalonamento). A escolha certa depende de quatro perguntas: <strong>tem pesos negativos? o grafo é denso ou esparso? preciso de uma origem ou de todos os pares? é DAG?</strong></p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>Um <strong>grafo</strong> <code>G = (V, E)</code> é um conjunto de <strong>vértices</strong> (nós) e <strong>arestas</strong> (ligações). É a estrutura mais geral para representar relações: as cidades e estradas de um mapa, as tarefas de um pipeline e suas dependências, os serviços de uma arquitetura e suas chamadas, os usuários de uma rede e suas conexões. Quase todo problema "X depende de Y", "como ir de A a B", "o que está conectado a quê" é, no fundo, um problema de grafo.</p>
+<p>A pergunta de fundo destes algoritmos: <strong>dada uma rede de entidades e relações, como respondê-la eficientemente — alcançabilidade, ordem, menor caminho, menor custo de conexão — sem enumerar exponencialmente todas as possibilidades?</strong> Os caminhos possíveis entre dois nós podem ser exponenciais; visitar tudo de forma ingênua é inviável. Os algoritmos clássicos exploram a estrutura para responder em tempo <strong>polinomial</strong> (tipicamente <code>O(V+E)</code>, <code>O((V+E) log V)</code>, <code>O(V·E)</code> ou <code>O(V³)</code>).</p>
+<p>As famílias de pergunta:</p>
+<ul>
+<li><strong>"Está conectado? Em quantos saltos?"</strong> → travessia (BFS/DFS).</li>
+<li><strong>"Qual a ordem válida respeitando dependências?"</strong> → ordenação topológica (em DAG).</li>
+<li><strong>"Qual o caminho mais barato de A para todos (ou para B)?"</strong> → single-source shortest path (Dijkstra / Bellman-Ford / A*).</li>
+<li><strong>"Qual o caminho mais barato entre cada par?"</strong> → all-pairs shortest path (Floyd-Warshall).</li>
+<li><strong>"Como conectar tudo com o menor custo total de cabos/estradas?"</strong> → MST (Kruskal / Prim).</li>
+</ul>
+<p>A habilidade que importa não é decorar implementações, é <strong>escolher o algoritmo certo</strong> dadas as restrições — porque usar Dijkstra com pesos negativos, ou Floyd-Warshall onde Dijkstra bastaria, são erros caros (de corretude ou de performance).</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="travessia-bfs-e-dfs">Travessia: BFS e DFS<a class="headerlink" href="#travessia-bfs-e-dfs" title="Permanent link">&para;</a></h3>
+<p><strong>BFS (Breadth-First Search)</strong> explora o grafo em <strong>camadas/níveis</strong>: visita todos os vizinhos do nó inicial, depois os vizinhos dos vizinhos, e assim por diante, usando uma <strong>fila (FIFO)</strong>. Propriedades-chave:</p>
+<ul>
+<li>Encontra o <strong>caminho com o menor número de arestas</strong> (menor número de saltos) da origem a todos os nós — ou seja, é o <strong>shortest path em grafos não-ponderados</strong> (ou com peso unitário).</li>
+<li>Complexidade <code>O(V + E)</code>.</li>
+<li>Base de: distância em saltos, detecção de bipartição, e o <strong>algoritmo de Kahn</strong> para ordenação topológica.</li>
+</ul>
+<p><strong>DFS (Depth-First Search)</strong> explora indo <strong>o mais fundo possível</strong> por um ramo antes de retroceder (backtrack), usando uma <strong>pilha</strong> (explícita ou via recursão). Propriedades-chave:</p>
+<ul>
+<li>Produz tempos de <strong>descoberta/finalização</strong> que classificam as arestas (tree, back, forward, cross) — base para <strong>detecção de ciclo</strong> (uma <em>back edge</em> indica ciclo), <strong>componentes conexas</strong>, <strong>componentes fortemente conexas</strong> (Tarjan/Kosaraju) e <strong>ordenação topológica</strong> (pós-ordem reversa).</li>
+<li>Complexidade <code>O(V + E)</code>.</li>
+<li>Cuidado: DFS recursivo em grafos profundos pode <strong>estourar a pilha</strong> — use versão iterativa.</li>
+</ul>
+<p>A escolha BFS vs DFS: BFS para "menor distância em saltos" e exploração por nível; DFS para detecção de ciclo, ordenação e análise estrutural.</p>
+<h3 id="single-source-shortest-path-dijkstra-bellman-ford-a">Single-source shortest path: Dijkstra, Bellman-Ford, A*<a class="headerlink" href="#single-source-shortest-path-dijkstra-bellman-ford-a" title="Permanent link">&para;</a></h3>
+<p><strong>Dijkstra</strong> resolve o caminho mínimo de uma origem para todos os nós em grafos com <strong>pesos não-negativos</strong>. É um <strong>greedy</strong>: mantém um conjunto de distâncias provisórias, e a cada passo "finaliza" o nó não-visitado de menor distância (extraído de uma <strong>min-heap / priority queue</strong>), relaxando suas arestas. O invariante que justifica o greedy: como nenhum peso é negativo, uma vez que o nó de menor distância é finalizado, <strong>nenhum caminho futuro pode melhorá-la</strong> (qualquer desvio só acrescenta peso ≥ 0). É exatamente esse invariante que <strong>pesos negativos quebram</strong> — por isso Dijkstra <strong>não</strong> funciona com arestas negativas.</p>
+<ul>
+<li>Complexidade: <code>O((V + E) log V)</code> com binary heap; <code>O(V²)</code> com array simples (melhor em grafos muito densos). Em grafos esparsos, a versão com heap/set é a preferida.</li>
+</ul>
+<p><strong>Bellman-Ford</strong> resolve single-source shortest path <strong>mesmo com pesos negativos</strong> e <strong>detecta ciclos de peso negativo</strong> (onde "menor caminho" deixa de existir). É um <strong>DP</strong>: relaxa <strong>todas</strong> as arestas repetidamente, <code>V-1</code> vezes — após <code>V-1</code> rodadas, todas as menores distâncias estão corretas (um caminho mínimo tem no máximo <code>V-1</code> arestas). Se uma <code>V</code>-ésima rodada ainda relaxa alguma aresta, há um <strong>ciclo negativo</strong>.</p>
+<ul>
+<li>Complexidade: <code>O(V · E)</code> — bem mais lento que Dijkstra, mas é o que se usa quando há pesos negativos.</li>
+</ul>
+<p><strong>A* (A-star)</strong> é o Dijkstra <strong>guiado por uma heurística</strong> <code>h(n)</code> que estima o custo restante até o destino. Em vez de expandir sempre o nó de menor distância acumulada <code>g(n)</code>, expande o de menor <code>f(n) = g(n) + h(n)</code>, <strong>priorizando os nós que parecem mais próximos do alvo</strong> e podando regiões irrelevantes. Garantias:</p>
+<ul>
+<li>Se a heurística é <strong>admissível</strong> (nunca superestima o custo real), A<em> encontra o </em><em>caminho ótimo</em>*.</li>
+<li>Se é também <strong>consistente (monotônica)</strong>, não precisa reprocessar nós.</li>
+<li>Com <code>h ≡ 0</code>, A<em> </em><em>degenera em Dijkstra</em><em>. Uma boa heurística (ex.: distância em linha reta num mapa) acelera drasticamente a busca para um destino específico. É o padrão em </em><em>roteamento de mapas, jogos e GPS</em>*.</li>
+</ul>
+<h3 id="all-pairs-shortest-path-floyd-warshall">All-pairs shortest path: Floyd-Warshall<a class="headerlink" href="#all-pairs-shortest-path-floyd-warshall" title="Permanent link">&para;</a></h3>
+<p><strong>Floyd-Warshall</strong> computa o caminho mínimo entre <strong>todos os pares</strong> de nós. É um <strong>DP</strong> elegante: <code>dp[k][i][j]</code> = menor caminho de <code>i</code> a <code>j</code> usando apenas os primeiros <code>k</code> vértices como intermediários; a recorrência é <code>dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])</code>. Aceita pesos negativos (sem ciclo negativo) e detecta ciclo negativo (diagonal negativa).</p>
+<ul>
+<li>Complexidade: <code>O(V³)</code> tempo, <code>O(V²)</code> espaço. <strong>Bom para grafos densos e pequenos/médios</strong> (centenas de nós). Para all-pairs em grafos esparsos e grandes, rodar Dijkstra de cada origem (<code>V · O((V+E) log V)</code>) pode ser melhor.</li>
+</ul>
+<h3 id="mst-kruskal-e-prim">MST: Kruskal e Prim<a class="headerlink" href="#mst-kruskal-e-prim" title="Permanent link">&para;</a></h3>
+<p>A <strong>árvore geradora mínima (MST)</strong> de um grafo <strong>não-direcionado, conexo e ponderado</strong> é o subconjunto de arestas que conecta todos os vértices com <strong>custo total mínimo</strong> e sem ciclos. Dois greedy clássicos (ambos ótimos — a estrutura é um matroide gráfico, ver doc de greedy):</p>
+<ul>
+<li><strong>Kruskal:</strong> ordena <strong>todas as arestas</strong> por peso crescente e adiciona cada uma se ela <strong>não forma ciclo</strong> (teste feito com <strong>union-find / DSU</strong> em quase-<code>O(1)</code> amortizado). Complexidade <code>O(E log E)</code> (dominada pela ordenação). <strong>Melhor em grafos esparsos.</strong></li>
+<li><strong>Prim:</strong> cresce a árvore a partir de um vértice, sempre adicionando a <strong>aresta de menor peso que conecta a árvore a um novo vértice</strong> (extraída de uma <strong>min-heap</strong>). Complexidade <code>O(E log V)</code> com binary heap, <code>O(V²)</code> com array. <strong>Melhor em grafos densos</strong> (a versão <code>O(V²)</code> ou com Fibonacci heap brilha quando <code>E ≈ V²</code>).</li>
+</ul>
+<h3 id="ordenacao-topologica">Ordenação topológica<a class="headerlink" href="#ordenacao-topologica" title="Permanent link">&para;</a></h3>
+<p>Uma <strong>ordenação topológica</strong> de um <strong>DAG (grafo acíclico dirigido)</strong> é uma ordem linear dos vértices tal que, para toda aresta <code>u → v</code>, <code>u</code> aparece <strong>antes</strong> de <code>v</code>. Existe <strong>se e somente se</strong> o grafo é acíclico. Duas abordagens:</p>
+<ul>
+<li><strong>Kahn (BFS por grau de entrada):</strong> comece pelos nós com <strong>grau de entrada 0</strong>, remova-os, decremente o grau dos sucessores, repita. Se sobrarem nós, há ciclo.</li>
+<li><strong>DFS pós-ordem:</strong> rode DFS; a ordem inversa de finalização é uma ordenação topológica.</li>
+</ul>
+<p>Uso: resolução de <strong>dependências</strong> — ordem de build, ordem de aplicar migrations, escalonamento de tarefas, resolução de dependências de pacotes.</p>
+<h3 id="tabela-comparativa-qual-usar">Tabela comparativa: qual usar?<a class="headerlink" href="#tabela-comparativa-qual-usar" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Algoritmo</th>
+<th>Responde</th>
+<th>Pesos negativos?</th>
+<th>Denso vs esparso</th>
+<th>Complexidade</th>
+<th>Paradigma</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>BFS</strong></td>
+<td>menor nº de saltos (não-ponderado)</td>
+<td>n/a</td>
+<td>qualquer</td>
+<td><code>O(V+E)</code></td>
+<td>travessia</td>
+</tr>
+<tr>
+<td><strong>DFS</strong></td>
+<td>ciclo, componentes, ordem</td>
+<td>n/a</td>
+<td>qualquer</td>
+<td><code>O(V+E)</code></td>
+<td>travessia</td>
+</tr>
+<tr>
+<td><strong>Dijkstra</strong></td>
+<td>single-source min path</td>
+<td><strong>NÃO</strong></td>
+<td>esparso (heap) / denso (array <code>O(V²)</code>)</td>
+<td><code>O((V+E) log V)</code></td>
+<td>greedy</td>
+</tr>
+<tr>
+<td><strong>Bellman-Ford</strong></td>
+<td>single-source min path</td>
+<td><strong>SIM</strong> (+ detecta ciclo neg.)</td>
+<td>qualquer</td>
+<td><code>O(V·E)</code></td>
+<td>DP</td>
+</tr>
+<tr>
+<td><strong>A*</strong></td>
+<td>single-source → 1 destino</td>
+<td>NÃO (como Dijkstra)</td>
+<td>guiado por heurística</td>
+<td>≤ Dijkstra</td>
+<td>greedy + heurística</td>
+</tr>
+<tr>
+<td><strong>Floyd-Warshall</strong></td>
+<td>all-pairs min path</td>
+<td>SIM (sem ciclo neg.)</td>
+<td><strong>denso, pequeno/médio</strong></td>
+<td><code>O(V³)</code></td>
+<td>DP</td>
+</tr>
+<tr>
+<td><strong>Kruskal</strong></td>
+<td>MST</td>
+<td>n/a</td>
+<td><strong>esparso</strong></td>
+<td><code>O(E log E)</code></td>
+<td>greedy + union-find</td>
+</tr>
+<tr>
+<td><strong>Prim</strong></td>
+<td>MST</td>
+<td>n/a</td>
+<td><strong>denso</strong></td>
+<td><code>O(E log V)</code> / <code>O(V²)</code></td>
+<td>greedy + heap</td>
+</tr>
+<tr>
+<td><strong>Topological sort</strong></td>
+<td>ordem de dependências (DAG)</td>
+<td>n/a</td>
+<td>qualquer</td>
+<td><code>O(V+E)</code></td>
+<td>BFS (Kahn) / DFS</td>
+</tr>
+</tbody>
+</table>
+<p>A árvore de decisão mental: <strong>DAG e quero ordem?</strong> → topological sort. <strong>Quero conectar tudo barato?</strong> → MST (Kruskal se esparso, Prim se denso). <strong>Quero caminho mais curto?</strong> → não-ponderado: BFS; ponderado de uma origem sem pesos negativos: Dijkstra (com destino único e heurística: A*); com pesos negativos: Bellman-Ford; entre todos os pares e grafo denso/pequeno: Floyd-Warshall.</p>
+<h3 id="glossario-rapido">Glossário rápido<a class="headerlink" href="#glossario-rapido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Vértice / aresta:</strong> nós e ligações; aresta pode ser dirigida e/ou ponderada.</li>
+<li><strong>DAG:</strong> grafo dirigido sem ciclos; pré-requisito da ordenação topológica.</li>
+<li><strong>Relaxar uma aresta:</strong> tentar melhorar <code>dist[v]</code> via <code>dist[u] + peso(u,v)</code>.</li>
+<li><strong>Heurística admissível:</strong> estimativa que nunca superestima o custo restante (garante ótimo no A*).</li>
+<li><strong>Union-find / DSU:</strong> estrutura de conjuntos disjuntos; testa/une componentes em quase-<code>O(1)</code> (usada no Kruskal).</li>
+<li><strong>MST:</strong> árvore geradora de custo mínimo de grafo não-direcionado ponderado.</li>
+<li><strong>Ciclo negativo:</strong> ciclo cuja soma de pesos é negativa; torna "caminho mínimo" indefinido.</li>
+<li><strong>Denso vs esparso:</strong> <code>E ≈ V²</code> (denso) vs <code>E ≈ V</code> (esparso) — decide heap vs matriz.</li>
+</ul>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<h3 id="o-coracao-comum-relaxamento">O coração comum: relaxamento<a class="headerlink" href="#o-coracao-comum-relaxamento" title="Permanent link">&para;</a></h3>
+<p>Os algoritmos de caminho mínimo compartilham a operação de <strong>relaxamento</strong>: para cada aresta <code>(u, v)</code> de peso <code>w</code>, se <code>dist[u] + w &lt; dist[v]</code>, atualiza-se <code>dist[v] = dist[u] + w</code> (e o predecessor de <code>v</code>). A diferença está na <strong>ordem</strong> em que relaxam: Dijkstra relaxa na ordem do nó de menor distância (greedy, via heap); Bellman-Ford relaxa todas as arestas <code>V-1</code> vezes (DP); Floyd-Warshall relaxa via vértices intermediários (DP <code>O(V³)</code>).</p>
+<h3 id="dijkstra-por-que-falha-com-pesos-negativos">Dijkstra: por que falha com pesos negativos<a class="headerlink" href="#dijkstra-por-que-falha-com-pesos-negativos" title="Permanent link">&para;</a></h3>
+<p>O invariante de Dijkstra é: quando um nó sai da heap (é finalizado), sua distância é <strong>definitiva</strong>. Isso só vale porque, com pesos ≥ 0, qualquer caminho alternativo só pode ser <strong>maior ou igual</strong>. Uma aresta negativa permitiria que um nó já finalizado fosse melhorado depois — violando o invariante e produzindo respostas <strong>erradas silenciosamente</strong> (não dá erro, dá resultado incorreto). Por isso, com pesos negativos, troca-se por <strong>Bellman-Ford</strong>.</p>
+<h3 id="a-dijkstra-com-um-gps">A*: Dijkstra com um GPS<a class="headerlink" href="#a-dijkstra-com-um-gps" title="Permanent link">&para;</a></h3>
+<p>A<em> prioriza <code>f(n) = g(n) + h(n)</code>. <code>g(n)</code> é o custo conhecido até <code>n</code>; <code>h(n)</code> é a estimativa do restante. Numa malha viária, <code>h</code> pode ser a distância em linha reta (Haversine) até o destino — sempre <code>≤</code> distância real pela estrada (admissível), logo A</em> acha o ótimo. O efeito prático: em vez de expandir um "círculo" ao redor da origem (como Dijkstra), A* expande uma "elipse" esticada na direção do destino, visitando ordens de magnitude menos nós.</p>
+<h3 id="kruskal-vs-prim-o-mesmo-otimo-estruturas-diferentes">Kruskal vs Prim: o mesmo ótimo, estruturas diferentes<a class="headerlink" href="#kruskal-vs-prim-o-mesmo-otimo-estruturas-diferentes" title="Permanent link">&para;</a></h3>
+<p>Ambos produzem uma MST de mesmo custo (a estrutura é matroide). Kruskal pensa em <strong>arestas globais</strong> (ordena todas, usa union-find para evitar ciclo) — eficiente quando há poucas arestas (esparso). Prim pensa em <strong>crescimento local</strong> (expande a árvore por vértices adjacentes, usa heap) — eficiente quando há muitas arestas (denso), especialmente na versão <code>O(V²)</code>.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama é um grafo ponderado para Dijkstra (caminho mínimo de A). O segundo é um DAG de dependências de build para ordenação topológica. O terceiro é a árvore de decisão para escolher o algoritmo de caminho mínimo.</p>
+<pre class="mermaid"><code>flowchart LR
+    A((A)) --&gt;|"4"| B((B))
+    A --&gt;|"1"| C((C))
+    C --&gt;|"2"| B
+    B --&gt;|"5"| D((D))
+    C --&gt;|"8"| D
+    B --&gt;|"10"| E((E))
+    D --&gt;|"2"| E</code></pre>
+<pre class="mermaid"><code>flowchart TD
+    schema["migrate: schema"] --&gt; seed["migrate: seed data"]
+    schema --&gt; build["build: backend"]
+    build --&gt; test["run: tests"]
+    seed --&gt; test
+    test --&gt; deploy["deploy: prod"]
+    build --&gt; docs["build: docs"]
+    docs --&gt; deploy</code></pre>
+<pre class="mermaid"><code>flowchart TD
+    Q1{"Grafo ponderado?"} --&gt;|"nao"| BFS["BFS (menor nº de saltos)"]
+    Q1 --&gt;|"sim"| Q2{"Tem pesos&lt;br/&gt;negativos?"}
+    Q2 --&gt;|"sim"| BF["Bellman-Ford O(V·E)&lt;br/&gt;(detecta ciclo negativo)"]
+    Q2 --&gt;|"nao"| Q3{"Preciso de todos os pares&lt;br/&gt;ou de uma origem?"}
+    Q3 --&gt;|"todos os pares (denso/pequeno)"| FW["Floyd-Warshall O(V³)"]
+    Q3 --&gt;|"uma origem, 1 destino, ha heuristica"| AS["A* (Dijkstra + heuristica)"]
+    Q3 --&gt;|"uma origem"| DK["Dijkstra O((V+E) log V)"]</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p>Cenário pt-BR: a engenharia de uma <strong>plataforma de logística e entregas</strong> (estilo iFood/Loggi) e a <strong>pipeline de CI/CD</strong> da mesma empresa usam, juntas, quase todos esses algoritmos.</p>
+<p><strong>1. Roteamento de entregas (Dijkstra / A*).</strong> O serviço de roteamento precisa do <strong>menor tempo de A até B</strong> numa malha viária onde os pesos das arestas são tempos de trajeto (sempre ≥ 0). Como há um <strong>destino específico</strong> e existe uma heurística natural (distância em linha reta via Haversine), usa-se <strong>A*</strong>, que poda a busca e responde em milissegundos mesmo num grafo de milhões de cruzamentos — enquanto Dijkstra puro expandiria muito mais nós. Quando o problema vira "tempo de cada hub para <em>todos</em> os bairros" (matriz origem-destino), parte-se para múltiplos Dijkstra ou, se o grafo de hubs for pequeno e denso, <strong>Floyd-Warshall</strong> <code>O(V³)</code>. Pseudocódigo do A*:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>abertos = heap com (f=h(origem), origem)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>g[origem] = 0
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>enquanto abertos não vazio:
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    n = extrai menor f
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    se n == destino: reconstrói e retorna caminho
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    para cada vizinho v de n:
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        novo_g = g[n] + peso(n, v)
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        se novo_g &lt; g[v]:
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>            g[v] = novo_g
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>            f[v] = novo_g + h(v)        // h admissível (linha reta)
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>            insere/atualiza v em abertos
+</code></pre></div>
+<p><strong>2. Zonas de entrega e conectividade (BFS / componentes).</strong> Para definir "quais bairros estão alcançáveis a pé a partir de um ponto de retirada em ≤ N quadras", usa-se <strong>BFS</strong> (menor número de saltos em grafo não-ponderado). Para descobrir <strong>regiões desconexas</strong> da malha (ilhas sem ligação rodoviária), usa-se <strong>DFS / componentes conexas</strong>.</p>
+<p><strong>3. Custo mínimo de conectar uma nova região (MST).</strong> Ao expandir para uma cidade nova, o time precisa decidir <strong>quais trechos de "linha-tronco" entre hubs construir</strong> para conectar todos os hubs com o menor custo total de infraestrutura — exatamente uma <strong>MST</strong>. Como o grafo de hubs candidatos é <strong>esparso</strong> (nem todo par de hubs tem trecho viável), usa-se <strong>Kruskal</strong> com union-find; se fosse denso (todos conectáveis a todos), <strong>Prim</strong> seria preferível.</p>
+<p><strong>4. Ordem do pipeline de CI/CD (topological sort).</strong> O build da plataforma tem dependências: <code>migrate-schema</code> antes de <code>seed</code>, <code>build-backend</code> antes de <code>tests</code>, <code>tests</code> e <code>build-docs</code> antes de <code>deploy</code>. O orquestrador modela isso como um <strong>DAG</strong> e roda <strong>ordenação topológica</strong> (Kahn) para decidir a ordem de execução — e, de quebra, <strong>detecta dependência circular</strong> (se a ordenação não consome todos os nós, há ciclo, e o build é abortado com erro claro em vez de travar). É o mesmo mecanismo que <code>make</code>, Bazel, gerenciadores de pacotes (npm/Maven) e ferramentas de migration usam.</p>
+<p>A lição transversal: <strong>a mesma empresa, num dia, usa A* (rotas), BFS (alcance), Kruskal (infra) e topological sort (CI/CD)</strong> — e escolher o algoritmo certo para cada um (atento a pesos negativos, denso/esparso, single-source vs all-pairs, DAG) é o que separa a solução correta e rápida da lenta ou errada.</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>BFS:</strong> use para menor número de <strong>saltos</strong> em grafos <strong>não-ponderados</strong> (ou peso unitário), exploração por nível, bipartição. Evite onde os pesos importam (não dá caminho de menor <em>custo</em> ponderado).</p>
+<p><strong>DFS:</strong> use para <strong>detecção de ciclo</strong>, componentes (conexas e fortemente conexas), ordenação topológica via pós-ordem. Evite a versão recursiva em grafos muito profundos (stack overflow) — use a iterativa.</p>
+<p><strong>Dijkstra:</strong> use para single-source shortest path com <strong>pesos não-negativos</strong>; é o caminho mínimo ponderado "padrão" e rápido. <strong>Evite com pesos negativos</strong> (resultado errado).</p>
+<p><strong>Bellman-Ford:</strong> use quando há <strong>pesos negativos</strong> ou você precisa <strong>detectar ciclo negativo</strong>. Evite quando os pesos são não-negativos e a performance importa (Dijkstra é muito mais rápido).</p>
+<p><strong>A*:</strong> use quando há <strong>um destino específico</strong> e existe <strong>heurística admissível</strong> boa (mapas, jogos, GPS). Evite (ou degenera em Dijkstra) quando não há heurística informativa, ou quando você precisa das distâncias para <em>todos</em> os nós.</p>
+<p><strong>Floyd-Warshall:</strong> use para <strong>all-pairs</strong> em grafos <strong>densos e pequenos/médios</strong> (até centenas de nós); aceita pesos negativos. <strong>Evite</strong> em grafos grandes e esparsos (<code>O(V³)</code> explode — prefira Dijkstra repetido).</p>
+<p><strong>Kruskal:</strong> use para MST em grafos <strong>esparsos</strong> (poucas arestas). <strong>Prim:</strong> use para MST em grafos <strong>densos</strong>. Ambos só para grafos <strong>não-direcionados</strong> ponderados (MST direcionada é outro problema — arborescência de Edmonds).</p>
+<p><strong>Topological sort:</strong> use para ordenar <strong>dependências em DAGs</strong> (build, migrations, escalonamento). <strong>Evite/inválido</strong> em grafos com ciclo (a ausência de ordenação <em>sinaliza</em> o ciclo — útil para detectá-lo).</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Dijkstra com pesos negativos (o clássico de entrevista).</strong> Dijkstra dá resultado <strong>errado silenciosamente</strong> com arestas negativas — não lança erro, retorna distância incorreta. Com pesos negativos, use <strong>Bellman-Ford</strong>. Saber <em>por quê</em> (o invariante greedy quebra) é o que diferencia.</li>
+<li><strong>Usar Floyd-Warshall onde Dijkstra bastaria.</strong> Se você precisa de caminho mínimo de <strong>uma</strong> origem, rodar Floyd-Warshall <code>O(V³)</code> é desperdício gigante; use Dijkstra <code>O((V+E) log V)</code>. E o inverso: rodar <code>V</code> Dijkstras quando Floyd-Warshall <code>O(V³)</code> é mais simples e suficiente para um grafo pequeno e denso.</li>
+<li><strong>BFS para caminho mínimo ponderado.</strong> BFS dá o menor número de <strong>arestas</strong>, não o menor <strong>custo</strong> — só coincidem em grafos não-ponderados/peso unitário. Para pesos arbitrários, é Dijkstra.</li>
+<li><strong>Estouro de pilha em DFS recursivo.</strong> Em grafos com caminhos longos (ou listas encadeadas disfarçadas de grafo), DFS recursivo estoura a pilha. Use a versão iterativa com pilha explícita.</li>
+<li><strong>Topological sort em grafo com ciclo.</strong> Ordenação topológica só existe em DAG. Aplicá-la num grafo com ciclo deve <strong>detectar e reportar o ciclo</strong> (Kahn: sobram nós; DFS: encontra back edge), não produzir uma ordem inválida silenciosamente — é como gerenciadores de pacotes detectam dependência circular.</li>
+<li><strong>MST em grafo direcionado.</strong> Kruskal/Prim resolvem MST de grafos <strong>não-direcionados</strong>. O análogo direcionado (mínima arborescência) é o algoritmo de Edmonds, não um greedy ingênuo.</li>
+<li><strong>Esquecer o union-find no Kruskal (ou usá-lo sem path compression / union by rank).</strong> Sem union-find eficiente, o teste de ciclo vira <code>O(V)</code> por aresta e Kruskal degrada; com as otimizações, é quase-<code>O(1)</code> amortizado.</li>
+<li><strong>Heurística não-admissível no A*.</strong> Se <code>h</code> <strong>superestima</strong> o custo restante, A<em> pode retornar um caminho </em><em>subótimo</em>*. Para garantir o ótimo, <code>h</code> deve ser admissível (e idealmente consistente).</li>
+<li><strong>Não detectar ciclo negativo no Bellman-Ford.</strong> Esquecer a <code>V</code>-ésima rodada de verificação faz o algoritmo retornar "distâncias" sem sentido quando há ciclo negativo, em vez de sinalizar que não há solução.</li>
+<li><strong>Recriar Dijkstra sem priority queue.</strong> Implementar Dijkstra varrendo o array para achar o mínimo dá <code>O(V²)</code> — aceitável em grafos densos, mas ruim em esparsos, onde a heap dá <code>O((V+E) log V)</code>.</li>
+<li><strong>Confundir denso e esparso na escolha de estrutura.</strong> Usar matriz de adjacência <code>O(V²)</code> de memória num grafo esparso e enorme desperdiça memória; usar lista de adjacência é o padrão para esparsos.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Estruturas de dados — heaps/priority queue:</strong> Dijkstra, Prim e A<em> dependem de uma </em><em>min-heap</em>* para extrair o nó/aresta de menor custo; a complexidade <code>log V</code> vem dela.</li>
+<li><strong>Estruturas de dados — union-find (DSU):</strong> o Kruskal usa <strong>union-find</strong> com path compression e union by rank para o teste de ciclo em quase-<code>O(1)</code> amortizado.</li>
+<li><strong>Estruturas de dados — grafos:</strong> representação (lista vs matriz de adjacência) impacta diretamente as complexidades e a escolha denso/esparso.</li>
+<li><strong>Greedy algorithms:</strong> Dijkstra, Prim e Kruskal são <strong>greedy</strong>; a otimalidade de Kruskal/Prim vem do <strong>matroide gráfico</strong>, a de Dijkstra do invariante de relaxamento com pesos ≥ 0 (ver doc de greedy).</li>
+<li><strong>Dynamic programming:</strong> Bellman-Ford é <strong>DP</strong> sobre o número de arestas; Floyd-Warshall é <strong>DP</strong> sobre vértices intermediários (<code>dp[k][i][j]</code>); shortest path em DAG é DP em ordem topológica (ver doc de DP).</li>
+<li><strong>Complexidade:</strong> as diferenças <code>O(V+E)</code> vs <code>O((V+E) log V)</code> vs <code>O(V·E)</code> vs <code>O(V³)</code> são o coração da escolha — entender denso (<code>E≈V²</code>) vs esparso (<code>E≈V</code>) decide qual ganha.</li>
+<li><strong>System design (busca, mapas, dependências):</strong> roteamento (Google Maps, Waze, iFood) usa A*/Dijkstra; orquestradores de build/CI (Bazel, make, Airflow) e gerenciadores de pacotes usam ordenação topológica; redes e infraestrutura usam MST; recomendação e fraude usam travessia de grafos.</li>
+</ul>
+<h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
+<p>Três ideias para carregar:</p>
+<ol>
+<li><strong>A escolha é guiada por quatro perguntas.</strong> Tem <strong>pesos negativos</strong>? (sim → Bellman-Ford; não → Dijkstra/A<em>). É </em><em>denso ou esparso</em><em>? (decide Kruskal vs Prim, heap vs matriz). Preciso de </em><em>uma origem ou todos os pares</em><em>? (Dijkstra vs Floyd-Warshall). É </em><em>DAG e quero ordem</em><em>? (topological sort). Responder isso </em>antes* de codificar evita os erros caros.</li>
+<li><strong><code>O(V+E)</code> é quase sempre o ideal — pague mais só quando precisar.</strong> BFS/DFS/topological sort são lineares; Dijkstra adiciona <code>log V</code> (pelo heap) só porque há pesos; Bellman-Ford e Floyd-Warshall são mais caros e justificados apenas por pesos negativos ou all-pairs.</li>
+<li><strong>Greedy e DP convivem nos grafos.</strong> Dijkstra/Kruskal/Prim são greedy (ótimos por estrutura); Bellman-Ford/Floyd-Warshall são DP (mais lentos, mais gerais). Reconhecer qual paradigma cada um é ajuda a lembrar <em>por que</em> funciona e <em>quando</em> quebra (Dijkstra greedy → pesos negativos quebram).</li>
+</ol>
+<p>O fio condutor: grafos são a estrutura mais geral da computação, e o repertório acima cobre as perguntas universais (alcance, ordem, menor caminho, menor conexão). O sênior não decora os nove — ele sabe, dadas as restrições, <strong>qual</strong> dos nove é o certo, e por quê os outros falhariam ou desperdiçariam.</p>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>BFS</strong> = menor nº de saltos (não-ponderado), <code>O(V+E)</code>; <strong>DFS</strong> = ciclo/componentes/ordem, <code>O(V+E)</code>.</li>
+<li><strong>Dijkstra</strong> = single-source, <strong>só pesos ≥ 0</strong>, greedy, <code>O((V+E) log V)</code> com heap.</li>
+<li><strong>Bellman-Ford</strong> = single-source com <strong>pesos negativos</strong>, <strong>detecta ciclo negativo</strong>, DP, <code>O(V·E)</code>.</li>
+<li><strong>A*</strong> = Dijkstra + <strong>heurística admissível</strong>; ótimo se <code>h</code> não superestima; padrão em mapas/jogos; <code>h≡0</code> vira Dijkstra.</li>
+<li><strong>Floyd-Warshall</strong> = <strong>all-pairs</strong>, DP <code>O(V³)</code>, bom para <strong>denso e pequeno/médio</strong>; aceita pesos negativos sem ciclo negativo.</li>
+<li><strong>Kruskal</strong> = MST greedy + <strong>union-find</strong>, melhor em <strong>esparso</strong>, <code>O(E log E)</code>; <strong>Prim</strong> = MST greedy + <strong>heap</strong>, melhor em <strong>denso</strong>.</li>
+<li><strong>Topological sort</strong> = ordem em <strong>DAG</strong> (Kahn/BFS ou DFS pós-ordem); ausência de ordem ⇒ <strong>ciclo</strong>.</li>
+<li>Quatro perguntas para escolher: <strong>pesos negativos? denso/esparso? single-source/all-pairs? é DAG?</strong></li>
+<li>Dijkstra com peso negativo erra <strong>silenciosamente</strong>; MST só vale para <strong>não-direcionado</strong>.</li>
+<li>Dijkstra/Kruskal/Prim são <strong>greedy</strong>; Bellman-Ford/Floyd-Warshall são <strong>DP</strong>.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://cp-algorithms.com/graph/breadth-first-search.html">Breadth-First Search — cp-algorithms.com</a></li>
+<li><a href="https://cp-algorithms.com/graph/depth-first-search.html">Depth-First Search — cp-algorithms.com</a></li>
+<li><a href="https://cp-algorithms.com/graph/dijkstra_sparse.html">Dijkstra on sparse graphs — cp-algorithms.com</a></li>
+<li><a href="https://cp-algorithms.com/graph/mst_prim.html">Minimum Spanning Tree — Prim's Algorithm — cp-algorithms.com</a></li>
+<li><a href="https://cp-algorithms.com/navigation.html">Navigation (índice de algoritmos de grafos e strings) — cp-algorithms.com</a></li>
+<li><a href="https://visualgo.net/en/sssp">Single-Source Shortest Paths (Dijkstra, BFS, Bellman-Ford, DAG DP) — VisuAlgo</a></li>
+<li><a href="https://visualgo.net/en/mst">Minimum Spanning Tree (Prim's, Kruskal's) — VisuAlgo</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Kruskal%27s_algorithm">Kruskal's algorithm — Wikipedia</a></li>
+<li><a href="https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/resources/lecture-17-dynamic-programming-part-3-apsp-parens-piano/">Dynamic Programming, Part 3: APSP (Bellman-Ford, Floyd-Warshall) — MIT 6.006 OCW</a></li>
+<li><a href="https://web.stanford.edu/class/cs97si/07-shortest-path-algorithms.pdf">Shortest Path Algorithms — CS 97SI, Stanford</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../07-dynamic-programming/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Dynamic Programming">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Dynamic Programming
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../09-string-algorithms-kmp-rabin-karp-z/" class="md-footer__link md-footer__link--next" aria-label="Próximo: String Algorithms (KMP, Rabin-Karp, Z)">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                String Algorithms (KMP, Rabin-Karp, Z)
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2564 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/14-concorrencia-e-paralelismo/06-memory-model-happens-before-volatile-barriers-false-sharing/">
+      
+      
+        <link rel="prev" href="../05-atomic-cas-lock-free-wait-free/">
+      
+      
+        <link rel="next" href="../07-problemas-classicos-producer-consumer-readers-writers-dining-philosophers/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Memory model e false sharing - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#memory-model-happens-before-volatile-memory-barriers-reordering-e-false-sharing" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Memory model e false sharing
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_16" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_16" id="__nav_16_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_16_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_16">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    14 · Concorrência e paralelismo
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concorrência vs Paralelismo e context switching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-race-condition-e-critical-section/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Race Condition e Critical Section
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-deadlock-livelock-starvation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deadlock, Livelock, Starvation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-primitivas-de-sincronizacao-mutex-semaphore-monitor-spinlock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Primitivas (Mutex, Semaphore, Monitor, Spinlock)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-atomic-cas-lock-free-wait-free/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Atomic, CAS, lock-free, wait-free
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory model e false sharing
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory model e false sharing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#happens-before-a-relacao-central" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Happens-before: a relação central
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regras-que-estabelecem-happens-before-java-memory-model-jsr-133" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras que estabelecem happens-before (Java Memory Model, JSR-133)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#volatile-visibilidade-e-ordenacao-nao-atomicidade-composta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        volatile: visibilidade e ordenação, não atomicidade composta
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-barriers-fences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory barriers / fences
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-go-memory-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O Go Memory Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#false-sharing-e-cache-lines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        False sharing e cache lines
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Anti-padrões e armadilhas comuns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#por-que-x86-esconde-bugs-que-arm-revela" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que x86 esconde bugs que ARM revela
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-problemas-classicos-producer-consumer-readers-writers-dining-philosophers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Problemas clássicos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-thread-pools-e-tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Thread pools e tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-async-await-futures-promises-reactive-streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Async/await, Futures, Reactive Streams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#happens-before-a-relacao-central" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Happens-before: a relação central
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regras-que-estabelecem-happens-before-java-memory-model-jsr-133" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras que estabelecem happens-before (Java Memory Model, JSR-133)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#volatile-visibilidade-e-ordenacao-nao-atomicidade-composta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        volatile: visibilidade e ordenação, não atomicidade composta
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-barriers-fences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory barriers / fences
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-go-memory-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O Go Memory Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#false-sharing-e-cache-lines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        False sharing e cache lines
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Anti-padrões e armadilhas comuns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#por-que-x86-esconde-bugs-que-arm-revela" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que x86 esconde bugs que ARM revela
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="memory-model-happens-before-volatile-memory-barriers-reordering-e-false-sharing">Memory model: happens-before, volatile, memory barriers, reordering e false sharing<a class="headerlink" href="#memory-model-happens-before-volatile-memory-barriers-reordering-e-false-sharing" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Concorrência e paralelismo · <strong>Nível:</strong> Avançado · <strong>Tempo de leitura:</strong> ~32 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>Em hardware multicore moderno, <strong>não existe "uma única memória compartilhada coerente e instantânea"</strong> do ponto de vista de um programa concorrente. Compiladores reordenam instruções, CPUs executam fora de ordem e especulativamente, e cada núcleo tem caches privados (L1/L2) cujas escritas só ficam visíveis para os outros núcleos em algum momento futuro indeterminado. O <strong>memory model</strong> (modelo de memória) de uma linguagem é o contrato formal que define <strong>quais reordenações são permitidas</strong> e <strong>sob quais condições uma escrita feita por uma thread se torna garantidamente visível para a leitura de outra thread</strong>. O conceito central é a relação <strong>happens-before</strong>: uma ordem parcial entre ações tal que, se <code>A</code> <em>happens-before</em> <code>B</code>, então os efeitos de <code>A</code> (incluindo escritas em memória) são garantidamente visíveis e ordenados antes de <code>B</code>. Crucialmente, happens-before <strong>não é ordem temporal</strong> — é uma relação <em>causal/de visibilidade</em>. Programas sem nenhuma relação happens-before entre acessos concorrentes a uma variável compartilhada têm uma <strong>data race</strong>, e o comportamento é indefinido (no C/C++) ou pelo menos não garante visibilidade (Java/Go). As ferramentas para <em>estabelecer</em> happens-before são as primitivas de sincronização: locks (unlock happens-before lock subsequente do mesmo monitor), <code>volatile</code>/atomics (escrita volátil happens-before leitura volátil subsequente da mesma variável), channels em Go (send happens-before receive), start/join de threads. <code>volatile</code> em Java garante <strong>visibilidade e ordenação</strong> (não atomicidade composta — <code>i++</code> continua errado). No nível de hardware, essas garantias são implementadas por <strong>memory barriers/fences</strong> (LoadLoad, StoreStore, LoadStore, StoreStore) que impedem reordenações específicas. Por fim, <strong>false sharing</strong> é a armadilha de performance em que duas variáveis <em>independentes</em> caem na mesma <strong>cache line</strong> (tipicamente 64 bytes); quando núcleos diferentes escrevem em cada uma, o protocolo de coerência de cache (MESI) invalida a linha inteira a cada escrita, serializando o que deveria ser paralelo — o "silent performance killer" descrito por Martin Thompson. A correção é <strong>padding/alinhamento</strong> para separar as variáveis em cache lines distintas (em Java, <code>@Contended</code>).</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>A intuição ingênua de um programador é a do <strong>modelo sequencialmente consistente</strong> (sequential consistency, formalizado por Leslie Lamport): todas as threads veem todas as operações de memória numa única ordem global, e essa ordem respeita a ordem do programa de cada thread. É como se houvesse uma única memória RAM e cada acesso fosse instantâneo e visível a todos. Sob esse modelo, raciocinar sobre concorrência seria comparativamente simples.</p>
+<p>O problema: <strong>nenhum hardware ou compilador moderno oferece sequential consistency por padrão</strong>, porque ela seria proibitivamente lenta. Três camadas conspiram contra a intuição:</p>
+<ol>
+<li>
+<p><strong>O compilador reordena.</strong> Para otimizar, o compilador (ou o JIT, na JVM) reordena instruções, mantém valores em registradores (não relê da memória), elimina leituras "redundantes" e funde operações. Do ponto de vista de <em>uma</em> thread isolada, essas transformações preservam a semântica (a regra <em>as-if-serial</em>). Mas para <em>outra</em> thread observando, a ordem aparente das escritas pode ser totalmente diferente da ordem do código-fonte.</p>
+</li>
+<li>
+<p><strong>A CPU reordena e executa fora de ordem.</strong> Processadores modernos têm execução out-of-order, pipelines, store buffers e prefetch. Uma escrita em memória pode ficar parada no <strong>store buffer</strong> do núcleo antes de chegar ao cache compartilhado; enquanto isso, leituras subsequentes podem prosseguir. O resultado é que o núcleo A pode ter escrito <code>x = 1</code> e <code>y = 1</code> nessa ordem, mas o núcleo B pode observar <code>y == 1</code> <em>antes</em> de ver <code>x == 1</code>. Cada arquitetura tem um modelo de memória de hardware diferente: <strong>x86/x86-64 é relativamente forte</strong> (TSO — Total Store Order, só permite reordenar store→load), enquanto <strong>ARM e POWER são fracamente ordenados</strong> (permitem quase todas as reordenações), o que faz bugs de concorrência aparecerem em ARM que nunca apareciam em x86.</p>
+</li>
+<li>
+<p><strong>Caches são privados e a coerência é assíncrona.</strong> Cada núcleo tem caches L1/L2 privados. Uma escrita feita pelo núcleo A vive no cache de A até o protocolo de coerência (MESI: Modified/Exclusive/Shared/Invalid) propagá-la. A visibilidade entre núcleos não é instantânea.</p>
+</li>
+</ol>
+<p>Sem um contrato formal, o programador não teria como saber <em>quando</em> uma escrita de uma thread fica visível para outra, nem <em>quais</em> reordenações esperar — e o código seria não-portável (funcionaria em x86, quebraria em ARM) e impossível de raciocinar. O <strong>memory model</strong> resolve isso definindo o contrato mínimo: ele não promete sequential consistency para código comum (rápido), mas promete que <strong>se você estabelecer happens-before via sincronização, a visibilidade e a ordenação são garantidas</strong>. A pergunta central que ele responde: <strong>"Quando uma escrita feita por uma thread está garantidamente visível para a leitura feita por outra thread, e em que ordem?"</strong></p>
+<p>Um segundo problema, ortogonal mas igualmente ligado à arquitetura multicore, é de <strong>performance, não correção</strong>: mesmo com sincronização correta, o layout dos dados na memória pode destruir a escalabilidade. O <strong>false sharing</strong> é o exemplo canônico — variáveis logicamente independentes que, por azar de layout, compartilham uma cache line e passam a se invalidar mutuamente. É um problema invisível no código (a lógica está certa) mas devastador no profiler.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="happens-before-a-relacao-central">Happens-before: a relação central<a class="headerlink" href="#happens-before-a-relacao-central" title="Permanent link">&para;</a></h3>
+<p><strong>Happens-before</strong> é uma <strong>ordem parcial</strong> sobre as ações de um programa (leituras, escritas, locks, unlocks, etc.). A garantia: se uma ação <code>A</code> <em>happens-before</em> <code>B</code>, então:</p>
+<ul>
+<li>os efeitos de memória de <code>A</code> (todas as escritas que <code>A</code> fez ou que aconteceram antes de <code>A</code>) são <strong>visíveis</strong> para <code>B</code>;</li>
+<li><code>A</code> é <strong>ordenado antes</strong> de <code>B</code> — o compilador e a CPU não podem reordená-los de forma que <code>B</code> veja um estado anterior a <code>A</code>.</li>
+</ul>
+<p>Três esclarecimentos críticos, frequentemente cobrados em entrevista:</p>
+<ul>
+<li><strong>Happens-before NÃO é ordem temporal (wall-clock).</strong> <code>A</code> pode happens-before <code>B</code> mesmo que, no relógio, executem "ao mesmo tempo"; e duas ações podem executar em momentos diferentes sem nenhuma relação happens-before entre si. É uma relação <em>causal</em>, não cronológica.</li>
+<li><strong>Happens-before é transitiva.</strong> Se <code>A</code> hb <code>B</code> e <code>B</code> hb <code>C</code>, então <code>A</code> hb <code>C</code>. Isso permite encadear garantias através de sincronização.</li>
+<li><strong>Ausência de happens-before = data race.</strong> Se duas threads acessam a mesma variável, pelo menos um acesso é escrita, e <strong>não há relação happens-before entre eles</strong>, o programa tem uma <em>data race</em>. Em Java, o resultado é que a leitura pode ver valores "rasgados" ou stale; em C/C++, é <strong>undefined behavior</strong> puro (o compilador pode assumir que races não existem e otimizar agressivamente).</li>
+</ul>
+<h3 id="regras-que-estabelecem-happens-before-java-memory-model-jsr-133">Regras que estabelecem happens-before (Java Memory Model, JSR-133)<a class="headerlink" href="#regras-que-estabelecem-happens-before-java-memory-model-jsr-133" title="Permanent link">&para;</a></h3>
+<p>O JMM (capítulo 17 da JLS, redesenhado pela JSR-133 em Java 5) define as fontes de happens-before:</p>
+<ul>
+<li><strong>Program order rule:</strong> cada ação numa thread happens-before toda ação subsequente <em>na mesma thread</em>. (Isto é o que dá a ilusão de ordem sequencial dentro de uma thread.)</li>
+<li><strong>Monitor lock rule:</strong> um <code>unlock</code> de um monitor happens-before todo <code>lock</code> subsequente do <em>mesmo</em> monitor. (É por isso que o que você escreve dentro de um <code>synchronized</code> fica visível para a próxima thread que entrar no bloco.)</li>
+<li><strong>Volatile variable rule:</strong> uma escrita numa variável <code>volatile</code> happens-before toda leitura subsequente <em>dessa mesma</em> variável volátil.</li>
+<li><strong>Thread start rule:</strong> <code>Thread.start()</code> happens-before qualquer ação da thread iniciada.</li>
+<li><strong>Thread join rule:</strong> qualquer ação de uma thread happens-before o retorno de <code>join()</code> sobre ela.</li>
+<li><strong>Transitividade:</strong> a composição das regras acima.</li>
+</ul>
+<h3 id="volatile-visibilidade-e-ordenacao-nao-atomicidade-composta">volatile: visibilidade e ordenação, não atomicidade composta<a class="headerlink" href="#volatile-visibilidade-e-ordenacao-nao-atomicidade-composta" title="Permanent link">&para;</a></h3>
+<p>Em Java, <code>volatile</code> faz três coisas:</p>
+<ol>
+<li><strong>Garante visibilidade:</strong> toda leitura de uma variável volátil lê o valor mais recente escrito por <em>qualquer</em> thread (vai à memória, não ao registrador/cache stale).</li>
+<li><strong>Estabelece happens-before:</strong> a escrita volátil hb a leitura volátil subsequente — o que significa que <em>tudo</em> que a thread escritora fez <strong>antes</strong> da escrita volátil fica visível para a thread leitora <strong>depois</strong> de ler a volátil (efeito de "publicação seguro").</li>
+<li><strong>Proíbe reordenações</strong> ao redor do acesso volátil (insere barreiras): o compilador/CPU não move operações através do acesso volátil de forma observável.</li>
+</ol>
+<p>O que <code>volatile</code> <strong>NÃO</strong> faz: garantir <strong>atomicidade de operações compostas</strong>. <code>contador++</code> é leitura-modificação-escrita (três passos); marcar <code>contador</code> como <code>volatile</code> garante que cada leitura/escrita isolada é visível, mas duas threads podem ler o mesmo valor, incrementar e escrever de volta — perdendo um incremento (lost update). Para isso é preciso <code>AtomicInteger</code>/CAS ou lock. Regra prática: <code>volatile</code> é para <strong>flags de sinalização</strong> (<code>volatile boolean running</code>) e <strong>publicação segura de referências imutáveis</strong>, não para contadores ou invariantes que envolvem múltiplas variáveis.</p>
+<h3 id="memory-barriers-fences">Memory barriers / fences<a class="headerlink" href="#memory-barriers-fences" title="Permanent link">&para;</a></h3>
+<p>No nível de hardware (e do bytecode/JIT), as garantias do memory model são implementadas por <strong>memory barriers</strong> (também chamados de <em>fences</em>) — instruções que impedem categorias específicas de reordenação. As quatro categorias clássicas (terminologia de Doug Lea):</p>
+<ul>
+<li><strong>LoadLoad:</strong> garante que loads anteriores à barreira completem antes de loads posteriores.</li>
+<li><strong>StoreStore:</strong> garante que stores anteriores fiquem visíveis antes de stores posteriores.</li>
+<li><strong>LoadStore:</strong> loads anteriores antes de stores posteriores.</li>
+<li><strong>StoreLoad:</strong> stores anteriores visíveis antes de loads posteriores. É a <strong>mais cara</strong> (geralmente um <code>mfence</code> em x86) e a única reordenação que o x86/TSO permite por padrão — daí ser a única que precisa de barreira explícita lá.</li>
+</ul>
+<p>As semânticas <strong>acquire</strong> e <strong>release</strong> (detalhadas por Jeff Preshing) são a forma de alto nível: uma operação <strong>release</strong> (como uma escrita volátil ou um unlock) impede que operações de memória <em>anteriores</em> a ela sejam reordenadas para <em>depois</em> dela; uma operação <strong>acquire</strong> (leitura volátil, lock) impede que operações <em>posteriores</em> sejam reordenadas para <em>antes</em> dela. Usadas em par (release na escritora, acquire na leitora da mesma variável), elas constroem exatamente a relação happens-before. Uma escrita volátil em Java age como release; uma leitura volátil, como acquire.</p>
+<h3 id="o-go-memory-model">O Go Memory Model<a class="headerlink" href="#o-go-memory-model" title="Permanent link">&para;</a></h3>
+<p>Go define happens-before de forma análoga (documento oficial <code>go.dev/ref/mem</code>), como o fecho transitivo da união de <em>sequenced before</em> (ordem do programa dentro de uma goroutine) e <em>synchronized before</em> (estabelecida por primitivas). As fontes principais:</p>
+<ul>
+<li><strong>Channels:</strong> um <code>send</code> num channel happens-before o <code>receive</code> correspondente completar. O <code>close</code> de um channel happens-before um receive que retorna zero por canal fechado. Para channels não-bufferizados, o receive happens-before o send completar.</li>
+<li><strong>Mutex:</strong> para um <code>sync.Mutex</code>, a n-ésima chamada de <code>Unlock()</code> happens-before a m-ésima chamada de <code>Lock()</code> retornar, para <code>n &lt; m</code>.</li>
+<li><strong><code>sync/atomic</code></strong> e <code>sync.Once</code> também estabelecem ordens.</li>
+</ul>
+<p>O lema cultural do Go: <em>"Don't communicate by sharing memory; share memory by communicating"</em> — preferir channels (que carregam happens-before embutido) a memória compartilhada com locks. Go tem um <strong>race detector</strong> (<code>go test -race</code>) que instrumenta o binário e detecta data races em tempo de execução.</p>
+<h3 id="false-sharing-e-cache-lines">False sharing e cache lines<a class="headerlink" href="#false-sharing-e-cache-lines" title="Permanent link">&para;</a></h3>
+<p>A memória é transferida entre RAM e caches em blocos chamados <strong>cache lines</strong> — tipicamente <strong>64 bytes</strong> em x86-64. O protocolo de coerência (MESI) opera por linha, não por byte: quando um núcleo escreve em <em>qualquer</em> byte de uma linha, ele precisa obter posse exclusiva (estado Modified) daquela linha, <strong>invalidando</strong> a cópia da linha em todos os outros caches.</p>
+<p><strong>False sharing</strong> ocorre quando duas (ou mais) variáveis <em>logicamente independentes</em> — acessadas por threads diferentes em núcleos diferentes — residem na <strong>mesma cache line</strong>. Mesmo que a thread 1 só toque a variável <code>a</code> e a thread 2 só toque a variável <code>b</code>, se <code>a</code> e <code>b</code> estão na mesma linha de 64 bytes, cada escrita de uma invalida a linha no cache da outra. O resultado: um <em>ping-pong</em> constante da linha entre os caches dos núcleos (cache line bouncing), com cada acesso pagando o custo de buscar a linha de volta — transformando acesso a L1 (~1ns) em tráfego de coerência (dezenas de ns). É o "silent performance killer": o código está logicamente correto e livre de races (as variáveis são independentes), mas a performance despenca e não escala com o número de núcleos.</p>
+<p>A correção é <strong>padding/alinhamento</strong>: garantir que variáveis escritas por threads distintas fiquem em cache lines separadas, inserindo bytes de preenchimento. Em Java moderno, a anotação <code>@jdk.internal.vm.annotation.Contended</code> (ou <code>@sun.misc.Contended</code>, com <code>-XX:-RestrictContended</code>) faz o padding automaticamente; o <code>LongAdder</code> e estruturas internas da JDK já são padded por dentro. Em C/C++, usa-se <code>alignas(64)</code>. O custo é memória extra (uma linha inteira por variável "quente"), justificado apenas para variáveis de altíssima contenção (contadores, ponteiros de filas lock-free).</p>
+<h3 id="glossario-rapido">Glossário rápido<a class="headerlink" href="#glossario-rapido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Memory model:</strong> contrato que define reordenações permitidas e condições de visibilidade entre threads.</li>
+<li><strong>Sequential consistency:</strong> modelo ideal (uma ordem global; ordem do programa por thread) — caro, não ofertado por padrão.</li>
+<li><strong>Happens-before:</strong> ordem parcial causal; se A hb B, efeitos de A são visíveis e ordenados antes de B.</li>
+<li><strong>Data race:</strong> dois acessos concorrentes à mesma variável, ao menos um escrita, sem happens-before entre eles.</li>
+<li><strong>volatile (Java):</strong> visibilidade + ordenação (acquire/release) + proibição de reordenação; NÃO atomicidade composta.</li>
+<li><strong>Memory barrier / fence:</strong> instrução que impede uma categoria de reordenação (LoadLoad/StoreStore/LoadStore/StoreLoad).</li>
+<li><strong>Acquire/release:</strong> semânticas de meio-fence que, em par, constroem happens-before.</li>
+<li><strong>TSO (x86):</strong> modelo de hardware forte; só permite reordenar store→load.</li>
+<li><strong>Cache line:</strong> unidade de transferência cache↔RAM, tipicamente 64 bytes.</li>
+<li><strong>False sharing:</strong> variáveis independentes na mesma cache line invalidando-se mutuamente.</li>
+<li><strong>MESI:</strong> protocolo de coerência de cache (Modified/Exclusive/Shared/Invalid).</li>
+<li><strong>Padding/@Contended:</strong> preenchimento para isolar variáveis em cache lines distintas.</li>
+</ul>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>O fluxo conceitual de uma comunicação correta entre threads, ancorado em happens-before, é o de <strong>publicação segura</strong>: a thread produtora prepara um estado (escreve vários campos) e então <strong>publica</strong> uma referência através de uma operação de sincronização (escrita volátil, unlock, send em channel); a thread consumidora <strong>observa</strong> essa publicação através da operação de acquire correspondente (leitura volátil, lock, receive) e, por transitividade do happens-before, enxerga <em>todo</em> o estado preparado, na ordem correta.</p>
+<p>Concretamente, o padrão clássico do <strong>flag de sinalização</strong> com <code>volatile</code>:</p>
+<ol>
+<li>A thread A escreve dados em campos normais: <code>config = parseConfig(); dataReady = ...</code>.</li>
+<li>A thread A escreve <code>volatile boolean ready = true</code> (operação <strong>release</strong>: insere uma StoreStore antes, garantindo que todas as escritas anteriores fiquem visíveis <em>antes</em> do <code>true</code> aparecer).</li>
+<li>A thread B faz <code>while (!ready) {}</code> lendo a volátil (operação <strong>acquire</strong>: insere LoadLoad depois).</li>
+<li>Quando B observa <code>ready == true</code>, a regra volatile + transitividade garante que B vê <code>config</code> e os dados com os valores que A escreveu — <strong>sem</strong> a volátil, B poderia ver <code>ready == true</code> mas <code>config</code> ainda nulo (reordenação) ou nunca ver <code>ready</code> mudar (cache stale / valor mantido em registrador).</li>
+</ol>
+<p>No nível de hardware, o que acontece sob o capô:</p>
+<ol>
+<li>A escrita volátil de A força o <strong>store buffer</strong> de A a ser drenado e a linha a ser propagada (coerência), e emite os fences que impedem que a CPU adie a escrita para depois de leituras posteriores.</li>
+<li>A leitura volátil de B é forçada a ir buscar a versão coerente (não usar valor em cache stale nem em registrador), e os fences impedem que a CPU prefetch-eie leituras dependentes para antes.</li>
+</ol>
+<p>Para <strong>false sharing</strong>, o "como funciona" da patologia: dois contadores <code>long c1</code> e <code>long c2</code> (8 bytes cada) declarados adjacentes caem na mesma linha de 64 bytes. Thread 1 incrementa <code>c1</code> num núcleo, thread 2 incrementa <code>c2</code> em outro. A cada incremento de <code>c1</code>, o núcleo 1 marca a linha como Modified e invalida a cópia do núcleo 2; quando o núcleo 2 vai incrementar <code>c2</code>, sofre um cache miss, busca a linha de volta (e invalida a do núcleo 1). Esse ping-pong se repete a cada operação. A correção com padding insere ~56 bytes entre <code>c1</code> e <code>c2</code>, jogando-os em linhas separadas — agora cada núcleo tem sua linha em estado Modified estável e não há invalidação cruzada.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama mostra a reordenação observável entre duas threads (sem sincronização) que viola a intuição sequencial; o segundo mostra a publicação segura via happens-before (volatile como release/acquire); o terceiro contrasta false sharing (mesma cache line) com o layout corrigido por padding.</p>
+<pre class="mermaid"><code>flowchart TB
+    subgraph ThreadA["Thread A (núcleo 1)"]
+        A1["escreve x = 1"]
+        A2["escreve flag = 1"]
+        A1 --&gt; A2
+    end
+    subgraph ThreadB["Thread B (núcleo 2)"]
+        B1["lê flag == 1"]
+        B2["lê x  ... pode ser 0!"]
+        B1 --&gt; B2
+    end
+    A2 -.-&gt;|"sem happens-before:&lt;br/&gt;reordenação / cache stale"| B1
+    B2 -.-&gt;|"x ainda 0 visível&lt;br/&gt;(escrita de A reordenada/atrasada)"| BUG["estado inconsistente&lt;br/&gt;(data race)"]</code></pre>
+<pre class="mermaid"><code>flowchart TB
+    subgraph Escritora["Thread escritora"]
+        W1["prepara estado&lt;br/&gt;(escritas normais)"]
+        W2["escrita volatile ready = true&lt;br/&gt;(RELEASE: StoreStore antes)"]
+        W1 --&gt; W2
+    end
+    subgraph Leitora["Thread leitora"]
+        R1["leitura volatile ready&lt;br/&gt;(ACQUIRE: LoadLoad depois)"]
+        R2["lê estado preparado&lt;br/&gt;(garantidamente visível)"]
+        R1 --&gt; R2
+    end
+    W2 --&gt;|"happens-before&lt;br/&gt;(volatile rule + transitividade)"| R1</code></pre>
+<pre class="mermaid"><code>flowchart LR
+    subgraph FalseSharing["False sharing (mesma cache line)"]
+        L1["cache line de 64 bytes"]
+        L1 --&gt; CA["c1 (thread 1)"]
+        L1 --&gt; CB["c2 (thread 2)"]
+        CA --&gt;|"escrita invalida a linha"| PINGPONG["ping-pong de coerência&lt;br/&gt;(MESI invalida no outro núcleo)"]
+        CB --&gt;|"escrita invalida a linha"| PINGPONG
+    end
+    subgraph Padded["Com padding (@Contended)"]
+        P1["cache line 1"] --&gt; PA["c1 (thread 1)"]
+        P2["cache line 2"] --&gt; PB["c2 (thread 2)"]
+        PA --&gt; OK["sem invalidação cruzada&lt;br/&gt;(cada núcleo, sua linha estável)"]
+        PB --&gt; OK
+    end</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p>Cenário: um serviço de <strong>processamento de pedidos</strong> de um e-commerce brasileiro, em Java, com um worker que precisa ser desligado graciosamente (graceful shutdown) e um conjunto de contadores de métricas por thread atualizados em alta frequência.</p>
+<p><strong>Caso 1 — flag de shutdown que "não funcionava".</strong> O time escreveu o loop do worker como:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kd">class</span> <span class="nc">Worker</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">Runnable</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="n">running</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span><span class="w">            </span><span class="c1">// BUG: sem volatile</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">stop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">running</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">    </span><span class="c1">// chamado por outra thread (handler de SIGTERM)</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">running</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">processarProximoPedido</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">}</span>
+</code></pre></div>
+<p>Em staging (JVM em modo interpretado/menos otimizado) funcionava. Em produção, com o JIT ativo, o worker <strong>nunca parava</strong> ao receber o sinal de shutdown. Causa: o JIT, vendo que <code>running</code> não é modificado <em>dentro</em> do loop, içou a leitura para fora (hoisting) e transformou <code>while(running)</code> em <code>if(running) while(true)</code>, mantendo o valor em registrador. Sem happens-before entre o <code>stop()</code> (thread do handler) e a leitura no loop (thread do worker), o JMM <strong>permite</strong> essa otimização. A correção: <code>private volatile boolean running = true</code>. A leitura volátil força reler a memória a cada iteração e a escrita volátil em <code>stop()</code> estabelece o happens-before que torna a mudança visível. (Alternativa idiomática: usar <code>Thread.interrupt()</code> + <code>Thread.currentThread().isInterrupted()</code>.)</p>
+<p><strong>Caso 2 — contador de pedidos que perdia incrementos.</strong> Para contar pedidos processados por todas as threads, alguém usou <code>volatile long totalPedidos</code> e fazia <code>totalPedidos++</code>. Sob carga, o número ficava <em>menor</em> que o real. Causa: <code>volatile</code> não torna <code>++</code> atômico — duas threads liam o mesmo valor, incrementavam e escreviam de volta, perdendo updates. A correção: <code>AtomicLong</code> (CAS) ou, sob altíssima contenção, <code>LongAdder</code> (que internamente espalha o contador em várias células <em>padded</em> justamente para evitar <strong>false sharing</strong> entre os núcleos que incrementam).</p>
+<p><strong>Caso 3 — false sharing num array de contadores por thread.</strong> Para evitar contenção, o time deu a cada uma das 16 threads workers um slot num <code>long[16]</code> para contar seu próprio throughput. Esperavam escalabilidade linear; o profiler mostrou estagnação e altíssimo tráfego de coerência. Causa: 16 <code>long</code> × 8 bytes = 128 bytes; cada cache line de 64 bytes guarda <strong>8 slots adjacentes</strong>, então 8 threads escreviam slots na <em>mesma</em> linha, num ping-pong constante de invalidação. Correção possível: padding (espaçar os slots de modo que cada um ocupe sua própria linha — ex.: <code>long[16 * 8]</code> usando só os índices múltiplos de 8, ou um array de objetos <code>@Contended</code>). Depois do padding, a escalabilidade voltou a ser quase linear. Esse é exatamente o cenário que Martin Thompson descreve no Mechanical Sympathy.</p>
+<p>Pseudocódigo da publicação segura (padrão recomendado em vez de flags soltas):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>// Publicação segura de configuração imutável via volatile
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>volatile Config configAtual;          // referência volátil
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>// thread de reload
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>Config nova = parse(arquivo);          // monta objeto IMUTÁVEL completo
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>configAtual = nova;                    // RELEASE: publica de uma vez
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>// threads de request
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>Config c = configAtual;                // ACQUIRE: lê referência
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>usar(c);                               // vê o objeto totalmente construído
+</code></pre></div>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Raciocinar em happens-before:</strong> sempre que houver acesso concorrente a estado mutável compartilhado. É o modelo mental obrigatório — antes de escrever ou revisar código concorrente, pergunte "qual relação happens-before garante que esta thread veja o que aquela escreveu?". Se a resposta for "nenhuma", há uma data race.</p>
+<p><strong>volatile:</strong> use para <strong>flags de sinalização</strong> (shutdown, ready), <strong>publicação de referências imutáveis</strong> e o padrão <em>double-checked locking</em> (com volatile no campo). <strong>Evite</strong> para contadores/acumuladores (use atomics), para invariantes envolvendo múltiplas variáveis (use lock) e como substituto preguiçoso de sincronização real.</p>
+<p><strong>Memory barriers explícitos:</strong> raramente em código de aplicação — são detalhe de implementação de bibliotecas de baixo nível (filas lock-free, estruturas concorrentes). Use as abstrações de alto nível (<code>java.util.concurrent</code>, <code>VarHandle</code> com modos acquire/release, atomics de Go); só desça a fences manuais se estiver escrevendo a primitiva você mesmo, com benchmarks.</p>
+<p><strong>Padding contra false sharing:</strong> use <strong>apenas</strong> para variáveis comprovadamente quentes e de alta contenção entre núcleos, <em>depois</em> de medir no profiler (cache misses, tráfego de coerência). <strong>Evite</strong> padding profilático em tudo — desperdiça memória e cache, e na maioria das variáveis não há false sharing. É otimização guiada por dados, não por intuição.</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Variável compartilhada sem volatile/lock (a flag que nunca muda).</strong> O caso clássico do loop <code>while(running)</code> sem <code>volatile</code>: o JIT hasteia a leitura e a thread nunca vê a mudança. Toda flag lida numa thread e escrita em outra precisa de happens-before.</li>
+<li><strong>Confundir visibilidade com atomicidade.</strong> Marcar <code>contador</code> como <code>volatile</code> e fazer <code>contador++</code> perde incrementos — <code>volatile</code> não torna leitura-modificação-escrita atômica. Use atomics/CAS ou lock.</li>
+<li><strong>Assumir que "funcionou no meu x86, então está correto".</strong> x86/TSO é fortemente ordenado e <em>esconde</em> muitos bugs de reordenação que explodem em ARM (Apple Silicon, Graviton, mobile). Código sem happens-before correto pode passar anos em x86 e quebrar ao migrar para ARM.</li>
+<li><strong>Double-checked locking sem volatile.</strong> O idioma clássico de lazy init quebra se o campo do singleton não for <code>volatile</code>: outra thread pode ver a referência publicada antes do construtor terminar (objeto parcialmente construído). Foi o bug que motivou o redesenho do JMM (JSR-133).</li>
+<li><strong>Publicar <code>this</code> no construtor.</strong> Registrar um listener ou colocar <code>this</code> numa coleção compartilhada dentro do construtor expõe um objeto não-totalmente-construído a outras threads, sem publicação segura.</li>
+<li><strong>Achar que happens-before é ordem temporal.</strong> Leva a raciocínios errados como "a thread A rodou primeiro no relógio, então B vê o que A fez" — falso sem uma aresta de sincronização.</li>
+<li><strong>Padding profilático em todo lugar.</strong> Aplicar <code>@Contended</code> ou padding manual em variáveis que não têm contenção real infla o uso de cache/memória e pode <em>piorar</em> a performance (menos dados por linha). Meça antes.</li>
+<li><strong>False sharing escondido em frameworks.</strong> Estruturas como <code>HashMap</code> redimensionado, arrays de contadores, ou campos adjacentes de objetos hot podem sofrer false sharing silencioso. Quando a escalabilidade não cresce com os núcleos apesar de lógica "sem contenção", suspeite de false sharing e meça cache misses.</li>
+<li><strong>Ignorar o race detector.</strong> Em Go, não rodar <code>go test -race</code> (ou em Java, ferramentas como o jcstress/ThreadSanitizer) deixa data races latentes que só aparecem sob carga em produção, de forma não-determinística.</li>
+<li><strong><code>Atomic</code> em loop sem backoff sob altíssima contenção.</strong> CAS num único <code>AtomicLong</code> muito disputado vira ping-pong de cache line (mesmo problema de coerência); <code>LongAdder</code> resolve espalhando em células padded.</li>
+</ul>
+<h3 id="por-que-x86-esconde-bugs-que-arm-revela">Por que x86 esconde bugs que ARM revela<a class="headerlink" href="#por-que-x86-esconde-bugs-que-arm-revela" title="Permanent link">&para;</a></h3>
+<p>Vale aprofundar este ponto porque é uma armadilha de portabilidade cada vez mais relevante (cloud em Graviton/ARM, Macs Apple Silicon). O modelo x86 (TSO) garante que stores não são reordenados entre si e loads não são reordenados entre si — só permite que um store seja adiado para depois de um load posterior (via store buffer). Isso significa que muitos padrões de código <em>incorretos</em> (sem as barreiras/volatile adequadas) <strong>acidentalmente funcionam</strong> em x86 porque o hardware já fornece quase toda a ordenação que falta. Em ARM/POWER (fracamente ordenados), o hardware reordena livremente stores e loads, então a ausência da barreira correta se manifesta como bug real. A lição: <strong>confie no memory model da linguagem, não no comportamento observado de uma arquitetura</strong>. O JMM/Go MM são abstrações <em>acima</em> do hardware exatamente para que código correto pelo modelo da linguagem seja portável entre x86 e ARM.</p>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Primitivas de sincronização (locks, monitores, semáforos):</strong> são os mecanismos que <em>estabelecem</em> happens-before (unlock hb lock). O memory model é a teoria; as primitivas, a prática que a implementa.</li>
+<li><strong>Atomics e CAS:</strong> operações atômicas (<code>AtomicInteger</code>, <code>compare-and-swap</code>) têm semântica de memória definida (geralmente sequential consistency ou acquire/release configurável via <code>VarHandle</code>); são a base de estruturas lock-free e a forma correta de contadores compartilhados.</li>
+<li><strong>Connection pooling, thread pooling, async I/O e reactive</strong> (ver <code>07-performance-e-escalabilidade/05</code>): toda estrutura de pool e fila concorrente depende de publicação segura e do memory model para ser thread-safe; <code>volatile</code>/atomics aparecem na implementação de qualquer pool.</li>
+<li><strong>Backpressure e reactive:</strong> as filas e buffers que conectam produtores e consumidores em pipelines reactive são estruturas concorrentes cuja corretude depende do memory model subjacente.</li>
+<li><strong>Lei de Amdahl / Universal Scalability Law</strong> (ver <code>07-performance-e-escalabilidade/06</code>): false sharing e contenção de cache são uma forma concreta do termo de <em>coerência/crosstalk</em> da USL — o motivo pelo qual adicionar núcleos pode <em>piorar</em> a performance em vez de melhorar. O memory model explica o porquê físico desse teto de escalabilidade.</li>
+<li><strong>Producer-Consumer / Readers-Writers</strong> (ver <code>14-concorrencia-e-paralelismo/07</code>): a corretude desses padrões clássicos depende inteiramente de happens-before entre o produtor que enfileira e o consumidor que desenfileira.</li>
+</ul>
+<h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
+<p>Três ideias para carregar:</p>
+<ol>
+<li><strong>Não existe "memória compartilhada instantânea".</strong> Há caches privados, store buffers e reordenações em três camadas (compilador, CPU, cache). A visibilidade entre threads só é garantida onde você <em>estabelece</em> happens-before com uma primitiva de sincronização. Toda variável compartilhada mutável sem essa aresta é uma data race.</li>
+<li><strong>happens-before é causal, não temporal — e <code>volatile</code> dá visibilidade/ordenação, não atomicidade.</strong> Raciocine sempre em "qual aresta de sincronização torna esta escrita visível para aquela leitura". <code>volatile</code> publica seguramente uma referência imutável e sinaliza flags; para contadores e invariantes compostas, use atomics/locks.</li>
+<li><strong>Correção é uma questão do memory model; performance multicore é uma questão de cache lines.</strong> Mesmo código correto pode não escalar por false sharing e contenção de coerência. Meça (profiler de cache misses) antes de aplicar padding, e confie no modelo da linguagem em vez do comportamento de um x86 específico — o bug que ele esconde explode em ARM.</li>
+</ol>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Memory model</strong> = contrato de quais reordenações são permitidas e quando uma escrita fica visível para outra thread; existe porque compilador, CPU e caches reordenam/atrasam para serem rápidos.</li>
+<li><strong>happens-before</strong> é ordem parcial <strong>causal</strong> (não temporal), transitiva; se A hb B, efeitos de A são visíveis e ordenados antes de B. Ausência dela entre acessos concorrentes = <strong>data race</strong>.</li>
+<li>Fontes de happens-before (Java): program order, unlock→lock do mesmo monitor, escrita→leitura da mesma volátil, start/join. Em Go: send→receive de channel, Unlock→Lock, atomics.</li>
+<li><strong>volatile</strong> = visibilidade + ordenação (release/acquire) + proibição de reordenação; <strong>NÃO</strong> torna <code>++</code> atômico.</li>
+<li><strong>Memory barriers</strong> (LoadLoad/StoreStore/LoadStore/StoreLoad) implementam as garantias; <strong>StoreLoad</strong> é a mais cara e a única que x86/TSO exige explicitamente.</li>
+<li><strong>x86 (TSO) é forte e esconde bugs</strong>; <strong>ARM/POWER são fracos</strong> e os revelam — confie no modelo da linguagem, não na arquitetura observada.</li>
+<li><strong>Cache line</strong> ~64 bytes; <strong>false sharing</strong> = variáveis independentes na mesma linha invalidando-se via MESI (ping-pong de coerência) — o "silent performance killer".</li>
+<li>Corrija false sharing com <strong>padding/<code>@Contended</code></strong>, mas só após <strong>medir</strong>; <code>LongAdder</code> já é padded por dentro.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-17.html">Chapter 17. Threads and Locks — Java Language Specification (JLS, JMM)</a></li>
+<li><a href="https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html">JSR-133 (Java Memory Model) FAQ — Jeremy Manson &amp; Brian Goetz</a></li>
+<li><a href="https://go.dev/ref/mem">The Go Memory Model — go.dev/ref/mem</a></li>
+<li><a href="https://mechanical-sympathy.blogspot.com/2011/07/false-sharing.html">Mechanical Sympathy: False Sharing — Martin Thompson</a></li>
+<li><a href="https://preshing.com/20120913/acquire-and-release-semantics/">Acquire and Release Semantics — Jeff Preshing (preshing.com)</a></li>
+<li><a href="https://preshing.com/20120515/memory-reordering-caught-in-the-act/">Memory Reordering Caught in the Act — Jeff Preshing (preshing.com)</a></li>
+<li><a href="https://preshing.com/20120710/memory-barriers-are-like-source-control-operations/">Memory Barriers Are Like Source Control Operations — Jeff Preshing</a></li>
+<li><a href="https://gee.cs.oswego.edu/dl/cpj/jmm.html">Synchronization and the Java Memory Model — Doug Lea</a></li>
+<li><a href="https://shipilev.net/blog/2016/close-encounters-of-jmm-kind/">Close Encounters of The Java Memory Model Kind — Aleksey Shipilëv</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../05-atomic-cas-lock-free-wait-free/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Atomic, CAS, lock-free, wait-free">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Atomic, CAS, lock-free, wait-free
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../07-problemas-classicos-producer-consumer-readers-writers-dining-philosophers/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Problemas clássicos">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Problemas clássicos
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2399 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/17-system-design/03-sistema-de-chat/">
+      
+      
+        <link rel="prev" href="../02-timeline-rede-social/">
+      
+      
+        <link rel="next" href="../04-sistema-de-notificacoes-em-escala/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Sistema de chat - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#system-design-sistema-de-chat-whatsapp-slack" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Sistema de chat
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_19" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_19" id="__nav_19_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_19_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_19">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    17 · System Design (estudos de caso)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-encurtador-de-url/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Encurtador de URL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-timeline-rede-social/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timeline de rede social
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de chat
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de chat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requisitos-funcionais-e-nao-funcionais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requisitos (funcionais e não-funcionais)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estimativas-de-capacidade-back-of-the-envelope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estimativas de capacidade (back-of-the-envelope)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-de-dados-e-api-alto-nivel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo de dados e API (alto nível)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arquitetura-da-solucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arquitetura da solução
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-arquitetura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de arquitetura
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-de-escala-e-gargalos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos de escala e gargalos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trade-offs-e-decisoes-chave" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trade-offs e decisões-chave
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#erros-comuns-em-entrevista" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Erros comuns em entrevista
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-sistema-de-notificacoes-em-escala/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notificações em escala
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-rate-limiter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rate limiter
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-web-crawler-distribuido/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web crawler distribuído
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-sistema-de-busca/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de busca
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-upload-de-arquivos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upload de arquivos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-streaming-de-video/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Streaming de vídeo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-sistema-de-reservas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de reservas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-sistema-de-pagamentos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de pagamentos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-newsfeed-ranking-e-recomendacao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Newsfeed ranking e recomendação
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-sistema-de-logs-distribuido/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de logs distribuído
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-top-k-trending-count-min-sketch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Top K trending (count-min sketch)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requisitos-funcionais-e-nao-funcionais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requisitos (funcionais e não-funcionais)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estimativas-de-capacidade-back-of-the-envelope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estimativas de capacidade (back-of-the-envelope)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-de-dados-e-api-alto-nivel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo de dados e API (alto nível)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arquitetura-da-solucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arquitetura da solução
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-arquitetura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de arquitetura
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-de-escala-e-gargalos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos de escala e gargalos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trade-offs-e-decisoes-chave" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trade-offs e decisões-chave
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#erros-comuns-em-entrevista" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Erros comuns em entrevista
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="system-design-sistema-de-chat-whatsapp-slack">System Design: Sistema de Chat (WhatsApp / Slack)<a class="headerlink" href="#system-design-sistema-de-chat-whatsapp-slack" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> System Design (estudos de caso) · <strong>Nível:</strong> Avançado · <strong>Tempo de leitura:</strong> ~33 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>Um sistema de chat entrega mensagens entre usuários em tempo real, mostra quem está online (presença) e garante que as mensagens cheguem na ordem certa, mesmo quando o destinatário está offline. O desafio central não é volume de dados — é manter <strong>milhões de conexões persistentes simultâneas</strong> (WebSocket) e rotear cada mensagem para o servidor que detém a conexão do destinatário. A peça-chave é o <strong>chat server stateful</strong> segurando WebSockets, mais um <strong>mapa de presença</strong> (qual usuário está conectado a qual servidor) num store rápido como Redis. <strong>Entrega:</strong> quando o destinatário está online, empurra-se a mensagem pela conexão dele; quando está offline, persiste-se numa caixa de mensagens e entrega-se quando ele reconecta — sempre com <strong>ACK</strong> em cada salto para garantir at-least-once. <strong>Presença</strong> é mantida por <strong>heartbeats</strong> (o cliente sinaliza "estou vivo" a cada ~30s); ausência de heartbeat marca offline. <strong>Ordenação</strong> não pode depender do relógio de parede (relógios divergem entre servidores) — usa-se <strong>sequência por conversa</strong> (cada conversa tem um contador monotônico) ou IDs estilo Snowflake, e o cliente reordena por esse campo. O armazenamento de mensagens é <strong>write-heavy</strong> e enorme (o Discord guarda trilhões de mensagens), favorecendo <strong>NoSQL wide-column</strong> (Cassandra/ScyllaDB) particionado por conversa. Decisões-chave de entrevista: WebSocket (não polling), presença em Redis com heartbeat, ordenação por sequência lógica (não timestamp), e fan-out de grupos grandes via fila assíncrona.</p>
+<h2 id="requisitos-funcionais-e-nao-funcionais">Requisitos (funcionais e não-funcionais)<a class="headerlink" href="#requisitos-funcionais-e-nao-funcionais" title="Permanent link">&para;</a></h2>
+<p><strong>Funcionais:</strong></p>
+<ul>
+<li>Mensagens 1:1 em tempo real.</li>
+<li>Mensagens em grupo.</li>
+<li>Indicadores de presença (online/offline/visto por último) e "digitando…".</li>
+<li>Confirmações de entrega (enviado, entregue, lido).</li>
+<li>Persistência: histórico de mensagens, entrega para quem estava offline.</li>
+<li>(Opcional) Mídia (imagens, áudio, arquivos).</li>
+</ul>
+<p><strong>Não-funcionais:</strong></p>
+<ul>
+<li><strong>Baixa latência</strong> de entrega (&lt; 100–200ms ponta a ponta para quem está online) — é o que faz o chat parecer "em tempo real".</li>
+<li><strong>Confiabilidade de entrega:</strong> nenhuma mensagem perdida; entrega eventual mesmo se o destinatário esteve offline por dias.</li>
+<li><strong>Ordenação consistente</strong> das mensagens dentro de uma conversa.</li>
+<li><strong>Suporte a conexões persistentes massivas</strong> — milhões de WebSockets simultâneos.</li>
+<li><strong>Alta disponibilidade</strong> — o app de mensagens é crítico.</li>
+<li><strong>Eventual consistency entre dispositivos</strong> (multi-device) é aceitável; ordenação dentro da conversa é o que importa.</li>
+</ul>
+<h2 id="estimativas-de-capacidade-back-of-the-envelope">Estimativas de capacidade (back-of-the-envelope)<a class="headerlink" href="#estimativas-de-capacidade-back-of-the-envelope" title="Permanent link">&para;</a></h2>
+<p>Suponha <strong>500 milhões de DAU</strong>, cada um enviando <strong>40 mensagens/dia</strong>.</p>
+<p><strong>Volume de mensagens:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>500M × 40 = 20 bilhões de mensagens/dia
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>20B ÷ 86.400 s ≈ 231.000 mensagens/s (média)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Pico (≈3×)             ≈ 700.000 mensagens/s
+</code></pre></div>
+<p><strong>Conexões persistentes simultâneas:</strong> se ~25% dos DAU estão conectados ao mesmo tempo no pico:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>500M × 25% = 125 milhões de WebSockets simultâneos
+</code></pre></div>
+<p>Um servidor moderno aguenta ~50k–100k conexões WebSocket (limitado por memória e file descriptors). Logo:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>125M ÷ 65.000 conexões/servidor ≈ ~1.900 chat servers (só para segurar conexões)
+</code></pre></div>
+<p>Esse é o número que define a arquitetura: <strong>muitos chat servers stateful</strong>, com uma camada de roteamento que sabe em qual deles cada usuário está.</p>
+<p><strong>Storage de mensagens:</strong> mensagem média ~ 200 bytes (texto + metadados; mídia à parte).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>20B/dia × 200 bytes ≈ 4 TB/dia
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>4 TB × 365 ≈ 1,46 PB/ano
+</code></pre></div>
+<p>São petabytes — exige NoSQL wide-column particionado e horizontalmente escalável. O Discord, por comparação, armazena <strong>trilhões</strong> de mensagens (177 nós Cassandra, depois 72 nós ScyllaDB após migração).</p>
+<p><strong>Presença:</strong> 125M de entradas <code>user → server</code> em Redis, cada uma ~ 50 bytes ≈ 6 GB — trivial para um cluster Redis. O custo de presença não é storage, é a <strong>frequência de atualização</strong> (heartbeats e mudanças de status batendo no Redis).</p>
+<h2 id="modelo-de-dados-e-api-alto-nivel">Modelo de dados e API (alto nível)<a class="headerlink" href="#modelo-de-dados-e-api-alto-nivel" title="Permanent link">&para;</a></h2>
+<p><strong>Modelo de dados:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>messages
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  conversation_id   (partition key)
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  message_id        (Snowflake / timestamp-ordered, clustering key)
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  sender_id
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>  content / media_ref
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>  created_at
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>  -- particionado por conversation_id; ordenado por message_id dentro da conversa
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>conversations(conversation_id, type [1:1|group], member_ids, ...)
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>presence (em Redis)
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>  user_id -&gt; { server_id, status, last_heartbeat }
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>inbox / undelivered (por usuário offline)
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>  user_id -&gt; lista de message_ids não entregues
+</code></pre></div>
+<p>Particionar <code>messages</code> por <code>conversation_id</code> mantém a conversa inteira coesa num shard, permitindo leitura eficiente do histórico em ordem e ordenação por <code>message_id</code> (a <em>clustering key</em>).</p>
+<p><strong>API / protocolo:</strong></p>
+<ul>
+<li><strong>WebSocket</strong> (persistente) para envio/recebimento em tempo real: <code>send_message</code>, <code>message_received</code>, <code>typing</code>, <code>presence_update</code>, <code>ack</code>.</li>
+<li><strong>REST</strong> para operações não-tempo-real: histórico (<code>GET /conversations/{id}/messages?cursor=…</code>), criar grupo, upload de mídia.</li>
+</ul>
+<p>WebSocket (não HTTP polling) porque é <strong>full-duplex</strong> sobre uma única conexão TCP — o servidor empurra mensagens para o cliente sem o cliente precisar perguntar, essencial para tempo real e presença.</p>
+<h2 id="arquitetura-da-solucao">Arquitetura da solução<a class="headerlink" href="#arquitetura-da-solucao" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>WebSocket / Connection servers (chat servers, stateful):</strong> mantêm as conexões persistentes com os clientes. Cada cliente conecta a um chat server e fica "preso" a ele enquanto a conexão durar. É a camada que escala horizontalmente para milhões de conexões.</li>
+<li><strong>Service de presença (Redis):</strong> mapa <code>user_id → server_id</code> (em qual chat server o usuário está) + status. Atualizado por <strong>heartbeats</strong>. Permite ao roteador saber para onde mandar uma mensagem destinada a um usuário online.</li>
+<li><strong>Roteamento / fan-out:</strong> ao receber uma mensagem para o usuário B, consulta a presença: se B está online no chat server X, encaminha a mensagem para X (que a empurra pela conexão de B); se B está offline, persiste na inbox de B. Para grupos, faz fan-out para cada membro.</li>
+<li><strong>Message store (NoSQL wide-column — Cassandra/ScyllaDB):</strong> persiste todas as mensagens, particionado por <code>conversation_id</code>. Fonte da verdade do histórico, write-heavy.</li>
+<li><strong>Fila / message broker (Kafka):</strong> desacopla recebimento de entrega e absorve picos; usado especialmente para <strong>fan-out de grupos grandes</strong> (publica num tópico por grupo; workers entregam a cada membro assincronamente).</li>
+<li><strong>API Gateway / Load Balancer:</strong> roteia a conexão WebSocket inicial e as chamadas REST; um <strong>service discovery</strong> ajuda o cliente a achar/reconectar a um chat server.</li>
+<li><strong>Notification service (push):</strong> quando o destinatário está offline (sem WebSocket), dispara push notification (APNs/FCM) para avisar da mensagem.</li>
+<li><strong>Blob store + CDN:</strong> mídia.</li>
+</ul>
+<p><strong>Fluxo (1:1, destinatário online):</strong> A envia pela sua WebSocket → chat server de A recebe, persiste no message store, emite ACK para A → consulta presença de B (Redis) → encaminha para o chat server de B → B recebe pela sua WebSocket → B emite ACK de entrega.</p>
+<p><strong>Fluxo (destinatário offline):</strong> mesma persistência → presença diz "offline" → mensagem fica na inbox de B + dispara push notification → quando B reconecta, o chat server de B busca a inbox e entrega as pendentes, em ordem.</p>
+<h2 id="diagrama-de-arquitetura">Diagrama de arquitetura<a class="headerlink" href="#diagrama-de-arquitetura" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TB
+    A["Cliente A"] &lt;--&gt;|"WebSocket"| CS1["Chat Server X&lt;br/&gt;(stateful, conexoes)"]
+    B["Cliente B"] &lt;--&gt;|"WebSocket"| CS2["Chat Server Y"]
+
+    CS1 --&gt;|"persiste + ACK"| MSTORE[("Message Store&lt;br/&gt;Cassandra/ScyllaDB&lt;br/&gt;(part. por conversa)")]
+    CS1 --&gt;|"consulta presenca"| PRES[("Presenca (Redis)&lt;br/&gt;user to server, status")]
+    CS1 --&gt;|"roteia p/ server de B"| CS2
+    CS2 --&gt;|"empurra mensagem"| B
+
+    CS1 --&gt;|"grupos grandes:&lt;br/&gt;fan-out assincrono"| KAFKA["Fila (Kafka)&lt;br/&gt;topico por grupo"]
+    KAFKA --&gt; WORKERS["Workers de entrega"]
+    WORKERS --&gt; CS2
+
+    CS1 --&gt;|"destinatario offline"| INBOX[("Inbox / pendentes")]
+    INBOX --&gt; PUSH["Push (APNs / FCM)"]
+    A -. "heartbeat 30s" .-&gt; PRES
+    B -. "heartbeat 30s" .-&gt; PRES</code></pre>
+<h2 id="pontos-de-escala-e-gargalos">Pontos de escala e gargalos<a class="headerlink" href="#pontos-de-escala-e-gargalos" title="Permanent link">&para;</a></h2>
+<p><strong>O que quebra primeiro: o número de conexões persistentes.</strong> Cada WebSocket consome memória e um file descriptor; um servidor satura em dezenas de milhares de conexões. <strong>Solução:</strong> muitos chat servers stateful atrás de um balanceador que faz <em>sticky</em> da conexão, com presença em Redis para saber onde cada usuário está. Escala-se adicionando chat servers.</p>
+<p><strong>Roteamento entre servidores:</strong> A está no server X, B no server Y — a mensagem precisa saltar de X para Y. O mapa de presença em Redis resolve "onde está B"; a entrega entre servidores pode ser direta (RPC) ou via um <strong>pub/sub</strong> (Redis Pub/Sub, Kafka) ao qual cada server se inscreve.</p>
+<p><strong>Fan-out de grupos grandes:</strong> um grupo de 100k membros não pode ser entregue num loop síncrono. <strong>Solução:</strong> publicar a mensagem num tópico Kafka particionado por <code>group_id</code>; <strong>workers consomem e entregam</strong> a cada membro assincronamente, consultando a presença de cada um. Grupos pequenos (&lt; ~200) toleram fan-out direto.</p>
+<p><strong>Hot partition no message store:</strong> uma conversa/grupo extremamente ativo concentra escritas num shard. O particionamento por <code>conversation_id</code> distribui conversas entre shards; um grupo único muito ativo pode precisar de sub-particionamento (por janela de tempo, ex.: <code>conversation_id + bucket</code>).</p>
+<p><strong>Presença em escala:</strong> milhões de heartbeats/s batendo no Redis. Mitiga-se com <strong>heartbeats relativamente espaçados</strong> (30s), atualização preguiçosa de "visto por último", e sharding do Redis de presença. Status fino demais (a cada segundo) não escala.</p>
+<p><strong>Reconexão em massa:</strong> se um chat server cai, todos os seus clientes reconectam ao mesmo tempo (thundering herd). Mitiga-se com <strong>backoff + jitter</strong> no cliente e capacidade de sobra.</p>
+<p><strong>Multi-device:</strong> o mesmo usuário em telefone + desktop tem múltiplas conexões; a presença vira <code>user → {device → server}</code> e a entrega faz fan-out para todos os dispositivos do destinatário, com sincronização de estado lido entre eles.</p>
+<h2 id="trade-offs-e-decisoes-chave">Trade-offs e decisões-chave<a class="headerlink" href="#trade-offs-e-decisoes-chave" title="Permanent link">&para;</a></h2>
+<p><strong>WebSocket vs long polling vs SSE.</strong> WebSocket é full-duplex e a escolha padrão para chat (servidor empurra livremente). Long polling funciona como fallback (atrás de proxies que bloqueiam WS) mas é mais pesado. SSE é só servidor→cliente (não serve para envio). <strong>WebSocket é a resposta</strong>, com fallback para long polling.</p>
+<p><strong>Ordenação: timestamp do relógio vs sequência lógica.</strong> Relógios de máquinas diferentes divergem (clock skew) — ordenar mensagens pelo <code>created_at</code> de servidores distintos produz ordem errada. <strong>Solução:</strong> uma <strong>sequência monotônica por conversa</strong> (cada conversa tem um contador que incrementa a cada mensagem) ou <strong>Snowflake IDs</strong> (timestamp + machine + sequence, monotônicos e ordenáveis). O cliente reordena pelo <code>message_id</code>/sequência, não pelo relógio. Esse é o ponto mais subestimado do problema.</p>
+<p><strong>Semântica de entrega: at-least-once + dedup.</strong> Garantir entrega exige <strong>ACK em cada salto</strong> e reentrega se o ACK não chega — o que pode duplicar mensagens. Resolve-se com <strong>idempotência</strong>: cada mensagem tem um <code>message_id</code> único; o destinatário descarta duplicatas. At-least-once + dedup por ID é mais simples e robusto que tentar exactly-once.</p>
+<p><strong>Banco: NoSQL wide-column vs relacional.</strong> Mensagens são write-heavy, em volume de petabytes, com acesso por conversa em ordem temporal — exatamente o sweet spot de <strong>Cassandra/ScyllaDB</strong> (particionamento por conversa, clustering por tempo, escrita rápida). Relacional não escala para esse volume. O Discord migrou de Cassandra para ScyllaDB justamente por latência de cauda (p99) e custo operacional.</p>
+<p><strong>Chat server stateful vs stateless.</strong> As conexões são inerentemente stateful (a WebSocket vive num servidor). Aceita-se o estado nas conexões, mas mantém-se o <strong>estado de roteamento</strong> (presença) externalizado em Redis, para que a queda de um chat server não perca o sistema — só derruba aquelas conexões, que reconectam.</p>
+<h2 id="erros-comuns-em-entrevista">Erros comuns em entrevista<a class="headerlink" href="#erros-comuns-em-entrevista" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Usar HTTP polling em vez de WebSocket.</strong> Polling tem latência alta e desperdiça recursos; chat é o caso canônico de WebSocket.</li>
+<li><strong>Ordenar mensagens por timestamp de relógio.</strong> Relógios divergem entre servidores — ordenação por wall-clock está errada. Use sequência lógica por conversa ou Snowflake.</li>
+<li><strong>Fazer fan-out síncrono em grupos grandes.</strong> Um loop entregando para 100k membros no caminho da mensagem trava tudo; precisa de fila + workers assíncronos.</li>
+<li><strong>Esquecer o destinatário offline.</strong> Sem inbox de pendentes + push notification, mensagens para quem está offline se perdem. A entrega tem que ser eventual e durável.</li>
+<li><strong>Ignorar ACKs e idempotência.</strong> Sem ACK por salto, há perda; com reentrega vem duplicata; sem dedup por <code>message_id</code>, o usuário vê mensagens repetidas.</li>
+<li><strong>Manter presença num banco relacional.</strong> Presença é alta frequência de atualização e leitura — pertence a um store em memória (Redis), não a um RDBMS.</li>
+<li><strong>Escolher banco relacional para as mensagens.</strong> O volume (petabytes, write-heavy) exige NoSQL wide-column.</li>
+<li><strong>Não dimensionar conexões persistentes.</strong> Tratar o problema como "QPS de mensagens" e ignorar que o gargalo real são os milhões de WebSockets simultâneos.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Relógios e ordenação:</strong> clock skew torna o timestamp de parede inadequado; sequências lógicas e Snowflake resolvem ordenação — conecta com relógios lógicos/físicos em sistemas distribuídos.</li>
+<li><strong>Idempotência e semântica de entrega:</strong> at-least-once + dedup por <code>message_id</code> é a base da confiabilidade; conecta com padrões de mensageria.</li>
+<li><strong>Message brokers (Kafka):</strong> desacoplamento de recebimento/entrega e fan-out de grupos grandes dependem de uma fila durável.</li>
+<li><strong>Sharding e consistent hashing:</strong> message store particionado por conversa; presença e roteamento distribuídos.</li>
+<li><strong>Cache patterns:</strong> presença em Redis é um cache de estado de conexão de alta frequência.</li>
+<li><strong>Padrões de resiliência:</strong> reconexão com backoff + jitter, timeouts em WebSocket, contenção de thundering herd quando um chat server cai.</li>
+<li><strong>CAP:</strong> chat tolera eventual consistency entre dispositivos, mas exige ordenação por conversa — escolhe disponibilidade sobre consistência global forte.</li>
+<li><strong>Push notifications:</strong> integra com um sistema de notificações em escala para alcançar destinatários offline.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://bytebytego.com/courses/system-design-interview/design-a-chat-system">Design A Chat System — ByteByteGo (Alex Xu)</a></li>
+<li><a href="https://www.hellointerview.com/learn/system-design/problem-breakdowns/whatsapp">Design a Messaging App Like WhatsApp — Hello Interview</a></li>
+<li><a href="https://discord.com/blog/how-discord-stores-trillions-of-messages">How Discord Stores Trillions of Messages — Discord Engineering Blog</a></li>
+<li><a href="https://newsletter.systemdesign.one/p/whatsapp-system-design">WhatsApp System Design Interview — System Design Newsletter (Neo Kim)</a></li>
+<li><a href="https://blog.algomaster.io/p/websocket-use-cases-system-design">Top 10 WebSocket Use Cases in System Design — AlgoMaster</a></li>
+<li><a href="https://www.designgurus.io/blog/design-chat-application">How to Design a Real-Time Chat Application (WhatsApp/Slack) — DesignGurus</a></li>
+<li><a href="https://github.com/donnemartin/system-design-primer">System Design Primer — donnemartin (GitHub)</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../02-timeline-rede-social/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Timeline de rede social">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Timeline de rede social
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../04-sistema-de-notificacoes-em-escala/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Notificações em escala">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Notificações em escala
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

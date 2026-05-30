@@ -1,0 +1,2474 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/16-redes-e-protocolos/05-dns-resolution/">
+      
+      
+        <link rel="prev" href="../04-https-tls-handshake-e-certificados/">
+      
+      
+        <link rel="next" href="../06-rest-graphql-grpc-websockets/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>DNS resolution - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dns-resolution-passo-a-passo-recursivoiterativo-roottldauthoritative-caching-e-ttl" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DNS resolution
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_18" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_18" id="__nav_18_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_18_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_18">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    16 · Redes e protocolos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelo OSI e TCP/IP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-tcp-vs-udp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TCP vs UDP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-http1-http2-http3-quic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP/1.1, HTTP/2, HTTP/3 (QUIC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-https-tls-handshake-e-certificados/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTPS, TLS handshake e certificados
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DNS resolution
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DNS resolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-hierarquia-de-nomes-a-arvore-invertida" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A hierarquia de nomes (a árvore invertida)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#os-quatro-atores-da-resolucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Os quatro atores da resolução
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recursivo-vs-iterativo-a-distincao-que-confunde-todo-mundo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recursivo vs iterativo: a distinção que confunde todo mundo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caching-e-ttl-o-que-faz-o-dns-escalar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caching e TTL — o que faz o DNS escalar
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tipos-de-registro-records-essenciais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tipos de registro (records) essenciais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-rest-graphql-grpc-websockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST, GraphQL, gRPC, WebSockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-semantica-http-idempotencia-e-status-codes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semântica HTTP (idempotência, status codes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-cors-csrf-xss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS, CSRF, XSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-long-polling-sse-websockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long polling, SSE, WebSockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-hierarquia-de-nomes-a-arvore-invertida" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A hierarquia de nomes (a árvore invertida)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#os-quatro-atores-da-resolucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Os quatro atores da resolução
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recursivo-vs-iterativo-a-distincao-que-confunde-todo-mundo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recursivo vs iterativo: a distinção que confunde todo mundo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caching-e-ttl-o-que-faz-o-dns-escalar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caching e TTL — o que faz o DNS escalar
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tipos-de-registro-records-essenciais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tipos de registro (records) essenciais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="dns-resolution-passo-a-passo-recursivoiterativo-roottldauthoritative-caching-e-ttl">DNS Resolution Passo a Passo: Recursivo/Iterativo, Root/TLD/Authoritative, Caching e TTL<a class="headerlink" href="#dns-resolution-passo-a-passo-recursivoiterativo-roottldauthoritative-caching-e-ttl" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Redes e protocolos · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~28 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>O <strong>DNS (Domain Name System)</strong> é a "agenda de contatos da Internet": traduz nomes que humanos lembram (<code>loja.com.br</code>) nos endereços IP que as máquinas usam (<code>200.147.x.x</code>). É um <strong>banco de dados hierárquico, distribuído e fortemente cacheado</strong> — talvez o sistema distribuído mais bem-sucedido da história, resolvendo trilhões de consultas por dia. A resolução envolve quatro atores: o <strong>resolver recursivo</strong> (o "concierge", geralmente do seu ISP ou público como <code>8.8.8.8</code>/<code>1.1.1.1</code>, que faz o trabalho <em>por você</em>), os <strong>root servers</strong> (13 conjuntos, o topo da hierarquia, que apontam para o TLD certo), os <strong>TLD servers</strong> (<code>.com</code>, <code>.br</code>, <code>.org</code> — que apontam para o servidor autoritativo do domínio) e os <strong>authoritative servers</strong> (que têm a <em>resposta definitiva</em> daquele domínio). A distinção crucial é <strong>recursivo vs iterativo</strong>: o cliente faz uma única consulta <strong>recursiva</strong> ao resolver ("me dê a resposta final, resolva tudo"), e o resolver faz consultas <strong>iterativas</strong> mundo afora (root → TLD → authoritative), cada servidor respondendo "eu não sei, mas pergunte àquele ali". O que torna isso rápido e escalável é o <strong>caching agressivo em todas as camadas</strong> (navegador, SO, resolver), governado pelo <strong>TTL (Time To Live)</strong> — quanto tempo cada resposta pode ser reutilizada antes de reconsultar. O TTL é uma faca de dois gumes: alto reduz carga e latência mas <strong>atrasa mudanças</strong> (failover, troca de IP); baixo dá agilidade mas aumenta consultas. Entender DNS é entender o <strong>primeiro passo de toda comunicação</strong> (DNS → TCP → TLS → HTTP) e uma das fontes mais comuns — e mais traiçoeiras — de incidentes ("it's always DNS").</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>Computadores se comunicam por <strong>endereços IP</strong> (<code>200.147.67.142</code>, ou um IPv6 ainda mais ilegível). Humanos não conseguem — e não deveriam — memorizar números para cada serviço que usam. Precisamos de <strong>nomes</strong>: <code>loja.com.br</code>, <code>google.com</code>, <code>api.empresa.com</code>. O problema, então, é mapear nomes legíveis em endereços roteáveis. Uma solução ingênua seria um <strong>arquivo central</strong> com todos os nomes e IPs (foi literalmente assim no início da ARPANET: um arquivo <code>HOSTS.TXT</code> distribuído manualmente). Isso não escala por razões óbvias:</p>
+<ol>
+<li><strong>Escala:</strong> com bilhões de nomes mudando o tempo todo, um arquivo/servidor central seria gigantesco, sempre desatualizado e um gargalo impossível.</li>
+<li><strong>Administração descentralizada:</strong> a Nuvemshop quer gerenciar os nomes sob <code>*.nuvemshop.com.br</code> <strong>sem pedir permissão</strong> a uma autoridade central a cada mudança. Cada organização precisa de autonomia sobre seu próprio espaço de nomes.</li>
+<li><strong>Disponibilidade e latência:</strong> o sistema não pode ter um ponto único de falha, e a tradução precisa ser <strong>rápida</strong> (acontece antes de <em>cada</em> conexão) e resiliente a falhas regionais.</li>
+<li><strong>Atualização:</strong> IPs mudam (migração de servidor, failover, escala em nuvem). O mapeamento precisa propagar mudanças — mas de forma controlada, sem reconsultar a origem a cada acesso.</li>
+</ol>
+<p>A resposta do DNS é uma combinação elegante de três ideias: <strong>hierarquia</strong> (o espaço de nomes é uma árvore, delegável por níveis — raiz, TLD, domínio), <strong>distribuição</strong> (cada nível é servido por servidores diferentes, administrados por entidades diferentes — ninguém precisa saber tudo) e <strong>caching com TTL</strong> (respostas são reutilizadas por um tempo, reduzindo drasticamente a carga e a latência). É isso que permite ao DNS resolver volumes astronômicos de consultas com latência de milissegundos. A pergunta central: <strong>"como traduzir, de forma escalável, descentralizada, rápida e atualizável, qualquer um dos bilhões de nomes da Internet no seu endereço IP atual?"</strong> — e, para o arquiteto, <em>como o caching/TTL afeta failover, deploys e a latência da primeira conexão</em>.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="a-hierarquia-de-nomes-a-arvore-invertida">A hierarquia de nomes (a árvore invertida)<a class="headerlink" href="#a-hierarquia-de-nomes-a-arvore-invertida" title="Permanent link">&para;</a></h3>
+<p>O espaço de nomes do DNS é uma <strong>árvore hierárquica</strong>, lida <strong>da direita para a esquerda</strong>. Em <code>www.loja.com.br.</code>:</p>
+<ul>
+<li>O <strong><code>.</code></strong> final (geralmente omitido) é a <strong>raiz (root)</strong> — o topo da árvore.</li>
+<li><strong><code>br</code></strong> é o <strong>TLD (Top-Level Domain)</strong> — neste caso um ccTLD (country-code, Brasil); outros são gTLDs como <code>com</code>, <code>org</code>, <code>net</code>.</li>
+<li><strong><code>com</code></strong> sob <code>br</code> é um domínio de segundo nível (no Brasil, <code>com.br</code> é gerido pelo Registro.br).</li>
+<li><strong><code>loja</code></strong> é o domínio registrado (o que a empresa controla).</li>
+<li><strong><code>www</code></strong> é um subdomínio/host dentro de <code>loja.com.br</code>.</li>
+</ul>
+<p>Cada nível <strong>delega autoridade</strong> ao nível abaixo: a raiz delega <code>.br</code> ao Registro.br; este delega <code>loja.com.br</code> à Nuvemshop, que então gerencia tudo abaixo (<code>www</code>, <code>api</code>, <code>loja</code>...) livremente. Essa delegação é o que dá <strong>autonomia administrativa</strong> e permite o sistema escalar — ninguém precisa de uma visão global.</p>
+<p>Uma <strong>zona</strong> é uma porção contígua da árvore sob administração de uma entidade, servida por seus <strong>servidores autoritativos</strong>.</p>
+<h3 id="os-quatro-atores-da-resolucao">Os quatro atores da resolução<a class="headerlink" href="#os-quatro-atores-da-resolucao" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Resolver recursivo (recursive resolver / DNS recursor):</strong> o intermediário que faz o trabalho <strong>em nome do cliente</strong>. Tipicamente fornecido pelo <strong>ISP</strong>, ou um público como <strong>Google <code>8.8.8.8</code></strong> ou <strong>Cloudflare <code>1.1.1.1</code></strong>. O cliente faz <em>uma</em> pergunta a ele ("qual o IP de <code>loja.com.br</code>?") e o resolver se vira para descobrir, consultando os servidores autoritativos e cacheando o resultado. É o "concierge" da resolução.</li>
+<li><strong>Root nameservers (servidores raiz):</strong> o topo da hierarquia. Há <strong>13 identidades</strong> de servidores raiz (de <code>a.root-servers.net</code> a <code>m</code>), replicadas mundialmente via <strong>anycast</strong> em centenas de instâncias físicas. Eles <strong>não conhecem o IP do seu site</strong> — só sabem <strong>para qual servidor TLD encaminhar</strong> (sabem onde estão os servidores do <code>.br</code>, do <code>.com</code>, etc.). São a âncora: todo resolver já vem com os IPs dos roots embutidos.</li>
+<li><strong>TLD nameservers (servidores de TLD):</strong> responsáveis por um top-level domain (<code>.com</code>, <code>.br</code>, <code>.org</code>). Também <strong>não conhecem o IP final</strong> — sabem <strong>qual servidor autoritativo</strong> é responsável por cada domínio sob aquele TLD (sabem que <code>loja.com.br</code> é servido pelos nameservers da Nuvemshop).</li>
+<li><strong>Authoritative nameservers (servidores autoritativos):</strong> têm a <strong>resposta definitiva</strong> para a zona que administram. É o servidor que de fato guarda o registro "<code>loja.com.br</code> → <code>200.147.x.x</code>". A resposta dele é <strong>autoritativa</strong> (a fonte da verdade), não cacheada.</li>
+</ul>
+<h3 id="recursivo-vs-iterativo-a-distincao-que-confunde-todo-mundo">Recursivo vs iterativo: a distinção que confunde todo mundo<a class="headerlink" href="#recursivo-vs-iterativo-a-distincao-que-confunde-todo-mundo" title="Permanent link">&para;</a></h3>
+<p>Esta é a parte mais incompreendida do DNS, e a mais cobrada:</p>
+<ul>
+<li><strong>Consulta recursiva:</strong> o cliente (navegador/SO, via <em>stub resolver</em>) pergunta ao <strong>resolver recursivo</strong> e espera <strong>a resposta final completa</strong> — "resolva tudo e me dê o IP". O cliente delega <em>todo</em> o trabalho. É uma única ida-e-volta da perspectiva do cliente.</li>
+<li><strong>Consultas iterativas:</strong> é o que o <strong>resolver recursivo faz por trás</strong> para cumprir a consulta recursiva. Ele pergunta a cada servidor da hierarquia, um de cada vez, e cada um responde <strong>"eu não sei, mas pergunte àquele outro ali"</strong> (uma <em>referral</em>). O root diz "pergunte ao TLD <code>.br</code>"; o TLD <code>.br</code> diz "pergunte ao autoritativo da Nuvemshop"; o autoritativo finalmente responde o IP. O resolver <strong>itera</strong> descendo a hierarquia até obter a resposta.</li>
+</ul>
+<p>A frase para fixar: <strong>o cliente faz UMA consulta recursiva; o resolver faz VÁRIAS consultas iterativas em nome dele.</strong> O resolver é quem carrega o fardo de percorrer a árvore — e é por isso que o caching nele é tão valioso (uma resolução cara feita uma vez serve milhares de clientes).</p>
+<h3 id="caching-e-ttl-o-que-faz-o-dns-escalar">Caching e TTL — o que faz o DNS escalar<a class="headerlink" href="#caching-e-ttl-o-que-faz-o-dns-escalar" title="Permanent link">&para;</a></h3>
+<p>Se cada consulta percorresse root → TLD → authoritative, o sistema (e especialmente os root servers) colapsaria sob a carga. O que salva é o <strong>caching em todas as camadas</strong>, governado pelo <strong>TTL (Time To Live)</strong>:</p>
+<ul>
+<li>Cada registro DNS tem um <strong>TTL</strong> (em segundos): por quanto tempo a resposta pode ser <strong>cacheada e reutilizada</strong> antes de precisar reconsultar a origem. Ex.: TTL 3600 = cacheie por 1 hora.</li>
+<li>O <strong>cache acontece em várias camadas</strong>, da mais perto à mais longe do cliente:</li>
+<li><strong>Cache do navegador</strong> (o Chrome mantém seu próprio).</li>
+<li><strong>Cache do SO / stub resolver</strong> (o resolvedor local da máquina).</li>
+<li><strong>Cache do resolver recursivo</strong> (o mais importante — serve todos os clientes do ISP/público). Cacheia inclusive respostas intermediárias (os NS dos TLDs, etc.).</li>
+<li>Enquanto o TTL não expira, a resposta vem do cache — <strong>latência quase zero e nenhuma carga na hierarquia</strong>. A vasta maioria das consultas é resolvida por cache; só uma fração chega aos autoritativos, e quase nada aos roots.</li>
+</ul>
+<p>O <strong>TTL é um trade-off central de arquitetura</strong>, não um detalhe:</p>
+<ul>
+<li><strong>TTL alto</strong> (horas/dias): menos consultas, menos carga, menor latência média (cache quente). <strong>Mas</strong>: mudanças demoram a propagar — se você trocar o IP do servidor (migração, failover), os clientes continuarão indo ao IP velho <strong>até o TTL expirar</strong> em todos os caches. Pode significar horas de tráfego indo para o lugar errado.</li>
+<li><strong>TTL baixo</strong> (segundos/minutos): mudanças propagam rápido (bom para failover ágil, blue-green, balanceamento por DNS). <strong>Mas</strong>: muito mais consultas (cache "frio"), mais carga e latência. E há um limite: caches podem <strong>não respeitar</strong> TTLs muito baixos.</li>
+</ul>
+<p>A regra prática: <strong>baixe o TTL <em>antes</em> de uma mudança planejada</strong> (migração, troca de IP) para que a propagação seja rápida, e suba de novo depois. TTL é a alavanca que governa a tensão entre <strong>estabilidade/performance</strong> e <strong>agilidade de mudança</strong>.</p>
+<h3 id="tipos-de-registro-records-essenciais">Tipos de registro (records) essenciais<a class="headerlink" href="#tipos-de-registro-records-essenciais" title="Permanent link">&para;</a></h3>
+<p>A resposta do DNS não é só "nome → IP"; há vários tipos de <strong>resource records (RR)</strong>:</p>
+<ul>
+<li><strong>A:</strong> mapeia nome → endereço <strong>IPv4</strong>.</li>
+<li><strong>AAAA:</strong> mapeia nome → endereço <strong>IPv6</strong>.</li>
+<li><strong>CNAME:</strong> <strong>alias</strong> (apelido) — <code>www.loja.com.br</code> é um CNAME para <code>loja.com.br</code>; a resolução segue o alias. Útil para apontar para CDNs/serviços gerenciados.</li>
+<li><strong>NS:</strong> indica os <strong>nameservers autoritativos</strong> de uma zona (é o que materializa a delegação).</li>
+<li><strong>MX:</strong> servidores de <strong>e-mail</strong> do domínio (com prioridade).</li>
+<li><strong>TXT:</strong> texto arbitrário — usado para SPF/DKIM/DMARC (e-mail), verificação de propriedade, etc.</li>
+<li><strong>SOA:</strong> Start of Authority — metadados da zona (serial, TTLs padrão).</li>
+<li><strong>PTR:</strong> DNS reverso (IP → nome).</li>
+<li><strong>CAA:</strong> quais CAs podem emitir certificados para o domínio (segurança).</li>
+<li><strong>SVCB/HTTPS:</strong> registros modernos que anunciam capacidades do serviço (ex.: suporte a HTTP/3, parâmetros de conexão) — conecta com a negociação de HTTP/3.</li>
+</ul>
+<h3 id="glossario-rapido">Glossário rápido<a class="headerlink" href="#glossario-rapido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>DNS:</strong> sistema hierárquico/distribuído que mapeia nomes em IPs (e outros records).</li>
+<li><strong>Resolver recursivo (recursor):</strong> faz a resolução completa em nome do cliente; cacheia.</li>
+<li><strong>Stub resolver:</strong> o cliente DNS leve no SO que apenas pergunta ao recursivo.</li>
+<li><strong>Root / TLD / authoritative:</strong> os três níveis de servidores na hierarquia de resolução.</li>
+<li><strong>Recursivo vs iterativo:</strong> cliente→resolver = recursivo (resolva tudo); resolver→hierarquia = iterativo (referrals).</li>
+<li><strong>Referral:</strong> resposta "não sei, pergunte àquele servidor" (com registros NS).</li>
+<li><strong>Zona:</strong> porção da árvore sob uma administração, servida por autoritativos.</li>
+<li><strong>TTL:</strong> tempo que uma resposta pode ser cacheada antes de reconsultar.</li>
+<li><strong>Record types:</strong> A, AAAA, CNAME, NS, MX, TXT, SOA, CAA, SVCB/HTTPS.</li>
+<li><strong>Anycast:</strong> mesmo IP anunciado de vários lugares; a rede entrega ao mais próximo (resiliência/latência dos roots e resolvers).</li>
+<li><strong>DoT / DoH:</strong> DNS over TLS / over HTTPS — DNS cifrado (privacidade).</li>
+<li><strong>DNSSEC:</strong> assinaturas que garantem <strong>integridade/autenticidade</strong> das respostas DNS (contra spoofing).</li>
+</ul>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>A resolução de <code>www.loja.com.br</code>, passo a passo, na primeira vez (cache frio em tudo):</p>
+<ol>
+<li><strong>Cliente → resolver (recursiva):</strong> o navegador/SO consulta seu <strong>resolver recursivo</strong> (ex.: <code>1.1.1.1</code>): "qual o IP de <code>www.loja.com.br</code>?". Antes, verifica os caches locais (navegador, SO) — se houver hit, responde na hora e nada disso acontece.</li>
+<li><strong>Resolver → root (iterativa):</strong> o resolver, sem cache, pergunta a um <strong>root server</strong>. O root responde: "não sei o IP, mas o TLD <code>.br</code> é servido por estes NS aqui" (referral para os servidores do <code>.br</code>).</li>
+<li><strong>Resolver → TLD <code>.br</code> (iterativa):</strong> o resolver pergunta ao <strong>servidor TLD do <code>.br</code></strong>. Ele responde: "não sei o IP, mas <code>loja.com.br</code> é servido pelos autoritativos da Nuvemshop, aqui estão os NS deles" (referral).</li>
+<li><strong>Resolver → authoritative (iterativa):</strong> o resolver pergunta ao <strong>servidor autoritativo</strong> da Nuvemshop. Ele responde com a <strong>resposta autoritativa</strong>: "<code>www.loja.com.br</code> → <code>200.147.x.x</code> (record A), TTL 300".</li>
+<li><strong>Resolver → cliente:</strong> o resolver <strong>cacheia</strong> a resposta (e as intermediárias, conforme seus TTLs) e devolve o IP ao cliente.</li>
+<li><strong>Caches preenchidos:</strong> o navegador e o SO também cacheiam. Nas próximas consultas (dentro do TTL), a resposta vem do cache — <strong>sem tocar a hierarquia</strong>.</li>
+</ol>
+<p>A observação de escala: o passo 2-4 (a "descida" completa) acontece <strong>raramente</strong>, porque o caching no resolver curtocircuita quase tudo. Milhões de clientes que usam o mesmo resolver <code>1.1.1.1</code> compartilham seu cache — a primeira pessoa a resolver <code>loja.com.br</code> paga a descida completa; as seguintes (dentro do TTL) pegam do cache. E os passos para a raiz são ainda mais raros: o resolver cacheia os NS dos TLDs por muito tempo, então quase nunca precisa perguntar a um root. Por isso os 13 roots aguentam a Internet inteira.</p>
+<p><strong>Transporte:</strong> o DNS roda primariamente sobre <strong>UDP porta 53</strong> — consultas e respostas são pequenas e cabem num datagrama, e a ausência de handshake torna a resolução rápida (1 ida-e-volta em vez dos 3 do TCP). Se a resposta for grande demais para um datagrama (muitos registros, DNSSEC), há <strong>fallback para TCP</strong> (também porta 53). Modernamente, <strong>DoT (DNS over TLS, porta 853)</strong> e <strong>DoH (DNS over HTTPS, porta 443)</strong> cifram o DNS para privacidade — historicamente o DNS era texto claro, e qualquer um no caminho via (e podia manipular) suas consultas. (Conecta com TCP/UDP e com TLS.)</p>
+<p><strong>Onde a latência mora:</strong> numa conexão "fria", a resolução DNS é o <strong>primeiro custo de RTT</strong> da jornada DNS → TCP → TLS → HTTP. Um cache miss que precise descer a hierarquia pode somar dezenas a centenas de ms. É por isso que a resolução aparece em ferramentas de performance (o "DNS lookup time" no waterfall do navegador) e por que técnicas como <strong>DNS prefetch</strong> (resolver nomes antecipadamente) existem.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama mostra a resolução completa (recursiva do cliente, iterativa do resolver); o segundo mostra o efeito do caching/TTL em consultas subsequentes.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant Cli as "Cliente (stub)"
+    participant Rec as "Resolver recursivo (1.1.1.1)"
+    participant Root as "Root server"
+    participant TLD as "TLD .br server"
+    participant Auth as "Authoritative (Nuvemshop)"
+
+    Cli-&gt;&gt;Rec: "recursiva: IP de www.loja.com.br?"
+    Note over Cli,Rec: cliente faz 1 consulta recursiva
+    Rec-&gt;&gt;Root: "iterativa: www.loja.com.br?"
+    Root-&gt;&gt;Rec: "referral: pergunte ao TLD .br"
+    Rec-&gt;&gt;TLD: "iterativa: www.loja.com.br?"
+    TLD-&gt;&gt;Rec: "referral: pergunte ao autoritativo da Nuvemshop"
+    Rec-&gt;&gt;Auth: "iterativa: www.loja.com.br?"
+    Auth-&gt;&gt;Rec: "resposta autoritativa: A 200.147.x.x TTL 300"
+    Rec-&gt;&gt;Cli: "IP 200.147.x.x (e cacheia)"</code></pre>
+<pre class="mermaid"><code>flowchart TB
+    Q["consulta: loja.com.br"] --&gt; BC{"cache do navegador? (TTL valido)"}
+    BC --&gt;|"hit"| RET["responde na hora (0 RTT de rede)"]
+    BC --&gt;|"miss"| OS{"cache do SO?"}
+    OS --&gt;|"hit"| RET
+    OS --&gt;|"miss"| RV{"cache do resolver recursivo?"}
+    RV --&gt;|"hit"| RET
+    RV --&gt;|"miss"| FULL["descida completa: root -&gt; TLD -&gt; authoritative"]
+    FULL --&gt; STORE["cacheia em todas as camadas conforme TTL"]
+    STORE --&gt; RET</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p>Cenário: a <strong>Nuvemshop e uma loja virtual brasileira</strong>, ilustrando tanto a resolução quanto as armadilhas operacionais do DNS — que são causa frequente de incidentes reais.</p>
+<p><strong>A primeira coisa que acontece ao abrir a loja.</strong> Quando o cliente digita <code>loja.com.br</code>, <strong>antes de qualquer TCP, TLS ou HTTP</strong>, o navegador resolve o nome via DNS. Se for cache hit (já visitou recentemente), é instantâneo. Se for miss, o resolver desce root → <code>.br</code> → autoritativo da loja, retornando o IP em (digamos) 40ms. Só então começa o handshake TCP, depois TLS, depois HTTP. Esse "DNS lookup" é o primeiro item do waterfall de carregamento — e um DNS lento (resolver ruim, TTL frio, autoritativo distante) atrasa <em>tudo</em> o que vem depois. Lojas com público global costumam usar DNS com <strong>anycast</strong> e baixa latência (Route 53, Cloudflare DNS) justamente para que esse primeiro passo seja rápido em qualquer região.</p>
+<p><strong>O incidente clássico: TTL alto atrapalhando o failover.</strong> A loja precisa <strong>migrar de servidor</strong> (trocar o IP de <code>200.147.x.x</code> para <code>54.x.x.x</code>). A equipe atualiza o record A no autoritativo, mas esquece um detalhe: o <strong>TTL estava em 86400 (24h)</strong>. Resultado: por até <strong>24 horas</strong>, resolvers e caches no mundo todo continuam entregando o <strong>IP velho</strong> — clientes vão para o servidor desativado e veem erro, <em>mesmo</em> com o DNS "já corrigido". O incidente se arrasta porque não há como "limpar" todos os caches da Internet; só resta esperar o TTL expirar. <strong>A prática correta:</strong> <em>dias antes</em> da migração, baixar o TTL para 60-300s; fazer a troca (que então propaga em minutos); e só depois restaurar o TTL alto. TTL é planejamento, não configuração esquecida.</p>
+<p><strong>Balanceamento e failover por DNS.</strong> A loja usa <strong>DNS para distribuir carga</strong>: o autoritativo retorna IPs diferentes para clientes diferentes (round-robin, ou geo-DNS que devolve o data center mais próximo, ou latency-based routing). Para <strong>failover</strong>, health checks no provedor de DNS (ex.: Route 53) <strong>removem automaticamente</strong> o IP de um servidor que caiu das respostas — mas a velocidade do failover é limitada pelo <strong>TTL</strong> (clientes com a resposta cacheada do IP morto só trocam quando o TTL expira). Por isso, para failover ágil via DNS, usa-se <strong>TTL baixo</strong> — aceitando o custo de mais consultas. (Conecta com load balancing: DNS é uma forma de LB de camada de nomes, complementar aos LBs L4/L7.)</p>
+<p><strong>Por que DNS sobre UDP, e quando vira TCP.</strong> As consultas da loja são pequenas e usam <strong>UDP/53</strong> — rápido, sem handshake, ideal para o volume. Mas quando a loja habilita <strong>DNSSEC</strong> (assinaturas que impedem spoofing/cache poisoning) ou tem muitos registros, as respostas podem exceder o tamanho de um datagrama UDP, e o DNS faz <strong>fallback para TCP/53</strong>. Além disso, para proteger a privacidade dos clientes, navegadores cada vez mais usam <strong>DoH (DNS over HTTPS)</strong>, cifrando as consultas — antes, o ISP via cada site que o cliente resolvia.</p>
+<p><strong>"It's always DNS".</strong> O bordão da operação tem fundo real: porque o DNS é o primeiro passo de tudo e é fortemente cacheado, problemas de DNS são <strong>intermitentes e confusos</strong> — funciona para uns (cache quente do IP certo) e falha para outros (cache do IP errado, ou resolver diferente), a propagação é lenta e desigual, e o sintoma ("site fora do ar") não aponta para a causa (DNS). Migrações com TTL alto, records mal configurados (CNAME apontando para o lugar errado, falta de registro AAAA quebrando IPv6), zona expirada, ou nameserver fora do ar derrubam serviços de formas difíceis de diagnosticar. Ferramentas: <code>dig</code>/<code>nslookup</code> (consultar diretamente um servidor específico, ver TTL restante), <code>dig +trace</code> (simular a descida iterativa), e checar TTL antes de qualquer mudança.</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p>DNS não é "opcional" — toda comunicação por nome passa por ele. Aqui "quando usar" significa decisões de <em>como</em> usar DNS arquiteturalmente.</p>
+<p><strong>Use TTL alto</strong> (horas) para registros <strong>estáveis</strong> que raramente mudam (o IP fixo de um serviço de longa duração), maximizando cache e minimizando carga/latência. <strong>Use TTL baixo</strong> (segundos/minutos) quando precisar de <strong>agilidade de mudança</strong>: failover via DNS, balanceamento dinâmico, migrações iminentes, blue-green. Lembre da regra: <strong>baixe o TTL antes de mudanças planejadas</strong>.</p>
+<p><strong>Use DNS para balanceamento/failover geográfico</strong> (geo-DNS, latency-based, round-robin) quando quiser rotear clientes para o data center/região certa <strong>antes mesmo da conexão</strong> — complementar aos LBs L4/L7. <strong>Evite</strong> depender <em>só</em> de DNS para failover rápido: a granularidade do TTL e os caches que não o respeitam tornam o failover por DNS mais lento e menos preciso que um LB/health check no nível de conexão. Use DNS para roteamento grosso (região) e LBs para failover fino.</p>
+<p><strong>Use DNSSEC</strong> quando integridade/autenticidade das respostas importa (evitar cache poisoning/spoofing que redireciona usuários para servidores maliciosos) — especialmente em domínios sensíveis (bancos, governo). <strong>Use DoT/DoH</strong> para privacidade das consultas dos usuários.</p>
+<p><strong>Evite</strong> TTLs extremamente baixos como padrão (sobrecarregam resolvers e autoritativos, e muitos caches ignoram); <strong>evite</strong> cadeias longas de CNAME (cada salto é uma resolução extra, somando latência); <strong>evite</strong> tratar propagação de DNS como instantânea (ela é governada por TTLs em caches que você não controla).</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>TTL alto na hora de uma migração/failover.</strong> O incidente clássico: trocar o IP com TTL de 24h faz o IP velho ser servido por até 24h, prolongando o outage. <strong>Sempre baixe o TTL antes</strong> de mudanças planejadas e restaure depois.</li>
+<li><strong>Achar que "propagação de DNS" é instantânea.</strong> Mudanças não propagam na hora — elas propagam conforme os <strong>TTLs expiram</strong> em caches espalhados pelo mundo que você não controla. Planeje a janela de propagação com base no TTL anterior.</li>
+<li><strong>Tentar "limpar o cache da Internet".</strong> Não existe. Você só controla seus caches locais (<code>ipconfig /flushdns</code>, etc.); os resolvers do mundo só atualizam quando o TTL expira. Por isso o TTL pré-mudança é a única alavanca real.</li>
+<li><strong>Cadeias de CNAME profundas.</strong> Cada CNAME exige uma resolução adicional (seguir o alias), somando RTTs. CNAMEs aninhados (alias para alias para alias) degradam a latência da primeira conexão. Aplaine quando possível; use ALIAS/ANAME no apex se o provedor suportar.</li>
+<li><strong>CNAME no apex do domínio (zona).</strong> O padrão DNS <strong>proíbe</strong> CNAME no apex (<code>loja.com.br</code> "puro", sem subdomínio), porque o apex precisa coexistir com SOA/NS. Usar errado quebra a zona; use registros ALIAS/ANAME (proprietários) ou A direto.</li>
+<li><strong>Esquecer registros AAAA (IPv6) ou MX.</strong> Faltar AAAA pode quebrar clientes IPv6-only de forma intermitente; MX mal configurado derruba e-mail. Configure o conjunto completo de records.</li>
+<li><strong>Confundir recursivo com iterativo.</strong> Em entrevista e em diagnóstico: o <strong>cliente</strong> faz consulta <strong>recursiva</strong> (ao resolver); o <strong>resolver</strong> faz consultas <strong>iterativas</strong> (à hierarquia). Inverter isso revela incompreensão do mecanismo.</li>
+<li><strong>Depender só de DNS para failover rápido.</strong> O TTL e os caches que o ignoram tornam o failover por DNS lento e impreciso. Para failover de segundos, use LB/health checks no nível de conexão; reserve DNS para roteamento grosso (região).</li>
+<li><strong>DNS em texto claro como problema de privacidade/segurança ignorado.</strong> Sem DoT/DoH, o ISP e qualquer um no caminho veem (e podem manipular) as consultas; sem DNSSEC, há risco de <strong>cache poisoning</strong> (resposta forjada que sequestra o domínio). Avalie DNSSEC/DoH em contextos sensíveis.</li>
+<li><strong>Resolver/nameserver como ponto único de falha.</strong> Ter um único nameserver autoritativo, ou depender de um resolver instável, derruba <em>tudo</em> (DNS é pré-requisito de toda conexão). Use múltiplos nameservers autoritativos (idealmente em provedores/redes diferentes) e anycast.</li>
+<li><strong>Ignorar o custo de DNS na latência de cauda.</strong> Um cache miss que desce a hierarquia adiciona dezenas/centenas de ms <em>antes</em> do TCP. Em p99, isso conta. Use DNS de baixa latência (anycast) e considere prefetch.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Modelo OSI e TCP/IP:</strong> DNS é um protocolo de <strong>aplicação (L7)</strong> que roda sobre <strong>UDP/TCP (L4)</strong>; é o primeiro passo da jornada por camadas. Ver <code>16-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md</code>.</li>
+<li><strong>TCP vs UDP:</strong> DNS usa primariamente <strong>UDP</strong> (consultas pequenas, sem handshake), com fallback para <strong>TCP</strong> (respostas grandes/DNSSEC) — exemplo canônico de "por que UDP". Ver <code>16-redes-e-protocolos/02-tcp-vs-udp.md</code>.</li>
+<li><strong>HTTPS/TLS:</strong> o SNI no handshake TLS revela o host; <strong>DoT/DoH</strong> cifram o DNS com TLS; registros <strong>CAA</strong> controlam quais CAs emitem certificados. Ver <code>16-redes-e-protocolos/04-https-tls-handshake-e-certificados.md</code>.</li>
+<li><strong>HTTP/3:</strong> registros <strong>SVCB/HTTPS</strong> no DNS anunciam suporte a HTTP/3 e parâmetros de conexão, ajudando na negociação. Ver <code>16-redes-e-protocolos/03-http1-http2-http3-quic.md</code>.</li>
+<li><strong>Service Discovery &amp; Load Balancing:</strong> DNS é uma forma de <strong>service discovery</strong> (resolver nome → endereço) e de <strong>balanceamento/failover</strong> (geo-DNS, round-robin, health checks), complementar aos LBs L4/L7. Ver <code>04-sistemas-distribuidos/07-service-discovery-e-load-balancing.md</code>.</li>
+<li><strong>Caching em múltiplas camadas:</strong> o DNS é o exemplo máximo de cache hierárquico com TTL; os mesmos trade-offs de invalidação/TTL valem aqui. Ver <code>07-performance-e-escalabilidade/04-caching-em-multiplas-camadas.md</code>.</li>
+<li><strong>Latência vs throughput e percentis:</strong> a resolução DNS é o primeiro RTT da conexão fria e aparece na cauda (p99); cache hit a torna quase gratuita. Ver <code>07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis.md</code>.</li>
+<li><strong>Padrões de resiliência:</strong> múltiplos nameservers, anycast e health-check failover são resiliência aplicada ao DNS, que é pré-requisito de tudo. Ver <code>04-sistemas-distribuidos/10-padroes-de-resiliencia.md</code>.</li>
+</ul>
+<h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
+<p>Três ideias para carregar:</p>
+<ol>
+<li><strong>DNS é um banco de dados hierárquico, distribuído e fortemente cacheado — e o primeiro passo de toda comunicação.</strong> A hierarquia (raiz → TLD → autoritativo) dá escala e administração descentralizada; o caching com TTL dá performance e protege a hierarquia da carga. Saber que DNS vem <em>antes</em> de TCP/TLS/HTTP é entender por que "site fora do ar" pode ser, no fundo, DNS.</li>
+<li><strong>Recursivo (cliente→resolver) vs iterativo (resolver→hierarquia) é a distinção que define o mecanismo.</strong> O cliente faz UMA consulta recursiva ("resolva tudo"); o resolver faz VÁRIAS iterativas, seguindo referrals "pergunte àquele ali" até o autoritativo. O resolver carrega o fardo e cacheia para milhares de clientes — por isso os 13 roots aguentam a Internet.</li>
+<li><strong>TTL é a alavanca que governa a tensão entre estabilidade/performance e agilidade de mudança.</strong> Alto = menos carga, mais latência para propagar mudanças (failover lento, migração arriscada). Baixo = mudança ágil, mais consultas. A disciplina operacional: <strong>baixe o TTL antes de mudanças planejadas</strong>, porque você não controla os caches do mundo — só o tempo que eles guardam a resposta. "It's always DNS" é meio piada, meio verdade operacional.</li>
+</ol>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>DNS</strong> = banco hierárquico, distribuído e cacheado que mapeia <strong>nomes → IPs</strong> (e outros records); roda em <strong>UDP/53</strong> (fallback TCP/53).</li>
+<li><strong>Quatro atores:</strong> resolver <strong>recursivo</strong> (faz o trabalho e cacheia), <strong>root</strong> (aponta o TLD), <strong>TLD</strong> (aponta o autoritativo), <strong>authoritative</strong> (resposta definitiva).</li>
+<li><strong>Recursivo vs iterativo:</strong> cliente faz <strong>1 consulta recursiva</strong> ao resolver; o resolver faz <strong>N consultas iterativas</strong> (referrals) descendo root → TLD → authoritative.</li>
+<li><strong>Caching em camadas</strong> (navegador, SO, resolver) governado por <strong>TTL</strong> é o que faz o DNS escalar — a maioria das consultas nem toca a hierarquia.</li>
+<li><strong>TTL = trade-off:</strong> alto (menos carga, propagação lenta de mudanças); baixo (ágil, mais consultas). <strong>Baixe o TTL antes de migrações/failover.</strong></li>
+<li><strong>Propagação não é instantânea</strong> nem "limpável": depende dos TTLs expirando em caches que você não controla.</li>
+<li><strong>Records:</strong> A (IPv4), AAAA (IPv6), CNAME (alias, proibido no apex), NS (delegação), MX (e-mail), TXT (SPF/DKIM), CAA (CAs), SVCB/HTTPS (HTTP/3).</li>
+<li>DNS é <strong>service discovery + balanceamento/failover</strong> de camada de nomes (geo-DNS, round-robin, health checks) — complementar a LBs L4/L7.</li>
+<li><strong>Segurança/privacidade:</strong> DNSSEC (integridade/anti-spoofing), DoT/DoH (consultas cifradas).</li>
+<li>Diagnóstico: <code>dig</code>/<code>nslookup</code>, <code>dig +trace</code> (simula a descida iterativa), checar TTL antes de mudar.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc1035">RFC 1035 — Domain Names: Implementation and Specification</a></li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc1034">RFC 1034 — Domain Names: Concepts and Facilities</a></li>
+<li><a href="https://www.cloudflare.com/learning/dns/what-is-dns/">What is DNS? — Cloudflare Learning Center</a></li>
+<li><a href="https://www.cloudflare.com/learning/dns/dns-server-types/">DNS server types (recursive, root, TLD, authoritative) — Cloudflare Learning Center</a></li>
+<li><a href="https://www.cloudflare.com/learning/dns/what-is-recursive-dns/">What is recursive DNS? — Cloudflare Learning Center</a></li>
+<li><a href="https://developers.cloudflare.com/dns/manage-dns-records/reference/ttl/">Time to Live (TTL) — Cloudflare DNS Docs</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Glossary/DNS">DNS — MDN Web Docs Glossary</a></li>
+<li><a href="https://hpbn.co/primer-on-latency-and-bandwidth/">What every web developer should know about DNS (Primer on Latency and Bandwidth) — High Performance Browser Networking</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../04-https-tls-handshake-e-certificados/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: HTTPS, TLS handshake e certificados">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                HTTPS, TLS handshake e certificados
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../06-rest-graphql-grpc-websockets/" class="md-footer__link md-footer__link--next" aria-label="Próximo: REST, GraphQL, gRPC, WebSockets">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                REST, GraphQL, gRPC, WebSockets
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2612 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/16-redes-e-protocolos/02-tcp-vs-udp/">
+      
+      
+        <link rel="prev" href="../01-modelo-osi-e-tcp-ip/">
+      
+      
+        <link rel="next" href="../03-http1-http2-http3-quic/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>TCP vs UDP - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tcp-vs-udp-3-way-handshake-controle-de-fluxo-controle-de-congestionamento-confiabilidade-vs-latencia" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              TCP vs UDP
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_18" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_18" id="__nav_18_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_18_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_18">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    16 · Redes e protocolos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelo OSI e TCP/IP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TCP vs UDP
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TCP vs UDP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tcp-orientado-a-conexao-e-confiavel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TCP — orientado a conexão e confiável
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#udp-sem-conexao-e-nao-confiavel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UDP — sem conexão e não confiável
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-3-way-handshake-estabelecimento-de-conexao-tcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O 3-way handshake (estabelecimento de conexão TCP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#controle-de-fluxo-flow-control-nao-afogar-o-receptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Controle de fluxo (flow control) — não afogar o receptor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#controle-de-congestionamento-congestion-control-nao-afogar-a-rede" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Controle de congestionamento (congestion control) — não afogar a rede
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-sintese" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela síntese
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-dilema-de-latencia-por-que-confiabilidade-custa-tempo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O dilema de latência: por que confiabilidade custa tempo
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-http1-http2-http3-quic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP/1.1, HTTP/2, HTTP/3 (QUIC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-https-tls-handshake-e-certificados/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTPS, TLS handshake e certificados
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-dns-resolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DNS resolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-rest-graphql-grpc-websockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST, GraphQL, gRPC, WebSockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-semantica-http-idempotencia-e-status-codes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semântica HTTP (idempotência, status codes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-cors-csrf-xss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS, CSRF, XSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-long-polling-sse-websockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long polling, SSE, WebSockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tcp-orientado-a-conexao-e-confiavel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TCP — orientado a conexão e confiável
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#udp-sem-conexao-e-nao-confiavel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UDP — sem conexão e não confiável
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-3-way-handshake-estabelecimento-de-conexao-tcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O 3-way handshake (estabelecimento de conexão TCP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#controle-de-fluxo-flow-control-nao-afogar-o-receptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Controle de fluxo (flow control) — não afogar o receptor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#controle-de-congestionamento-congestion-control-nao-afogar-a-rede" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Controle de congestionamento (congestion control) — não afogar a rede
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-sintese" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela síntese
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-dilema-de-latencia-por-que-confiabilidade-custa-tempo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O dilema de latência: por que confiabilidade custa tempo
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="tcp-vs-udp-3-way-handshake-controle-de-fluxo-controle-de-congestionamento-confiabilidade-vs-latencia">TCP vs UDP: 3-Way Handshake, Controle de Fluxo, Controle de Congestionamento, Confiabilidade vs Latência<a class="headerlink" href="#tcp-vs-udp-3-way-handshake-controle-de-fluxo-controle-de-congestionamento-confiabilidade-vs-latencia" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Redes e protocolos · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~30 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p><strong>TCP</strong> e <strong>UDP</strong> são os dois protagonistas da <strong>camada de transporte (L4)</strong>, e a escolha entre eles é uma das decisões arquiteturais mais fundamentais — porque expressa um <em>trade-off irredutível entre confiabilidade e latência</em>. <strong>TCP</strong> (Transmission Control Protocol) é <strong>orientado a conexão e confiável</strong>: estabelece a conexão via <strong>3-way handshake</strong> (SYN → SYN-ACK → ACK), garante <strong>entrega ordenada e sem perdas</strong> (numeração de sequência + ACKs + retransmissão), implementa <strong>controle de fluxo</strong> (a <em>receive window</em>, para não afogar um receptor lento) e <strong>controle de congestionamento</strong> (slow start, congestion avoidance, fast retransmit/recovery — para não afogar a <em>rede</em>). O preço dessas garantias: <strong>latência adicional</strong> (1 RTT de handshake antes de qualquer dado; head-of-line blocking quando um pacote se perde) e estado por conexão. <strong>UDP</strong> (User Datagram Protocol) é <strong>sem conexão e não confiável</strong>: dispara datagramas independentes sem handshake, sem ACK, sem ordenação, sem retransmissão e sem controle de congestionamento — apenas um checksum opcional. Em troca, é <strong>mínimo e de baixa latência</strong>, ideal para tempo real (voz, vídeo, jogos), DNS (consultas pequenas) e como <strong>base para protocolos que reimplementam confiabilidade em espaço de usuário</strong> (QUIC/HTTP3). Regra mental: use <strong>TCP quando entregar tudo na ordem certa importa mais que a latência</strong> (web, APIs, transferência de arquivos, bancos); use <strong>UDP quando dados atrasados são piores que dados perdidos</strong> (streaming ao vivo, VoIP, jogos) ou quando você quer construir seu próprio transporte por cima.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>A camada de rede (IP, L3) entrega pacotes <strong>best-effort</strong>: faz o melhor que pode, mas <strong>não promete nada</strong>. Pacotes IP podem se <strong>perder</strong> (descartados por um roteador congestionado), chegar <strong>fora de ordem</strong> (rotas diferentes), serem <strong>duplicados</strong>, ou chegar <strong>corrompidos</strong>. Além disso, o IP só endereça <em>hosts</em> (máquinas), não <em>processos</em> — ele entrega o pacote à máquina certa, mas não sabe se é para o navegador, o cliente de e-mail ou o servidor de banco rodando ali.</p>
+<p>A <strong>camada de transporte</strong> existe para fechar essa lacuna entre "o que o IP oferece" e "o que as aplicações precisam". Toda aplicação enfrenta duas perguntas:</p>
+<ol>
+<li><strong>Endereçamento de processo:</strong> "destes 300 processos na máquina destino, para qual entrego estes bytes?" — resolvido por <strong>portas</strong> (0–65535). A combinação (IP origem, porta origem, IP destino, porta destino, protocolo) — o <strong>4-tuple/5-tuple</strong> — identifica unicamente um fluxo.</li>
+<li><strong>Que garantias eu preciso?</strong> — e aqui as aplicações se dividem em dois mundos:</li>
+<li>Algumas precisam de <strong>confiabilidade absoluta e ordem</strong>: uma transferência de arquivo, uma resposta HTTP, uma transação de banco <em>não podem</em> perder ou embaralhar bytes. Um byte faltando corrompe tudo. Para essas, vale pagar o preço de retransmitir e esperar.</li>
+<li>Outras precisam de <strong>latência mínima e dados frescos</strong>, e toleram (ou preferem) perda: numa chamada de vídeo, retransmitir um quadro de áudio de 200ms atrás é inútil — quando ele chegar, a conversa já avançou; melhor <em>pular</em> e seguir. Para essas, a confiabilidade do TCP é não só desnecessária como <strong>prejudicial</strong> (a retransmissão e a entrega ordenada <em>aumentam</em> a latência percebida).</li>
+</ol>
+<p>É por isso que existem <strong>dois</strong> protocolos de transporte dominantes, não um. TCP atende o primeiro mundo (confiabilidade); UDP, o segundo (latência/minimalismo). A pergunta central que este tópico responde: <strong>"minha aplicação prefere esperar e receber tudo na ordem certa (TCP), ou prefere receber o que dá, na hora, mesmo que falte algo (UDP)?"</strong> — e, num nível mais profundo, <em>como</em> o TCP entrega suas garantias (handshake, fluxo, congestionamento), porque entender o mecanismo é o que permite raciocinar sobre performance, latência de cauda e os limites do protocolo.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="tcp-orientado-a-conexao-e-confiavel">TCP — orientado a conexão e confiável<a class="headerlink" href="#tcp-orientado-a-conexao-e-confiavel" title="Permanent link">&para;</a></h3>
+<p><strong>TCP</strong> (RFC 9293, que consolidou o histórico RFC 793) oferece à aplicação a abstração de um <strong>fluxo de bytes (byte stream) confiável, ordenado e bidirecional</strong> entre dois processos. As propriedades que ele garante:</p>
+<ul>
+<li><strong>Orientado a conexão:</strong> antes de trocar dados, os dois lados estabelecem uma conexão (handshake) e mantêm <strong>estado</strong> (números de sequência, janelas, buffers) durante toda a vida da conexão. Ao final, encerram ordenadamente.</li>
+<li><strong>Entrega confiável:</strong> cada byte enviado é <strong>numerado</strong> (sequence number). O receptor confirma o recebimento com <strong>ACKs</strong> (acknowledgements). Se o emissor não recebe ACK dentro de um tempo (RTO, baseado no RTT estimado) ou detecta perda por ACKs duplicados, <strong>retransmite</strong>. Nenhum byte é perdido silenciosamente.</li>
+<li><strong>Entrega ordenada:</strong> como os bytes são numerados, o receptor <strong>reordena</strong> pacotes que chegam fora de sequência e só entrega à aplicação na ordem correta. A aplicação nunca vê desordem.</li>
+<li><strong>Detecção de erro:</strong> checksum no cabeçalho descarta segmentos corrompidos (que serão retransmitidos).</li>
+<li><strong>Controle de fluxo</strong> e <strong>controle de congestionamento</strong> (detalhados adiante) — os dois mecanismos que impedem, respectivamente, afogar o <em>receptor</em> e afogar a <em>rede</em>.</li>
+<li><strong>Full-duplex:</strong> dados fluem nos dois sentidos simultaneamente na mesma conexão.</li>
+</ul>
+<p>O custo dessas garantias: <strong>estado por conexão</strong> (memória/CPU), <strong>latência de setup</strong> (handshake antes de qualquer dado), e o problema de <strong>head-of-line blocking</strong> — se um pacote no meio do stream se perde, todos os pacotes <em>posteriores</em> que já chegaram ficam <strong>bloqueados no buffer</strong> esperando o retransmitido, porque a entrega tem que ser ordenada. Esse é o calcanhar de Aquiles do TCP e a motivação central do QUIC/HTTP3.</p>
+<h3 id="udp-sem-conexao-e-nao-confiavel">UDP — sem conexão e não confiável<a class="headerlink" href="#udp-sem-conexao-e-nao-confiavel" title="Permanent link">&para;</a></h3>
+<p><strong>UDP</strong> (RFC 768) é deliberadamente <strong>minimalista</strong>. Ele faz quase nada além do que o IP já faz, adicionando apenas o essencial:</p>
+<ul>
+<li><strong>Endereçamento de processo:</strong> portas de origem e destino (a única função que o UDP <em>precisa</em> adicionar ao IP).</li>
+<li><strong>Checksum</strong> (opcional em IPv4, obrigatório em IPv6) para detecção de corrupção.</li>
+</ul>
+<p>E <strong>não</strong> oferece: conexão, handshake, ACKs, retransmissão, ordenação, controle de fluxo nem controle de congestionamento. Cada <strong>datagrama</strong> é independente — pode se perder, chegar fora de ordem ou duplicado, e o UDP não faz nada a respeito. A aplicação recebe os datagramas como chegam (ou não recebe).</p>
+<p>Por que isso é <em>útil</em>, e não apenas "TCP incompleto"? Porque:</p>
+<ul>
+<li><strong>Latência mínima:</strong> sem handshake, o primeiro datagrama pode sair imediatamente. Sem retransmissão/reordenação, não há espera por pacotes perdidos.</li>
+<li><strong>Sem estado / leve:</strong> o servidor não mantém estado por cliente (escala melhor para muitos clientes esporádicos, como DNS).</li>
+<li><strong>Controle nas mãos da aplicação:</strong> a aplicação decide <em>exatamente</em> o que fazer com perdas — pular (áudio/vídeo), reenviar seletivamente só o que importa, ou implementar sua <em>própria</em> confiabilidade sob medida (é exatamente o que QUIC faz). UDP é a "tela em branco" da camada de transporte.</li>
+<li><strong>Suporta multicast/broadcast</strong> (TCP é estritamente ponto a ponto).</li>
+</ul>
+<p>A frase que resume: <strong>TCP é "entregue tudo, custe o tempo que custar"; UDP é "entregue o que der, agora"</strong>.</p>
+<h3 id="o-3-way-handshake-estabelecimento-de-conexao-tcp">O 3-way handshake (estabelecimento de conexão TCP)<a class="headerlink" href="#o-3-way-handshake-estabelecimento-de-conexao-tcp" title="Permanent link">&para;</a></h3>
+<p>Antes de qualquer dado, o TCP estabelece a conexão num <strong>handshake de três vias</strong>, cujo propósito é <strong>sincronizar os números de sequência iniciais (ISN)</strong> dos dois lados e confirmar que ambos podem enviar <em>e</em> receber:</p>
+<ol>
+<li><strong>SYN</strong> — o cliente envia um segmento com a flag <code>SYN</code> e seu número de sequência inicial (<code>seq = x</code>). "Quero abrir conexão, começo a contar em x."</li>
+<li><strong>SYN-ACK</strong> — o servidor responde com <code>SYN</code> + <code>ACK</code>: confirma o do cliente (<code>ack = x+1</code>) e envia <em>seu</em> número de sequência inicial (<code>seq = y</code>). "Aceito, recebi seu x, começo a contar em y."</li>
+<li><strong>ACK</strong> — o cliente confirma o do servidor (<code>ack = y+1</code>). "Recebi seu y. Conexão estabelecida."</li>
+</ol>
+<p>Após esses três segmentos, a conexão está <strong>ESTABLISHED</strong> e os dados podem fluir. O ponto de performance: o handshake custa <strong>1 RTT</strong> (round-trip time) antes de qualquer byte útil — em HTTPS, somam-se a isso os RTTs do TLS handshake (ver HTTPS/TLS), o que é a motivação central de otimizações como TLS 1.3 (1-RTT/0-RTT) e QUIC (handshake combinado). Para encerrar, há o <strong>4-way handshake</strong> (FIN/ACK em cada direção, já que a conexão é full-duplex e cada lado fecha o seu sentido), passando pelo estado <code>TIME_WAIT</code>.</p>
+<p>Detalhe de segurança relevante: o <strong>SYN flood</strong> é um ataque DoS clássico que explora o handshake — o atacante envia muitos SYN sem completar o ACK final, esgotando a tabela de conexões meio-abertas do servidor. Mitigação: <strong>SYN cookies</strong>.</p>
+<h3 id="controle-de-fluxo-flow-control-nao-afogar-o-receptor">Controle de fluxo (flow control) — não afogar o receptor<a class="headerlink" href="#controle-de-fluxo-flow-control-nao-afogar-o-receptor" title="Permanent link">&para;</a></h3>
+<p>O <strong>controle de fluxo</strong> resolve um problema ponto a ponto: e se o <strong>receptor</strong> for mais lento que o emissor (CPU ocupada, buffer cheio)? Sem controle, o emissor mandaria dados mais rápido do que o receptor consegue processar, e o excesso seria descartado (e retransmitido — desperdício).</p>
+<p>A solução do TCP é a <strong>sliding window (janela deslizante)</strong> com a <strong>receive window (rwnd)</strong>: em cada ACK, o receptor <strong>anuncia quanto espaço livre tem no buffer</strong> (campo <em>window size</em> no cabeçalho). O emissor nunca envia mais bytes não-confirmados do que a janela anunciada. Se o receptor está sobrecarregado e seu buffer enche, ele anuncia <code>window = 0</code>, e o emissor <strong>pausa</strong> até o receptor liberar espaço (e enviar uma atualização). É um mecanismo de <strong>back-pressure</strong> fim a fim — o receptor controla a vazão. (Conecta diretamente com back-pressure em sistemas; ver caching/pooling e mensageria.)</p>
+<h3 id="controle-de-congestionamento-congestion-control-nao-afogar-a-rede">Controle de congestionamento (congestion control) — não afogar a rede<a class="headerlink" href="#controle-de-congestionamento-congestion-control-nao-afogar-a-rede" title="Permanent link">&para;</a></h3>
+<p>O <strong>controle de fluxo</strong> protege o receptor; o <strong>controle de congestionamento</strong> protege a <strong>rede</strong> (os roteadores no caminho). É um problema <em>global</em>: se todos os emissores mandam o quanto querem, os buffers dos roteadores enchem, pacotes são descartados em massa, todos retransmitem, e a rede entra em <strong>colapso de congestionamento</strong> (congestion collapse) — vazão útil despenca enquanto a carga sobe. Foi o que quase derrubou a Internet em 1986, e a resposta (Van Jacobson) é o que mantém a Internet funcional até hoje.</p>
+<p>O TCP infere o congestionamento <em>indiretamente</em> (não há sinal explícito da rede, salvo ECN): <strong>perda de pacotes é interpretada como sinal de congestionamento</strong>. O emissor mantém uma <strong>congestion window (cwnd)</strong> — limite de dados em voo — e a quantidade real que pode enviar é <code>min(rwnd, cwnd)</code>. As fases clássicas (TCP Reno/NewReno):</p>
+<ul>
+<li><strong>Slow start:</strong> começa conservador (cwnd pequena, ex.: 10 segmentos) e <strong>dobra a cwnd a cada RTT</strong> (crescimento exponencial) — sondando rapidamente a capacidade disponível. "Devagar" no nome refere-se ao <em>ponto de partida</em>, não à taxa de crescimento.</li>
+<li><strong>Congestion avoidance:</strong> ao atingir um limiar (<code>ssthresh</code>), passa a crescer <strong>linearmente</strong> (additive increase) — sondando capacidade com cautela.</li>
+<li><strong>Fast retransmit / fast recovery:</strong> ao receber <strong>3 ACKs duplicados</strong> (indício de perda de <em>um</em> pacote, mas a rede ainda entrega os seguintes), retransmite imediatamente sem esperar o timeout, e <strong>reduz a cwnd pela metade</strong> (multiplicative decrease) em vez de zerar — porque uma perda isolada sugere congestionamento leve, não colapso.</li>
+<li><strong>Timeout (RTO):</strong> se um ACK <em>não</em> chega no tempo (perda severa), o TCP é mais agressivo: reduz cwnd ao mínimo e volta ao slow start.</li>
+</ul>
+<p>Esse padrão <strong>AIMD (Additive Increase, Multiplicative Decrease)</strong> — cresce devagar, recua bruscamente — é o que faz múltiplos fluxos TCP <strong>convergirem para uma divisão justa</strong> da banda e a rede permanecer estável. Algoritmos modernos vão além: <strong>CUBIC</strong> (padrão no Linux, otimizado para redes de alta banda e alto RTT) e <strong>BBR</strong> (Google, baseado em modelar banda × RTT em vez de só reagir a perdas) melhoram a vazão em cenários modernos.</p>
+<p>A consequência arquitetural: numa conexão nova, o TCP <strong>não usa toda a banda imediatamente</strong> — o slow start "esquenta" ao longo de alguns RTTs. Por isso conexões persistentes (keep-alive) e o reuso de conexões TCP "aquecidas" (HTTP/2) são tão importantes para performance: cada nova conexão paga o custo de descobrir a capacidade do zero.</p>
+<h3 id="tabela-sintese">Tabela síntese<a class="headerlink" href="#tabela-sintese" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Dimensão</th>
+<th>TCP</th>
+<th>UDP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Conexão</td>
+<td>Orientado a conexão (handshake)</td>
+<td>Sem conexão (dispara e esquece)</td>
+</tr>
+<tr>
+<td>Confiabilidade</td>
+<td>Garantida (ACK + retransmissão)</td>
+<td>Nenhuma (best-effort)</td>
+</tr>
+<tr>
+<td>Ordenação</td>
+<td>Garantida (reordena)</td>
+<td>Nenhuma (chega como chega)</td>
+</tr>
+<tr>
+<td>Controle de fluxo</td>
+<td>Sim (receive window)</td>
+<td>Não</td>
+</tr>
+<tr>
+<td>Controle de congestionamento</td>
+<td>Sim (slow start, AIMD, CUBIC/BBR)</td>
+<td>Não (aplicação que cuide)</td>
+</tr>
+<tr>
+<td>Latência de setup</td>
+<td>1 RTT (handshake) + TLS</td>
+<td>Zero (1º datagrama já vai)</td>
+</tr>
+<tr>
+<td>Head-of-line blocking</td>
+<td>Sim (entrega ordenada)</td>
+<td>Não (datagramas independentes)</td>
+</tr>
+<tr>
+<td>Overhead de cabeçalho</td>
+<td>20+ bytes</td>
+<td>8 bytes</td>
+</tr>
+<tr>
+<td>Estado no servidor</td>
+<td>Por conexão</td>
+<td>Mínimo / nenhum</td>
+</tr>
+<tr>
+<td>Multicast/broadcast</td>
+<td>Não (ponto a ponto)</td>
+<td>Sim</td>
+</tr>
+<tr>
+<td>Casos típicos</td>
+<td>Web/HTTP, APIs, BD, e-mail, SSH, transferência</td>
+<td>DNS, VoIP, vídeo ao vivo, jogos, QUIC, IoT, NTP</td>
+</tr>
+</tbody>
+</table>
+<h3 id="glossario-rapido">Glossário rápido<a class="headerlink" href="#glossario-rapido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Segmento (TCP) / datagrama (UDP):</strong> a PDU da camada de transporte.</li>
+<li><strong>Porta:</strong> número que identifica o processo/serviço (L4).</li>
+<li><strong>3-way handshake:</strong> SYN, SYN-ACK, ACK — estabelece a conexão e sincroniza ISNs.</li>
+<li><strong>ISN (Initial Sequence Number):</strong> número de sequência inicial, escolhido aleatoriamente (segurança).</li>
+<li><strong>ACK / SACK:</strong> confirmação; SACK (selective ACK) confirma blocos não-contíguos.</li>
+<li><strong>RTT / RTO:</strong> round-trip time / retransmission timeout (derivado do RTT).</li>
+<li><strong>rwnd (receive window):</strong> controle de fluxo — espaço livre no receptor.</li>
+<li><strong>cwnd (congestion window):</strong> controle de congestionamento — limite do emissor inferido da rede.</li>
+<li><strong>AIMD:</strong> Additive Increase, Multiplicative Decrease — núcleo do controle de congestionamento.</li>
+<li><strong>Head-of-line (HOL) blocking:</strong> pacote perdido bloqueia os seguintes por exigência de ordem.</li>
+<li><strong>MSS / MTU:</strong> Maximum Segment Size (L4) / Maximum Transmission Unit (L2).</li>
+</ul>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>Juntando as peças, a vida de uma conexão <strong>TCP</strong> transferindo dados:</p>
+<ol>
+<li><strong>Handshake (1 RTT):</strong> SYN → SYN-ACK → ACK. Ambos os lados acordam os ISNs e entram em ESTABLISHED.</li>
+<li><strong>Transferência com janela deslizante:</strong> o emissor envia até <code>min(rwnd, cwnd)</code> bytes não-confirmados. Começa com cwnd pequena (<strong>slow start</strong>, dobrando por RTT). O receptor confirma com ACKs e anuncia sua rwnd a cada um.</li>
+<li><strong>Reação a perda:</strong> se chegam 3 ACKs duplicados, o emissor faz <strong>fast retransmit</strong> (reenvia o segmento perdido) e <strong>fast recovery</strong> (corta cwnd pela metade, segue em congestion avoidance). Se estoura o RTO (perda severa), volta ao slow start. Enquanto isso, segmentos posteriores que já chegaram ficam <strong>bloqueados no buffer do receptor</strong> (HOL blocking) até o retransmitido completar a sequência.</li>
+<li><strong>Regime estável:</strong> sem perdas, a cwnd cresce linearmente (congestion avoidance) buscando o máximo de banda que a rede tolera; ao detectar perda, recua — o serrilhado AIMD.</li>
+<li><strong>Encerramento (4-way):</strong> FIN → ACK em cada direção; o lado que fecha ativo passa por TIME_WAIT (espera ~2×MSL para garantir que segmentos atrasados não contaminem uma conexão futura na mesma porta).</li>
+</ol>
+<p>A vida de uma troca <strong>UDP</strong> é trivial por comparação: a aplicação chama <code>sendto(datagrama)</code>, o UDP prefixa portas + checksum e entrega ao IP; do outro lado, o IP entrega ao UDP que entrega à aplicação via <code>recvfrom()</code> — <strong>se</strong> o datagrama chegou. Não há passos 1–5; toda a complexidade (se houver) é responsabilidade da aplicação.</p>
+<h3 id="o-dilema-de-latencia-por-que-confiabilidade-custa-tempo">O dilema de latência: por que confiabilidade custa tempo<a class="headerlink" href="#o-dilema-de-latencia-por-que-confiabilidade-custa-tempo" title="Permanent link">&para;</a></h3>
+<p>O ponto mais importante para o arquiteto é entender <em>por que</em> a confiabilidade do TCP <strong>piora</strong> a latência em alguns cenários — não é detalhe técnico, é a essência da escolha:</p>
+<ul>
+<li><strong>Latência de setup:</strong> o handshake custa 1 RTT antes de qualquer dado. Numa rede com 100ms de RTT (móvel/internacional), são 100ms "perdidos" só para abrir a conexão (mais TLS por cima). UDP manda o primeiro byte de imediato.</li>
+<li><strong>Head-of-line blocking sob perda:</strong> quando <em>um</em> pacote se perde, os pacotes seguintes — <em>que já chegaram fisicamente</em> — ficam presos no buffer esperando o retransmitido, porque o TCP precisa entregar <strong>na ordem</strong>. Em uma rede com 1% de perda, isso introduz "engasgos" de pelo menos 1 RTT. Para mídia ao vivo, esse atraso é fatal: o quadro retransmitido chega <em>depois</em> de já ser irrelevante.</li>
+<li><strong>Reação conservadora a perda:</strong> o controle de congestionamento <em>reduz a vazão</em> ao detectar perda. Em redes com perda não-congestiva (Wi-Fi/móvel com interferência), o TCP interpreta erroneamente a interferência como congestionamento e desacelera — penalizando a vazão.</li>
+</ul>
+<p>Para uma aplicação de <strong>tempo real</strong>, essas três características do TCP são defeitos, não qualidades. É racional escolher UDP e <em>aceitar</em> perda: um frame de vídeo perdido é melhor descartado (e talvez ocultado por interpolação) do que entregue atrasado bloqueando todos os frames seguintes. A aplicação implementa só a confiabilidade que <em>importa</em> (ex.: reenviar pacotes-chave de I-frame, mas não os de áudio velho). É também por isso que o <strong>QUIC</strong> (base do HTTP/3) escolheu rodar sobre UDP: para reimplementar confiabilidade <em>por stream</em> em espaço de usuário e <strong>eliminar o HOL blocking do TCP</strong>, mantendo a confiabilidade onde ela é necessária. (Ver HTTP/3.)</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama mostra o 3-way handshake e o encerramento; o segundo ilustra o head-of-line blocking que distingue o comportamento de TCP e UDP sob perda.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant C as "Cliente"
+    participant S as "Servidor"
+    Note over C,S: 3-way handshake (abertura)
+    C-&gt;&gt;S: "SYN (seq=x)"
+    S-&gt;&gt;C: "SYN-ACK (seq=y, ack=x+1)"
+    C-&gt;&gt;S: "ACK (ack=y+1)"
+    Note over C,S: ESTABLISHED - troca de dados
+    C-&gt;&gt;S: "dados (seq=x+1) + slow start"
+    S-&gt;&gt;C: "ACK + window anunciada (rwnd)"
+    Note over C,S: 4-way handshake (encerramento)
+    C-&gt;&gt;S: "FIN"
+    S-&gt;&gt;C: "ACK"
+    S-&gt;&gt;C: "FIN"
+    C-&gt;&gt;S: "ACK (entra em TIME_WAIT)"</code></pre>
+<pre class="mermaid"><code>flowchart TB
+    subgraph TCPflow["TCP - entrega ordenada (HOL blocking)"]
+        direction LR
+        P1["pacote 1 chegou"] --&gt; P2["pacote 2 PERDIDO"]
+        P2 --&gt; P3["pacote 3 chegou mas BLOQUEADO"]
+        P3 --&gt; RTX["espera retransmissao do 2"]
+        RTX --&gt; DELIV["so entao entrega 2 e 3 em ordem"]
+    end
+    subgraph UDPflow["UDP - datagramas independentes"]
+        direction LR
+        D1["datagrama 1 entregue"] --&gt; D2["datagrama 2 PERDIDO (ignorado)"]
+        D2 --&gt; D3["datagrama 3 entregue ja (sem bloqueio)"]
+    end</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p>Cenários de uma plataforma de e-commerce/mídia brasileira, escolhidos para contrastar quando cada protocolo é a escolha certa.</p>
+<p><strong>Por que a loja virtual usa TCP (web, APIs, checkout).</strong> Quando o cliente carrega <code>loja.com.br</code>, faz login e finaliza um pedido, <strong>tudo roda sobre TCP</strong> (via HTTP/HTTPS). E tem que ser assim: o HTML, o JSON da API de produtos, a confirmação do pagamento — nenhum desses pode perder bytes ou chegar embaralhado. Um byte faltando no corpo da resposta corromperia o JSON; uma ordem trocada quebraria o protocolo HTTP. A latência extra do handshake (1 RTT) é aceitável porque a <em>integridade</em> é inegociável. Para mitigar o custo do setup repetido, a loja usa <strong>keep-alive</strong> (reusa conexões TCP "aquecidas", evitando re-pagar handshake e slow start) e <strong>HTTP/2</strong> (uma conexão TCP multiplexa muitas requisições). Aqui, a confiabilidade do TCP é exatamente o que se quer.</p>
+<p><strong>Por que o atendimento por vídeo usa UDP (WebRTC).</strong> A loja oferece atendimento por <strong>chamada de vídeo</strong> (consultoria de produto via WebRTC). O áudio e o vídeo trafegam sobre <strong>UDP</strong> (via RTP/SRTP). Por quê? Numa conversa ao vivo, <strong>um pacote de áudio de 300ms atrás é lixo</strong> — se chegasse retransmitido (como o TCP faria), ele atrasaria todo o áudio subsequente (HOL blocking) e a conversa ficaria "robótica" e dessincronizada. Com UDP, um pacote perdido é simplesmente <strong>pulado</strong> — o ouvido humano tolera um micro-corte muito melhor do que um atraso acumulado. O WebRTC implementa, <em>sobre</em> UDP, apenas a confiabilidade que faz sentido (controle de congestionamento próprio, FEC seletivo, ocultação de perdas) — sem a entrega ordenada total do TCP, que aqui seria contraproducente.</p>
+<p><strong>Por que o DNS usa UDP (consultas pequenas e numerosas).</strong> Toda navegação começa resolvendo nomes via <strong>DNS sobre UDP</strong> (porta 53). A consulta é minúscula (cabe num datagrama) e o ganho é claro: <strong>sem handshake</strong>, a resolução é 1 ida-e-volta em vez de 3+ (handshake TCP). Para um resolver que atende milhões de consultas, o estado-zero do UDP escala muito melhor. Se a resposta for grande demais (ex.: muitos registros, DNSSEC), o DNS faz fallback para TCP. (Ver DNS resolution.)</p>
+<p><strong>Por que o jogo da promoção usa UDP.</strong> Numa ação de marketing, a loja lança um mini-jogo multiplayer em tempo real. A posição dos jogadores é enviada via <strong>UDP</strong> dezenas de vezes por segundo. Se um pacote de posição se perde, <strong>não adianta retransmiti-lo</strong> — quando chegasse, a posição já estaria desatualizada; o próximo pacote (com a posição mais nova) o torna irrelevante. UDP permite "descartar o velho e usar o novo", priorizando <em>frescor</em> sobre <em>completude</em>. O jogo implementa sua própria lógica (interpolação, reconciliação) para lidar com perdas.</p>
+<p><strong>Onde a fronteira se borra: HTTP/3 = HTTP sobre QUIC sobre UDP.</strong> A própria loja, ao migrar para <strong>HTTP/3</strong>, passa a servir páginas sobre <strong>QUIC</strong>, que roda sobre <strong>UDP</strong> — mas reimplementa confiabilidade e controle de congestionamento <em>por stream</em> em espaço de usuário, eliminando o HOL blocking do TCP. É o melhor argumento de que "TCP vs UDP" não é uma dicotomia rígida: UDP serve de fundação para um transporte confiável <em>melhor</em> que o TCP em redes com perda. (Ver HTTP/3.)</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Use TCP quando:</strong></p>
+<ul>
+<li>A <strong>integridade e a ordem dos dados são essenciais</strong>: web/HTTP(S), APIs REST/gRPC, transferência de arquivos, e-mail (SMTP/IMAP), SSH, conexões com bancos de dados, replicação.</li>
+<li>A aplicação não pode tolerar perda silenciosa nem desordem, e a latência extra do handshake/retransmissão é aceitável.</li>
+<li>Você quer que a complexidade de confiabilidade/congestionamento seja resolvida <em>pela pilha do SO</em>, não pela sua aplicação.</li>
+</ul>
+<p><strong>Evite TCP quando:</strong></p>
+<ul>
+<li>A aplicação é <strong>tempo real e dados atrasados são piores que dados perdidos</strong> (voz, vídeo ao vivo, jogos): o HOL blocking e a retransmissão <em>aumentam</em> a latência percebida.</li>
+<li>Você precisa de <strong>multicast/broadcast</strong> (TCP é ponto a ponto).</li>
+<li>O custo do handshake/estado por conexão domina (muitas trocas minúsculas e esporádicas — ex.: DNS, telemetria/IoT).</li>
+</ul>
+<p><strong>Use UDP quando:</strong></p>
+<ul>
+<li><strong>Tempo real / baixa latência:</strong> VoIP, videochamada (WebRTC/RTP), streaming ao vivo, jogos.</li>
+<li><strong>Trocas pequenas e numerosas sem necessidade de conexão:</strong> DNS, NTP, SNMP, descoberta de serviços, telemetria/IoT.</li>
+<li>Você quer <strong>construir seu próprio transporte</strong> sob medida (QUIC é o exemplo máximo) com a confiabilidade exata que precisa.</li>
+<li>Precisa de <strong>multicast</strong>.</li>
+</ul>
+<p><strong>Evite UDP quando:</strong></p>
+<ul>
+<li>A aplicação precisa de entrega garantida e ordenada e você teria que reimplementar (mal) o que o TCP já faz bem — não reinvente confiabilidade por capricho.</li>
+<li>O ambiente bloqueia UDP (muitos firewalls/NATs corporativos tratam UDP com desconfiança — um motivo real pelo qual HTTP/3 precisa de fallback para TCP).</li>
+</ul>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Assumir ordem ou entrega em UDP.</strong> O erro mais comum: escrever código UDP que pressupõe que os datagramas chegam, na ordem, sem duplicação. Não chegam garantidamente. Se você precisa disso, ou use TCP, ou implemente sequenciamento/ACK explicitamente — e, nesse caso, pergunte-se se TCP não seria melhor.</li>
+<li><strong>Reimplementar TCP "na mão" sobre UDP.</strong> A menos que você seja o time do QUIC e tenha um motivo forte (HOL blocking), reconstruir confiabilidade, ordenação e controle de congestionamento sobre UDP é receita para bugs sutis e pior performance que o TCP otimizado do kernel.</li>
+<li><strong>Usar TCP para mídia em tempo real.</strong> Forçar áudio/vídeo ao vivo por TCP gera engasgos e dessincronização sob qualquer perda (HOL blocking). É o anti-padrão inverso: confiabilidade demais prejudica.</li>
+<li><strong>Ignorar o custo do handshake em conexões curtas.</strong> Abrir uma nova conexão TCP (+TLS) para cada requisição minúscula paga 2–3 RTTs de setup e slow start a cada vez. Use keep-alive, pooling de conexões e multiplexação (HTTP/2) para amortizar.</li>
+<li><strong>Esquecer o slow start em benchmarks.</strong> Medir vazão numa conexão recém-aberta subestima a capacidade — a cwnd ainda está "esquentando". Conexões persistentes têm vazão muito superior. Aqueça antes de medir.</li>
+<li><strong>Não configurar timeouts/keep-alive corretamente.</strong> Conexões TCP zumbis (half-open) consomem recursos; keep-alive mal configurado mantém conexões mortas ou derruba vivas. (Conecta com padrões de resiliência e connection pooling.)</li>
+<li><strong>Confundir controle de fluxo com controle de congestionamento.</strong> São coisas diferentes: fluxo protege o <strong>receptor</strong> (rwnd); congestionamento protege a <strong>rede</strong> (cwnd). A vazão real é <code>min(rwnd, cwnd)</code>. Diagnosticar "lentidão" sem saber qual janela está limitando leva a conclusões erradas.</li>
+<li><strong>Ignorar perda não-congestiva em redes sem fio.</strong> Em Wi-Fi/móvel, perda por interferência (não por congestionamento) faz o TCP recuar desnecessariamente. Algoritmos como BBR mitigam, mas é uma armadilha de performance frequentemente invisível.</li>
+<li><strong>Assumir que UDP "sempre passa" em qualquer rede.</strong> Firewalls e NATs corporativos frequentemente bloqueiam ou limitam UDP. Protocolos sobre UDP (QUIC) precisam de <strong>fallback para TCP</strong> justamente por isso.</li>
+<li><strong>Esquecer a MTU/MSS e a fragmentação.</strong> Datagramas UDP grandes (acima da MTU) fragmentam, e a perda de <em>um</em> fragmento descarta o datagrama inteiro. Mantenha datagramas dentro da MTU (Path MTU) quando possível.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Modelo OSI e TCP/IP:</strong> TCP e UDP são a camada de transporte (L4); este tópico é o aprofundamento da L4 do modelo de camadas. Ver <code>16-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md</code>.</li>
+<li><strong>HTTP/1.1, HTTP/2, HTTP/3:</strong> HTTP/1.1 e HTTP/2 rodam sobre TCP (e sofrem com seu HOL blocking); HTTP/3 roda sobre QUIC sobre UDP justamente para eliminá-lo. Ver <code>16-redes-e-protocolos/03-http1-http2-http3-quic.md</code>.</li>
+<li><strong>HTTPS/TLS:</strong> o TLS handshake roda <em>após</em> o TCP handshake, somando RTTs — motivação para TLS 1.3 e QUIC. Ver <code>16-redes-e-protocolos/04-https-tls-handshake-e-certificados.md</code>.</li>
+<li><strong>DNS:</strong> roda primariamente sobre UDP (consultas pequenas), com fallback para TCP. Ver <code>16-redes-e-protocolos/05-dns-resolution.md</code>.</li>
+<li><strong>Latência vs throughput e percentis:</strong> RTT, handshake, slow start e HOL blocking impactam diretamente latência de cauda (p99); o controle de congestionamento define o throughput sustentável. Ver <code>07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis.md</code>.</li>
+<li><strong>Connection pooling / back-pressure:</strong> a receive window do TCP é back-pressure fim a fim; pooling de conexões amortiza o custo de handshake/slow start. Ver <code>07-performance-e-escalabilidade/05-connection-pooling-thread-pooling-async-io-reactive.md</code>.</li>
+<li><strong>Padrões de resiliência:</strong> timeouts de conexão/leitura, keep-alive e detecção de conexões mortas são parte do arsenal de resiliência sobre TCP. Ver <code>04-sistemas-distribuidos/10-padroes-de-resiliencia.md</code>.</li>
+</ul>
+<h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
+<p>Três ideias para carregar:</p>
+<ol>
+<li><strong>A escolha é um trade-off entre confiabilidade e latência, não "qual é melhor".</strong> TCP entrega tudo na ordem, custe o tempo que custar; UDP entrega o que der, agora. Pergunte: <em>para esta aplicação, dado atrasado é pior que dado perdido?</em> Se sim, UDP; se não, TCP.</li>
+<li><strong>As garantias do TCP têm um preço concreto: handshake (1 RTT) e head-of-line blocking sob perda.</strong> Entender <em>por que</em> a confiabilidade custa latência é o que permite raciocinar sobre performance de cauda, escolher keep-alive/HTTP2, e entender por que QUIC/HTTP3 existe (eliminar o HOL blocking do TCP rodando sobre UDP).</li>
+<li><strong>Controle de fluxo (rwnd, protege o receptor) e controle de congestionamento (cwnd, protege a rede) são mecanismos distintos e ambos limitam a vazão.</strong> A vazão é <code>min(rwnd, cwnd)</code>; o slow start faz conexões novas começarem lentas; AIMD mantém a rede estável e justa. Esses mecanismos invisíveis explicam muito do comportamento de performance que você observa.</li>
+</ol>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>TCP</strong> = orientado a conexão, confiável, ordenado, com controle de fluxo e congestionamento — paga handshake e sofre HOL blocking. <strong>UDP</strong> = sem conexão, best-effort, mínimo, baixa latência.</li>
+<li><strong>3-way handshake:</strong> SYN → SYN-ACK → ACK, custa <strong>1 RTT</strong> e sincroniza os ISNs. Encerramento é 4-way (FIN/ACK), com TIME_WAIT.</li>
+<li><strong>Controle de fluxo</strong> = receive window (rwnd), protege o <strong>receptor</strong> lento (back-pressure fim a fim).</li>
+<li><strong>Controle de congestionamento</strong> = congestion window (cwnd), protege a <strong>rede</strong>: slow start (exponencial), congestion avoidance (linear), fast retransmit/recovery, <strong>AIMD</strong>. Algoritmos modernos: CUBIC, BBR.</li>
+<li>Vazão efetiva = <strong>min(rwnd, cwnd)</strong>; conexões novas começam lentas (slow start "esquenta").</li>
+<li><strong>Head-of-line blocking</strong> do TCP: um pacote perdido bloqueia os seguintes (entrega ordenada) — fatal para tempo real, motivação do QUIC.</li>
+<li><strong>UDP</strong> brilha em: tempo real (VoIP/vídeo/jogos), DNS, NTP/telemetria, e como base do <strong>QUIC/HTTP3</strong>; suporta multicast.</li>
+<li>Nunca <strong>assuma ordem/entrega em UDP</strong>; nunca use <strong>TCP para mídia ao vivo</strong>; sempre <strong>reuse conexões TCP</strong> (keep-alive/pool) para amortizar handshake + slow start.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc9293">RFC 9293 — Transmission Control Protocol (TCP)</a></li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc768">RFC 768 — User Datagram Protocol (UDP)</a></li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc5681">RFC 5681 — TCP Congestion Control (slow start, AIMD, fast recovery)</a></li>
+<li><a href="https://hpbn.co/building-blocks-of-tcp/">Building Blocks of TCP — High Performance Browser Networking (Ilya Grigorik)</a></li>
+<li><a href="https://hpbn.co/building-blocks-of-udp/">Building Blocks of UDP — High Performance Browser Networking (Ilya Grigorik)</a></li>
+<li><a href="https://www.cloudflare.com/learning/ddos/glossary/user-datagram-protocol-udp/">What is the difference between UDP and TCP? — Cloudflare Learning Center</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Glossary/TCP">Transmission Control Protocol (TCP) — MDN Web Docs Glossary</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../01-modelo-osi-e-tcp-ip/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Modelo OSI e TCP/IP">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Modelo OSI e TCP/IP
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../03-http1-http2-http3-quic/" class="md-footer__link md-footer__link--next" aria-label="Próximo: HTTP/1.1, HTTP/2, HTTP/3 (QUIC)">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                HTTP/1.1, HTTP/2, HTTP/3 (QUIC)
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

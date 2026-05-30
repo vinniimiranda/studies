@@ -1,0 +1,2487 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/">
+      
+      
+        <link rel="prev" href="../../10-evolucao-e-praticas/06-platform-engineering-e-idps/">
+      
+      
+        <link rel="next" href="../02-pior-melhor-e-caso-medio/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Notação assintótica (Big O, Θ, Ω) - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#notacao-assintotica-big-o-big-theta-e-big-omega" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Notação assintótica (Big O, Θ, Ω)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    11 · Complexidade algorítmica
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notação assintótica (Big O, Θ, Ω)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notação assintótica (Big O, Θ, Ω)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#big-o-o-limite-superior-assintotico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Big O (O) — limite superior assintótico
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#big-omega-limite-inferior-assintotico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Big Omega (Ω) — limite inferior assintótico
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#big-theta-limite-justo-tight-bound" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Big Theta (Θ) — limite justo (tight bound)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notacoes-complementares-little-o-e-little-omega" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notações complementares: little-o e little-omega
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#as-classes-de-crescimento-essenciais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        As classes de crescimento essenciais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-praticas-de-composicao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras práticas de composição
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#por-que-ignorar-constantes-e-quando-isso-engana" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que ignorar constantes (e quando isso engana)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-pior-melhor-e-caso-medio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pior, melhor e caso médio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-complexidade-amortizada/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Complexidade amortizada
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-time-vs-space-complexity-tradeoffs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time vs space complexity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-analise-de-recursao-arvore-e-master-theorem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Análise de recursão e Master Theorem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#big-o-o-limite-superior-assintotico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Big O (O) — limite superior assintótico
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#big-omega-limite-inferior-assintotico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Big Omega (Ω) — limite inferior assintótico
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#big-theta-limite-justo-tight-bound" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Big Theta (Θ) — limite justo (tight bound)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notacoes-complementares-little-o-e-little-omega" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notações complementares: little-o e little-omega
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#as-classes-de-crescimento-essenciais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        As classes de crescimento essenciais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-praticas-de-composicao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras práticas de composição
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#por-que-ignorar-constantes-e-quando-isso-engana" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que ignorar constantes (e quando isso engana)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="notacao-assintotica-big-o-big-theta-e-big-omega">Notação Assintótica: Big O, Big Theta (Θ) e Big Omega (Ω)<a class="headerlink" href="#notacao-assintotica-big-o-big-theta-e-big-omega" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Complexidade e análise algorítmica · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~32 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>Notação assintótica é a linguagem com que descrevemos <strong>como o custo de um algoritmo cresce conforme a entrada cresce</strong>, abstraindo constantes e termos de baixa ordem que dependem de máquina, compilador e detalhes de implementação. Três notações formam o núcleo: <strong>Big O (O)</strong> dá um <strong>limite superior</strong> assintótico — "não cresce mais rápido que"; <strong>Big Omega (Ω)</strong> dá um <strong>limite inferior</strong> — "não cresce mais devagar que"; e <strong>Big Theta (Θ)</strong> dá um <strong>limite justo</strong> (tight bound) — quando os limites superior e inferior coincidem, "cresce exatamente na ordem de". Formalmente, <code>f(n) = O(g(n))</code> se existem constantes <code>c &gt; 0</code> e <code>n₀</code> tais que <code>f(n) ≤ c·g(n)</code> para todo <code>n ≥ n₀</code>; <code>Ω</code> inverte a desigualdade; <code>Θ</code> exige ambas (<code>c₁·g(n) ≤ f(n) ≤ c₂·g(n)</code>). As classes de crescimento que todo engenheiro precisa reconhecer instantaneamente, da melhor para a pior: <strong>O(1)</strong> constante, <strong>O(log n)</strong> logarítmica, <strong>O(n)</strong> linear, <strong>O(n log n)</strong> linearítmica, <strong>O(n²)</strong> quadrática, <strong>O(2ⁿ)</strong> exponencial, <strong>O(n!)</strong> fatorial. A diferença entre elas não é acadêmica: em 10 milhões de itens, O(log n) faz ~23 passos e O(n) faz 10.000.000 — a mesma operação que leva microssegundos pode levar segundos. O erro mais comum em entrevistas é dizer "Big O" querendo dizer Θ, e confundir notação assintótica (sobre <strong>crescimento</strong>) com <strong>medição</strong> (sobre tempo de relógio).</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>Suponha que você precisa escolher entre dois algoritmos de busca para um catálogo de produtos. O algoritmo A faz uma varredura item a item; o B faz uma busca binária sobre dados ordenados. Como comparar objetivamente qual é "melhor"?</p>
+<p>A tentação ingênua é <strong>cronometrar</strong>: roda os dois e mede o tempo. Mas essa medição é traiçoeira. Ela depende da máquina (um notebook lento vs. um servidor de 64 núcleos), da linguagem (C vs. Python), do compilador e suas otimizações, do estado do cache, da carga do sistema no momento, e — crucialmente — <strong>do tamanho específico da entrada testada</strong>. O algoritmo A pode parecer mais rápido para 10 itens (menos overhead de setup) e ser catastroficamente mais lento para 10 milhões. Medir um ponto isolado não responde à pergunta que importa em arquitetura: <strong>como o custo se comporta quando o sistema cresce?</strong></p>
+<p>A notação assintótica resolve isso ao mudar a pergunta. Em vez de "quanto tempo leva?", pergunta-se <strong>"como o tempo (ou a memória) escala conforme <code>n</code> cresce sem limite?"</strong>. Ela descarta deliberadamente o que é circunstancial — constantes multiplicativas, termos de baixa ordem, detalhes de hardware — e captura o que é intrínseco ao algoritmo: a <strong>taxa de crescimento</strong> (rate of growth). Dois algoritmos O(n) são considerados da mesma classe mesmo que um seja 3× mais rápido na prática, porque ambos dobram de custo quando a entrada dobra. Já um O(n) e um O(n²) são fundamentalmente diferentes: dobrar a entrada dobra o custo do primeiro e quadruplica o do segundo.</p>
+<p>A pergunta central que a notação assintótica responde: <strong>"Quando minha entrada crescer 10×, 1000×, 1.000.000×, o que acontece com o custo do meu algoritmo?"</strong> É essa pergunta que separa um sistema que escala de um que colapsa sob carga — e é por isso que o tema aparece em toda entrevista de engenharia e em toda decisão arquitetural sobre escolha de estrutura de dados ou algoritmo.</p>
+<p>Há uma segunda dimensão do problema: <strong>comunicação</strong>. A notação assintótica é um vocabulário compartilhado. Quando alguém diz "isso é O(n log n)", todo engenheiro entende imediatamente a ordem de grandeza, sem precisar de benchmarks. É a unidade de troca intelectual sobre eficiência algorítmica — daí sua onipresença em livros (CLRS), cursos (MIT 6.006) e literatura técnica.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<p>Notação assintótica descreve o <strong>comportamento limite</strong> de uma função quando o argumento tende ao infinito. No contexto de algoritmos, a função é tipicamente <code>T(n)</code> (tempo em função do tamanho da entrada <code>n</code>) ou <code>S(n)</code> (espaço). As três notações fundamentais delimitam essa função de cima, de baixo, ou dos dois lados.</p>
+<h3 id="big-o-o-limite-superior-assintotico">Big O (O) — limite superior assintótico<a class="headerlink" href="#big-o-o-limite-superior-assintotico" title="Permanent link">&para;</a></h3>
+<p><code>O(g(n))</code> é o conjunto de funções que <strong>não crescem mais rápido</strong> que <code>g(n)</code>, a menos de uma constante. A definição formal:</p>
+<blockquote>
+<p><code>f(n) = O(g(n))</code> se existem constantes positivas <code>c</code> e <code>n₀</code> tais que <code>0 ≤ f(n) ≤ c·g(n)</code> para todo <code>n ≥ n₀</code>.</p>
+</blockquote>
+<p>Em palavras: a partir de um certo tamanho de entrada (<code>n₀</code>), <code>f(n)</code> fica <strong>abaixo</strong> de algum múltiplo de <code>g(n)</code> e nunca mais ultrapassa. Big O é uma <strong>garantia de teto</strong>: "o custo não passa disso". É por isso que, na prática, descrevemos algoritmos por seu pior caso em Big O — é a garantia que importa para dimensionar sistemas.</p>
+<p>Exemplo: <code>T(n) = 3n² + 5n + 100</code>. Afirmamos <code>T(n) = O(n²)</code>. Por quê? Escolhendo <code>c = 4</code> e <code>n₀</code> suficientemente grande, <code>3n² + 5n + 100 ≤ 4n²</code> para todo <code>n</code> grande. Os termos <code>5n</code> e <code>100</code> são dominados pelo <code>n²</code> e desaparecem da análise assintótica; a constante <code>3</code> é absorvida pelo <code>c</code>. Note que <code>T(n)</code> também é <code>O(n³)</code>, <code>O(n⁴)</code>, etc. — Big O é só um teto, não precisa ser justo. Dizer que um algoritmo linear é <code>O(n²)</code> é <strong>tecnicamente correto</strong> mas pouco informativo (e, em entrevista, um sinal de que você não cravou a análise).</p>
+<h3 id="big-omega-limite-inferior-assintotico">Big Omega (Ω) — limite inferior assintótico<a class="headerlink" href="#big-omega-limite-inferior-assintotico" title="Permanent link">&para;</a></h3>
+<p><code>Ω(g(n))</code> é o conjunto de funções que <strong>não crescem mais devagar</strong> que <code>g(n)</code>. A definição formal inverte a desigualdade:</p>
+<blockquote>
+<p><code>f(n) = Ω(g(n))</code> se existem constantes positivas <code>c</code> e <code>n₀</code> tais que <code>0 ≤ c·g(n) ≤ f(n)</code> para todo <code>n ≥ n₀</code>.</p>
+</blockquote>
+<p>Em palavras: a partir de <code>n₀</code>, <code>f(n)</code> fica <strong>acima</strong> de algum múltiplo de <code>g(n)</code>. Big Omega é uma <strong>garantia de piso</strong>: "o custo é pelo menos isso". É a notação usada para falar de <strong>limites inferiores de problemas</strong> — por exemplo, qualquer algoritmo de ordenação baseado em comparações precisa de <code>Ω(n log n)</code> comparações no pior caso; nenhum pode ser assintoticamente mais rápido. Esse tipo de afirmação é sobre o problema, não sobre um algoritmo específico, e Ω é a ferramenta certa.</p>
+<p>Exemplo: <code>T(n) = 3n² + 5n + 100 = Ω(n²)</code>, mas também <code>Ω(n)</code> e <code>Ω(1)</code> — o piso pode ser frouxo, assim como o teto do Big O.</p>
+<h3 id="big-theta-limite-justo-tight-bound">Big Theta (Θ) — limite justo (tight bound)<a class="headerlink" href="#big-theta-limite-justo-tight-bound" title="Permanent link">&para;</a></h3>
+<p><code>Θ(g(n))</code> captura o caso em que o limite superior e o inferior <strong>coincidem na mesma ordem</strong>. É o limite <strong>justo</strong> ou <strong>apertado</strong>:</p>
+<blockquote>
+<p><code>f(n) = Θ(g(n))</code> se existem constantes positivas <code>c₁</code>, <code>c₂</code> e <code>n₀</code> tais que <code>0 ≤ c₁·g(n) ≤ f(n) ≤ c₂·g(n)</code> para todo <code>n ≥ n₀</code>.</p>
+</blockquote>
+<p>Equivalentemente: <code>f(n) = Θ(g(n))</code> se e somente se <code>f(n) = O(g(n))</code> <strong>e</strong> <code>f(n) = Ω(g(n))</code>. Theta é a afirmação mais forte e mais precisa: "o custo cresce <strong>exatamente</strong> na ordem de <code>g(n)</code>, nem mais nem menos". <code>3n² + 5n + 100 = Θ(n²)</code>, e isso é uma descrição justa — não é Θ(n) nem Θ(n³).</p>
+<p>A relação de inclusão é a chave conceitual: <strong>se uma função é Θ(g(n)), ela é automaticamente O(g(n)) e Ω(g(n))</strong>. Theta é a interseção das duas. Quando matemáticos e o livro CLRS são precisos, eles usam Θ para descrever o custo de um algoritmo cujos casos não variam (ou para o caso analisado); a indústria, por hábito e por conservadorismo (o teto é o que protege), usa "O" mesmo quando quer dizer Θ.</p>
+<h3 id="notacoes-complementares-little-o-e-little-omega">Notações complementares: little-o e little-omega<a class="headerlink" href="#notacoes-complementares-little-o-e-little-omega" title="Permanent link">&para;</a></h3>
+<p>Há ainda <code>o(g(n))</code> (little-o) e <code>ω(g(n))</code> (little-omega), limites <strong>estritos</strong> (não justos): <code>f(n) = o(g(n))</code> significa que <code>f</code> cresce <strong>estritamente mais devagar</strong> que <code>g</code> (a razão <code>f/g → 0</code>). São menos usadas no dia a dia, mas aparecem em provas formais. Para o trabalho prático, O, Ω e Θ bastam.</p>
+<h3 id="as-classes-de-crescimento-essenciais">As classes de crescimento essenciais<a class="headerlink" href="#as-classes-de-crescimento-essenciais" title="Permanent link">&para;</a></h3>
+<p>Toda a engenharia de complexidade gira em torno de reconhecer um punhado de classes. Da melhor (mais lenta para crescer) para a pior:</p>
+<table>
+<thead>
+<tr>
+<th>Classe</th>
+<th>Nome</th>
+<th>Comportamento ao dobrar <code>n</code></th>
+<th>Exemplos típicos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>O(1)</strong></td>
+<td>Constante</td>
+<td>Não muda</td>
+<td>Acesso a array por índice; push/pop de pilha; lookup em hash table (caso médio)</td>
+</tr>
+<tr>
+<td><strong>O(log n)</strong></td>
+<td>Logarítmica</td>
+<td>Cresce por +1 passo</td>
+<td>Busca binária; operações em árvore balanceada (BST, heap)</td>
+</tr>
+<tr>
+<td><strong>O(n)</strong></td>
+<td>Linear</td>
+<td>Dobra</td>
+<td>Busca linear; percorrer uma lista; somar um array</td>
+</tr>
+<tr>
+<td><strong>O(n log n)</strong></td>
+<td>Linearítmica</td>
+<td>Dobra e um pouco mais</td>
+<td>Merge sort, heap sort, quicksort (médio); ordenação por comparação ótima</td>
+</tr>
+<tr>
+<td><strong>O(n²)</strong></td>
+<td>Quadrática</td>
+<td>Quadruplica</td>
+<td>Bubble/insertion/selection sort; comparar todos os pares; loops aninhados</td>
+</tr>
+<tr>
+<td><strong>O(2ⁿ)</strong></td>
+<td>Exponencial</td>
+<td><strong>Eleva ao quadrado</strong></td>
+<td>Subconjuntos; recursão ingênua de Fibonacci; força-bruta em problemas NP</td>
+</tr>
+<tr>
+<td><strong>O(n!)</strong></td>
+<td>Fatorial</td>
+<td>Explode</td>
+<td>Permutações; força-bruta do caixeiro-viajante (TSP)</td>
+</tr>
+</tbody>
+</table>
+<p>A intuição que precisa ser visceral: as três primeiras (constante, log, linear) e a linearítmica são <strong>escaláveis</strong> — toleram crescimento de entrada. A quadrática já dói em escala (milhões de itens). E as duas últimas (exponencial e fatorial) são <strong>intratáveis</strong> para qualquer <code>n</code> além de algumas dezenas — só servem para entradas minúsculas ou como ponto de partida a ser otimizado (frequentemente via programação dinâmica).</p>
+<h3 id="glossario-rapido">Glossário rápido<a class="headerlink" href="#glossario-rapido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Notação assintótica:</strong> descrição do comportamento de <code>T(n)</code> quando <code>n → ∞</code>, ignorando constantes e termos de baixa ordem.</li>
+<li><strong>Big O (O):</strong> limite superior; "não cresce mais rápido que". Garantia de teto.</li>
+<li><strong>Big Omega (Ω):</strong> limite inferior; "não cresce mais devagar que". Garantia de piso.</li>
+<li><strong>Big Theta (Θ):</strong> limite justo; teto e piso na mesma ordem. <code>Θ = O ∩ Ω</code>.</li>
+<li><strong>Tight bound:</strong> limite justo (Θ); o mais preciso.</li>
+<li><strong>Taxa de crescimento (rate of growth):</strong> como <code>T(n)</code> muda conforme <code>n</code> cresce — o que a notação captura.</li>
+<li><strong>Termo dominante:</strong> o termo de maior ordem em <code>T(n)</code>, que define a classe assintótica.</li>
+<li><strong>Constante oculta:</strong> o fator multiplicativo <code>c</code> que a notação descarta (mas que importa na prática).</li>
+<li><strong>little-o / little-omega (o, ω):</strong> limites estritos (não justos).</li>
+</ul>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>A mecânica de derivar a notação assintótica de um algoritmo segue três passos simples e um princípio.</p>
+<p><strong>Passo 1 — contar as operações em função de <code>n</code>.</strong> Percorra o algoritmo e expresse o número de operações básicas como uma função <code>T(n)</code>. Um loop simples de <code>n</code> iterações com trabalho constante por iteração dá <code>T(n) = a·n + b</code>. Dois loops aninhados dão <code>T(n) ≈ a·n² + ...</code>. Uma busca binária divide o espaço pela metade a cada passo, dando <code>T(n) ≈ log₂(n)</code>.</p>
+<p><strong>Passo 2 — descartar termos de baixa ordem.</strong> Em <code>T(n) = 3n² + 5n + 100</code>, conforme <code>n</code> cresce, o <code>n²</code> domina: para <code>n = 1000</code>, <code>3n² = 3.000.000</code> enquanto <code>5n = 5.000</code> e <code>100</code> são ruído. Só o <strong>termo dominante</strong> sobrevive: <code>n²</code>.</p>
+<p><strong>Passo 3 — descartar a constante multiplicativa.</strong> <code>3n²</code> vira <code>n²</code>. A constante <code>3</code> depende de detalhes que a notação abstrai (quantas operações de máquina cada "passo" custa). Resultado: <code>T(n) = Θ(n²)</code> (ou <code>O(n²)</code> se queremos só o teto).</p>
+<p><strong>O princípio:</strong> a notação assintótica é sobre <strong>dominância para <code>n</code> grande</strong>. Por isso <code>n²</code> domina <code>n</code>, <code>2ⁿ</code> domina qualquer polinômio, <code>n!</code> domina <code>2ⁿ</code>, e <code>log n</code> cresce mais devagar que qualquer potência positiva de <code>n</code>. A hierarquia de dominância é:</p>
+<p><code>O(1) &lt; O(log n) &lt; O(n) &lt; O(n log n) &lt; O(n²) &lt; O(n³) &lt; ... &lt; O(2ⁿ) &lt; O(n!)</code></p>
+<h3 id="regras-praticas-de-composicao">Regras práticas de composição<a class="headerlink" href="#regras-praticas-de-composicao" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Sequência (um bloco depois do outro):</strong> soma-se e fica o dominante. <code>O(n) + O(n²) = O(n²)</code>.</li>
+<li><strong>Aninhamento (loop dentro de loop):</strong> multiplica-se. Loop de <code>n</code> contendo loop de <code>m</code> é <code>O(n·m)</code>; se <code>m = n</code>, <code>O(n²)</code>.</li>
+<li><strong>Constantes e fatores fixos somem:</strong> <code>O(3n) = O(n)</code>; <code>O(½n²) = O(n²)</code>.</li>
+<li><strong>Logaritmos: a base não importa</strong> na notação. <code>log₂ n</code>, <code>log₁₀ n</code> e <code>ln n</code> diferem por uma constante (mudança de base: <code>log_b n = log n / log b</code>), então todos são <code>O(log n)</code>. É por isso que escrevemos <code>O(log n)</code> sem especificar base.</li>
+<li><strong>Cuidado com variáveis múltiplas:</strong> um algoritmo sobre um grafo com <code>V</code> vértices e <code>E</code> arestas é <code>O(V + E)</code>, não <code>O(n)</code> — explicite cada dimensão.</li>
+</ul>
+<h3 id="por-que-ignorar-constantes-e-quando-isso-engana">Por que ignorar constantes (e quando isso engana)<a class="headerlink" href="#por-que-ignorar-constantes-e-quando-isso-engana" title="Permanent link">&para;</a></h3>
+<p>Ignorar constantes é uma abstração poderosa porque torna a análise independente de máquina e revela o comportamento intrínseco. Mas é uma <strong>abstração</strong>, e abstrações vazam. Um algoritmo <code>O(n)</code> com constante oculta gigante (digamos, 1000 operações por elemento) pode ser mais lento, <strong>para <code>n</code> pequeno</strong>, que um <code>O(n²)</code> com constante 1. O cruzamento (crossover point) acontece em algum <code>n₀</code>; abaixo dele, a classe assintótica "pior" vence. Por isso bibliotecas de ordenação reais (como o introsort/timsort) trocam para <strong>insertion sort <code>O(n²)</code></strong> em subarrays pequenos — para <code>n</code> pequeno, a constante baixa do insertion sort bate a constante alta do merge/quick sort. A notação assintótica responde "o que escala", não "o que é mais rápido para esta entrada específica". Confundir as duas é um erro clássico.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama mostra a hierarquia de dominância das classes (da melhor para a pior); o segundo, o fluxo de decisão para derivar a notação de um trecho de código.</p>
+<pre class="mermaid"><code>flowchart LR
+    A["O(1)&lt;br/&gt;constante"] --&gt; B["O(log n)&lt;br/&gt;logaritmica"]
+    B --&gt; C["O(n)&lt;br/&gt;linear"]
+    C --&gt; D["O(n log n)&lt;br/&gt;linearitmica"]
+    D --&gt; E["O(n^2)&lt;br/&gt;quadratica"]
+    E --&gt; F["O(2^n)&lt;br/&gt;exponencial"]
+    F --&gt; G["O(n!)&lt;br/&gt;fatorial"]
+    A -.-&gt;|"escalavel"| D
+    E -.-&gt;|"doi em escala"| E
+    F -.-&gt;|"intratavel"| G</code></pre>
+<pre class="mermaid"><code>flowchart TB
+    START["Trecho de codigo"] --&gt; COUNT["Conta operacoes em funcao de n -&gt; T(n)"]
+    COUNT --&gt; LOOP{"Tem loops?"}
+    LOOP --&gt;|"aninhados"| MULT["Multiplica os tamanhos"]
+    LOOP --&gt;|"sequenciais"| ADD["Soma e fica o dominante"]
+    LOOP --&gt;|"divide pela metade"| LOG["Fator log n"]
+    MULT --&gt; DROP["Descarta baixa ordem + constantes"]
+    ADD --&gt; DROP
+    LOG --&gt; DROP
+    DROP --&gt; RESULT["Classe assintotica: O / Theta"]</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p>Considere o catálogo de uma plataforma de e-commerce brasileira com <strong>10 milhões de produtos</strong> (<code>n = 10.000.000</code>). Um cliente busca um SKU específico. Há duas estratégias.</p>
+<p><strong>Busca linear (O(n)).</strong> Percorre os produtos um a um até achar o SKU. No pior caso (SKU no fim ou inexistente), são 10 milhões de comparações. Suponha 1 nanossegundo por comparação (otimista): <code>10.000.000 × 1ns = 10 milissegundos</code>. Parece pouco — mas multiplique por milhares de buscas por segundo na Black Friday, e o custo de CPU explode. E se a constante por comparação for maior (objetos, desreferenciamento, cache miss), facilmente vira centenas de milissegundos por busca. Pior: dobrar o catálogo para 20 milhões <strong>dobra</strong> o tempo.</p>
+<p><strong>Busca binária (O(log n)) sobre dados ordenados.</strong> Divide o espaço pela metade a cada passo. <code>log₂(10.000.000) ≈ 23,25</code>, ou seja, <strong>~24 comparações</strong> no pior caso. A diferença é brutal: 24 vs. 10.000.000 — um fator de ~417.000×. E o mais impressionante é a escalabilidade: dobrar o catálogo para 20 milhões adiciona <strong>uma única comparação</strong> (<code>log₂(20M) ≈ 24,25</code>). Crescer o catálogo 1000× (para 10 bilhões) adiciona só ~10 passos. É a diferença entre um sistema que sente cada produto novo e um que mal percebe.</p>
+<p>Eis a tabela de passos no pior caso, que torna a abstração concreta:</p>
+<table>
+<thead>
+<tr>
+<th><code>n</code> (itens)</th>
+<th>O(log n)</th>
+<th>O(n)</th>
+<th>O(n log n)</th>
+<th>O(n²)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10</td>
+<td>~3</td>
+<td>10</td>
+<td>~33</td>
+<td>100</td>
+</tr>
+<tr>
+<td>1.000</td>
+<td>~10</td>
+<td>1.000</td>
+<td>~10.000</td>
+<td>1.000.000</td>
+</tr>
+<tr>
+<td>1.000.000</td>
+<td>~20</td>
+<td>1.000.000</td>
+<td>~20 milhões</td>
+<td>10¹² (1 trilhão)</td>
+</tr>
+<tr>
+<td>10.000.000</td>
+<td>~23</td>
+<td>10.000.000</td>
+<td>~233 milhões</td>
+<td>10¹⁴</td>
+</tr>
+</tbody>
+</table>
+<p>Olhe a coluna O(n²) em 1 milhão de itens: 1 <strong>trilhão</strong> de operações. A 1 ns cada, são ~16 minutos. Por isso um algoritmo de "comparar todos os pares de clientes para detectar duplicatas" (O(n²)) que funcionava bem com 10 mil clientes (100 milhões de ops, ~0,1s) torna-se <strong>inviável</strong> com 1 milhão — não é "mais lento", é uma ordem de grandeza de inviabilidade. A solução é mudar de classe: usar um índice/hash (O(n)) em vez de comparação par a par.</p>
+<p>Pseudocódigo da busca binária, para fixar o O(log n):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>busca_binaria(arr_ordenado, alvo):
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    baixo = 0
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    alto = tamanho(arr_ordenado) - 1
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    enquanto baixo &lt;= alto:
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        meio = (baixo + alto) / 2          # descarta metade a cada passo
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        se arr_ordenado[meio] == alvo:
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>            retorna meio
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        senao se arr_ordenado[meio] &lt; alvo:
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>            baixo = meio + 1               # vai para a metade direita
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        senao:
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>            alto = meio - 1                # vai para a metade esquerda
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    retorna NAO_ENCONTRADO
+</code></pre></div>
+<p>Cada iteração <strong>descarta metade</strong> do espaço restante. Partindo de <code>n</code> e dividindo por 2 até sobrar 1, o número de divisões é <code>log₂(n)</code> — daí o O(log n). O pré-requisito é que os dados estejam <strong>ordenados</strong>: aqui aparece o trade-off arquitetural — você paga <code>O(n log n)</code> uma vez para ordenar (ou mantém um índice/B-tree) e colhe <code>O(log n)</code> em cada busca subsequente. Em bancos de dados, é exatamente por isso que existem índices.</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p>A notação assintótica é a ferramenta padrão para <strong>comparar algoritmos</strong> e <strong>prever escalabilidade</strong>, mas saber <em>qual</em> notação usar e <em>quando ela importa</em> é o que distingue o uso maduro.</p>
+<p><strong>Use Big O</strong> quando você quer comunicar a <strong>garantia de pior caso</strong> — o teto que protege o dimensionamento do sistema. É a notação default da indústria e o que se espera em entrevistas ao perguntar "qual a complexidade?". É a escolha certa quando o interesse é "o quão ruim pode ficar".</p>
+<p><strong>Use Big Theta (Θ)</strong> quando você quer ser <strong>preciso</strong> e o limite é justo — quando o custo do algoritmo (ou do caso analisado) tem ordem bem definida. Acadêmicos e CLRS preferem Θ porque é mais informativo. Em entrevista, usar Θ corretamente sinaliza domínio.</p>
+<p><strong>Use Big Omega (Ω)</strong> quando você fala de <strong>limites inferiores de problemas</strong> — "nenhum algoritmo de comparação ordena mais rápido que Ω(n log n)" — ou do melhor caso de um algoritmo. É a notação para argumentos de impossibilidade/otimalidade.</p>
+<p><strong>A análise assintótica importa mais</strong> quando: a entrada pode crescer muito (escala); a diferença de classes é grande (O(n) vs O(n²) vs O(2ⁿ)); o algoritmo está num caminho quente (hot path) executado milhões de vezes.</p>
+<p><strong>A análise assintótica engana</strong> quando: <code>n</code> é sempre pequeno e fixo (a constante domina — o crossover point nunca é atingido); as constantes ocultas são enormes e comparáveis entre as opções; o gargalo real é I/O, rede ou cache, não CPU (um O(n²) em memória pode bater um O(n) que faz acesso a disco). Nesses casos, <strong>meça</strong> — a notação informa, não substitui o profiling.</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Dizer "O" querendo dizer "Θ".</strong> O erro mais difundido. "Busca linear é O(n)" — tecnicamente também é O(n²), O(2ⁿ)... porque O é só teto. Se você quer dizer que é <em>exatamente</em> linear, a notação correta é Θ(n). A indústria tolera o abuso, mas em entrevista de nível arquiteto, saber a distinção conta pontos.</li>
+<li><strong>Confundir notação assintótica com medição de tempo.</strong> "Esse algoritmo é O(n), então roda em <code>n</code> segundos" — não. Big O descreve <strong>crescimento</strong>, não tempo absoluto. Não há unidade de tempo na notação; a constante (que a notação descarta) é o que liga ordem de grandeza a milissegundos reais.</li>
+<li><strong>Ignorar constantes que importam na prática.</strong> Declarar vitória porque um algoritmo é O(n) sem perceber que sua constante oculta é 100× a do O(n log n) concorrente, para o <code>n</code> real do sistema. Para <code>n</code> pequeno ou moderado, o crossover point pode nunca ser atingido. A teoria diz "o que escala"; a prática exige medir o regime real.</li>
+<li><strong>Especificar a base do logaritmo.</strong> Escrever "O(log₂ n)" como se a base mudasse a classe. Mudança de base é uma constante multiplicativa; <code>O(log n)</code> (sem base) é a forma correta.</li>
+<li><strong>Esquecer variáveis múltiplas.</strong> Chamar um algoritmo de grafo de "O(n)" quando ele depende de <code>V</code> e <code>E</code> separadamente — é <code>O(V + E)</code>. Colapsar dimensões distintas num único <code>n</code> esconde o comportamento real.</li>
+<li><strong>Analisar só o termo errado.</strong> Somar quando deveria multiplicar (loops aninhados) ou multiplicar quando deveria somar (blocos sequenciais). Loop de <code>n</code> <em>seguido</em> de loop de <code>n</code> é O(n), não O(n²); loop de <code>n</code> <em>dentro</em> de loop de <code>n</code> é O(n²).</li>
+<li><strong>Confundir complexidade de tempo com complexidade de espaço.</strong> "É O(n)" — de tempo ou de memória? São eixos distintos (ver <code>04-time-vs-space-complexity-tradeoffs.md</code>). Sempre explicite qual.</li>
+<li><strong>Otimizar a classe quando <code>n</code> é trivial.</strong> Reescrever um O(n²) para O(n log n) num laço que processa 5 itens é desperdício de esforço (e fonte de bugs). A análise assintótica só importa quando <code>n</code> pode crescer.</li>
+<li><strong>Confundir pior caso, caso médio e amortizado.</strong> Dizer "hash table é O(1)" sem qualificar — é O(1) <strong>médio/amortizado</strong>, mas O(n) no pior caso (colisões). Ver <code>02-pior-melhor-e-caso-medio.md</code> e <code>03-complexidade-amortizada.md</code>.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Pior, melhor e caso médio</strong> (<code>02-pior-melhor-e-caso-medio.md</code>): a notação assintótica (O/Ω/Θ) se aplica <em>a cada</em> cenário de caso. Big O descreve tipicamente o pior caso; Ω frequentemente o melhor caso; e os três casos podem ter classes diferentes (quicksort: Θ(n log n) médio, Θ(n²) pior).</li>
+<li><strong>Complexidade amortizada</strong> (<code>03-complexidade-amortizada.md</code>): outra forma de média (sobre uma sequência de operações), distinta do caso médio probabilístico; também expressa em notação assintótica.</li>
+<li><strong>Time vs space complexity</strong> (<code>04-time-vs-space-complexity-tradeoffs.md</code>): a mesma notação descreve crescimento de memória; trade-offs trocam uma classe pela outra.</li>
+<li><strong>Análise de recursão e Master Theorem</strong> (<code>05-analise-de-recursao-arvore-e-master-theorem.md</code>): técnicas para derivar a notação assintótica de algoritmos recursivos (<code>T(n) = aT(n/b) + f(n)</code>).</li>
+<li><strong>Estruturas de dados</strong> (bloco 12): cada estrutura tem complexidades características — array O(1) de acesso, hash table O(1) médio, árvore balanceada O(log n), lista ligada O(n) de busca. A notação é a forma de compará-las.</li>
+<li><strong>Algoritmos essenciais</strong> (bloco 13): sorting (O(n log n) ótimo por comparação, com limite inferior Ω(n log n)), busca binária (O(log n)), programação dinâmica (transforma exponencial em polinomial). A notação é o critério de escolha.</li>
+<li><strong>Tabelas hash</strong> (bloco 12/13): o exemplo canônico de O(1) médio vs O(n) pior, e de por que qualificar o caso importa.</li>
+</ul>
+<h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
+<p>Três ideias para carregar:</p>
+<ol>
+<li><strong>A pergunta é sobre crescimento, não sobre tempo.</strong> Notação assintótica responde "o que acontece quando <code>n</code> cresce 1000×?", não "quantos milissegundos?". Internalizar a hierarquia <code>O(1) &lt; log &lt; n &lt; n log n &lt; n² &lt; 2ⁿ &lt; n!</code> e o que cada uma faz ao dobrar a entrada é o reflexo que separa quem dimensiona sistemas de quem só os escreve.</li>
+<li><strong>O, Ω e Θ são três afirmações distintas.</strong> Teto (O), piso (Ω) e justo (Θ = O ∩ Ω). Use Big O para garantias e comunicação; Θ quando quer precisão; Ω para limites inferiores de problemas. Confundir O com Θ é o tropeço clássico de entrevista.</li>
+<li><strong>A teoria informa, a medição decide.</strong> A notação revela o que escala, mas descarta constantes que podem dominar no regime real do sistema. Para <code>n</code> pequeno ou hot paths sensíveis, a classe assintótica "pior" pode vencer. Combine análise (prever escala) com profiling (verificar a realidade).</li>
+</ol>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Notação assintótica descreve a <strong>taxa de crescimento</strong> de <code>T(n)</code> quando <code>n → ∞</code>, abstraindo constantes e termos de baixa ordem.</li>
+<li><strong>Big O = teto</strong> (<code>f ≤ c·g</code>); <strong>Big Omega = piso</strong> (<code>f ≥ c·g</code>); <strong>Big Theta = justo</strong> (ambos; <code>Θ = O ∩ Ω</code>).</li>
+<li>Classes essenciais em ordem: <strong>O(1) &lt; O(log n) &lt; O(n) &lt; O(n log n) &lt; O(n²) &lt; O(2ⁿ) &lt; O(n!)</strong>.</li>
+<li>Ao dobrar <code>n</code>: O(1) não muda, O(log n) faz +1 passo, O(n) dobra, O(n²) quadruplica, O(2ⁿ) eleva ao quadrado.</li>
+<li>Regras de composição: blocos sequenciais <strong>somam</strong> (fica o dominante); loops aninhados <strong>multiplicam</strong>; constantes e base do log <strong>somem</strong>.</li>
+<li>Em 10M de itens: busca binária O(log n) ≈ 24 passos vs busca linear O(n) = 10M — fator de ~417.000×.</li>
+<li>A <strong>constante oculta</strong> pode dominar para <code>n</code> pequeno (crossover point); por isso libs trocam para insertion sort em subarrays pequenos.</li>
+<li>Notação descreve <strong>crescimento, não tempo</strong>; e complexidade de <strong>tempo ≠ espaço</strong> — sempre explicite qual e qual caso (pior/médio/amortizado).</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://www.bigocheatsheet.com/">Big-O Algorithm Complexity Cheat Sheet (Know Thy Complexities!)</a></li>
+<li><a href="https://www.khanacademy.org/computing/computer-science/algorithms/asymptotic-notation/a/big-o-notation">Big-O notation (article) — Khan Academy</a></li>
+<li><a href="https://www.khanacademy.org/computing/computer-science/algorithms/asymptotic-notation/a/big-big-omega-notation">Big-Ω (Big-Omega) notation (article) — Khan Academy</a></li>
+<li><a href="https://www.khanacademy.org/computing/computer-science/algorithms/asymptotic-notation/a/asymptotic-notation">Asymptotic notation (article) — Khan Academy</a></li>
+<li><a href="https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/">Introduction to Algorithms (6.006), Spring 2020 — MIT OpenCourseWare</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Big_O_notation">Big-O Notation — Wikipedia</a></li>
+<li><a href="https://www.freecodecamp.org/news/big-o-cheat-sheet-time-complexity-chart/">Big O Cheat Sheet – Time Complexity Chart — freeCodeCamp</a></li>
+<li><a href="https://visualgo.net/en">VisuAlgo — Visualizing Data Structures and Algorithms</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../../10-evolucao-e-praticas/06-platform-engineering-e-idps/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Platform Engineering e IDPs">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Platform Engineering e IDPs
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../02-pior-melhor-e-caso-medio/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Pior, melhor e caso médio">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Pior, melhor e caso médio
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

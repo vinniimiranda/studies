@@ -1,0 +1,2405 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/17-system-design/01-encurtador-de-url/">
+      
+      
+        <link rel="prev" href="../../16-redes-e-protocolos/09-long-polling-sse-websockets/">
+      
+      
+        <link rel="next" href="../02-timeline-rede-social/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Encurtador de URL - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#system-design-encurtador-de-url-tipo-bitly" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Encurtador de URL
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_19" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_19" id="__nav_19_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_19_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_19">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    17 · System Design (estudos de caso)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Encurtador de URL
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Encurtador de URL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requisitos-funcionais-e-nao-funcionais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requisitos (funcionais e não-funcionais)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estimativas-de-capacidade-back-of-the-envelope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estimativas de capacidade (back-of-the-envelope)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-de-dados-e-api-alto-nivel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo de dados e API (alto nível)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arquitetura-da-solucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arquitetura da solução
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-arquitetura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de arquitetura
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-de-escala-e-gargalos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos de escala e gargalos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trade-offs-e-decisoes-chave" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trade-offs e decisões-chave
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#erros-comuns-em-entrevista" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Erros comuns em entrevista
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-timeline-rede-social/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timeline de rede social
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-sistema-de-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de chat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-sistema-de-notificacoes-em-escala/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notificações em escala
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-rate-limiter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rate limiter
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-web-crawler-distribuido/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web crawler distribuído
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-sistema-de-busca/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de busca
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-upload-de-arquivos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upload de arquivos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-streaming-de-video/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Streaming de vídeo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-sistema-de-reservas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de reservas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-sistema-de-pagamentos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de pagamentos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-newsfeed-ranking-e-recomendacao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Newsfeed ranking e recomendação
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-sistema-de-logs-distribuido/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de logs distribuído
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-top-k-trending-count-min-sketch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Top K trending (count-min sketch)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requisitos-funcionais-e-nao-funcionais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requisitos (funcionais e não-funcionais)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estimativas-de-capacidade-back-of-the-envelope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estimativas de capacidade (back-of-the-envelope)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-de-dados-e-api-alto-nivel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo de dados e API (alto nível)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arquitetura-da-solucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arquitetura da solução
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-arquitetura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de arquitetura
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-de-escala-e-gargalos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos de escala e gargalos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trade-offs-e-decisoes-chave" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trade-offs e decisões-chave
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#erros-comuns-em-entrevista" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Erros comuns em entrevista
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="system-design-encurtador-de-url-tipo-bitly">System Design: Encurtador de URL (tipo bit.ly)<a class="headerlink" href="#system-design-encurtador-de-url-tipo-bitly" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> System Design (estudos de caso) · <strong>Nível:</strong> Avançado · <strong>Tempo de leitura:</strong> ~28 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>Um encurtador de URL transforma uma URL longa (<code>https://exemplo.com/artigos/2026/system-design?utm=...</code>) num alias curto (<code>https://bit.ly/3xY9aZ</code>) e, quando alguém acessa o alias, redireciona para a original. Parece trivial, mas é um estudo de caso clássico porque condensa as decisões centrais de qualquer sistema de larga escala: <strong>geração de IDs únicos sem colisão</strong>, <strong>assimetria leitura/escrita extrema</strong> (redirects são ~100× mais frequentes que criações), <strong>cache agressivo</strong> (o conjunto quente cabe em memória), <strong>redirect 301 vs 302</strong> (cacheável vs rastreável), e <strong>escolha de banco</strong> (chave-valor simples favorece NoSQL/KV store sobre SQL relacional). O coração do design é o mapeamento <code>short_key → long_url</code>: como gerar a <code>short_key</code> (encoding base62 de um contador/Snowflake ID, ou hash truncado com tratamento de colisão), como armazená-la (KV store particionado por chave), e como servir o redirect em &lt;10ms com cache. A escala-alvo típica (100M criações/dia) cabe confortavelmente em commodity hardware com sharding e CDN — o desafio não é volume bruto de dados, é <strong>latência de leitura previsível</strong> e <strong>unicidade garantida das chaves</strong> sob concorrência. Decisão-chave de entrevista: prefira <strong>base62 de um ID sequencial/distribuído</strong> a hashing, porque elimina colisões por construção; e use <strong>301 cacheável</strong> só se não precisa de analytics por clique (senão 302).</p>
+<h2 id="requisitos-funcionais-e-nao-funcionais">Requisitos (funcionais e não-funcionais)<a class="headerlink" href="#requisitos-funcionais-e-nao-funcionais" title="Permanent link">&para;</a></h2>
+<p><strong>Funcionais:</strong></p>
+<ul>
+<li>Dado uma URL longa, gerar uma URL curta única.</li>
+<li>Dado uma URL curta, redirecionar para a URL longa original.</li>
+<li>(Opcional) Aliases customizados (<code>bit.ly/minha-marca</code>).</li>
+<li>(Opcional) Expiração de links (TTL).</li>
+<li>(Opcional) Analytics: contagem de cliques, geografia, referrer.</li>
+</ul>
+<p><strong>Não-funcionais:</strong></p>
+<ul>
+<li><strong>Alta disponibilidade</strong> no caminho de redirect — se o encurtador cai, milhões de links em e-mails, QR codes e posts param de funcionar. É o requisito dominante.</li>
+<li><strong>Baixa latência</strong> no redirect (p99 &lt; 50ms, idealmente &lt; 10ms via cache/CDN).</li>
+<li><strong>Unicidade garantida</strong> das chaves curtas — duas URLs longas nunca podem colidir na mesma chave (corromperia redirects).</li>
+<li><strong>Não-previsibilidade</strong> desejável (chaves não devem ser facilmente enumeráveis, por privacidade/segurança).</li>
+<li><strong>Escalabilidade horizontal</strong> — adicionar capacidade sem reescrever a arquitetura.</li>
+<li><strong>Durabilidade</strong> — um link criado não pode ser perdido.</li>
+</ul>
+<p>A assimetria leitura/escrita é a observação que orienta todo o resto: o sistema é <strong>read-heavy</strong>. Otimizamos ferozmente o caminho de leitura (redirect) e aceitamos um caminho de escrita (criação) mais caro.</p>
+<h2 id="estimativas-de-capacidade-back-of-the-envelope">Estimativas de capacidade (back-of-the-envelope)<a class="headerlink" href="#estimativas-de-capacidade-back-of-the-envelope" title="Permanent link">&para;</a></h2>
+<p>Suponha <strong>100 milhões de novas URLs por dia</strong> e razão leitura:escrita de <strong>100:1</strong> (cada link é acessado em média 100 vezes ao longo da vida).</p>
+<p><strong>QPS de escrita (criação):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>100M criações/dia ÷ 86.400 s/dia ≈ 1.157 escritas/s (média)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Pico (≈2× a 3× a média)        ≈ 2.300 a 3.500 escritas/s
+</code></pre></div>
+<p><strong>QPS de leitura (redirect):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>100:1 × 1.157 ≈ 115.700 leituras/s (média)
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>Pico                ≈ 230.000 a 350.000 leituras/s
+</code></pre></div>
+<p>Esse número de leitura é o que justifica cache e CDN — servir 100k+ QPS direto do banco seria caro e arriscado.</p>
+<p><strong>Storage (5 anos de retenção):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>100M/dia × 365 dias × 5 anos ≈ 182,5 bilhões de registros
+</code></pre></div>
+<p>Tamanho por registro (estimativa generosa): <code>short_key</code> (7 bytes) + <code>long_url</code> (~100 bytes médios) + metadados (created_at, user_id, TTL ≈ 30 bytes) ≈ <strong>~140 bytes/registro</strong>, arredondando para <strong>~500 bytes com overhead/índices</strong>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>182,5B × 500 bytes ≈ 91 TB (com folga; ~25 TB só os dados crus)
+</code></pre></div>
+<p>São dezenas de TB — não cabe num único nó, exige <strong>sharding</strong>, mas não é "big data" extremo. Particionável em algumas dezenas de nós.</p>
+<p><strong>Espaço de chaves (base62, comprimento 7):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>62^7 = ~3,5 trilhões de combinações
+</code></pre></div>
+<p>Com 182,5B URLs em 5 anos, usamos ~5% do espaço de 7 caracteres — folga enorme. Comprimento <strong>7 é suficiente</strong> (62^6 ≈ 56,8B seria justo demais; 62^7 dá margem).</p>
+<p><strong>Banda (leitura):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>230.000 redirects/s no pico × ~500 bytes de resposta HTTP ≈ 115 MB/s
+</code></pre></div>
+<p>Modesto — o gargalo é QPS e latência, não banda.</p>
+<h2 id="modelo-de-dados-e-api-alto-nivel">Modelo de dados e API (alto nível)<a class="headerlink" href="#modelo-de-dados-e-api-alto-nivel" title="Permanent link">&para;</a></h2>
+<p><strong>Modelo de dados</strong> (uma tabela/KV simples):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>url_mapping
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  short_key   STRING (PK)      -- ex.: &quot;3xY9aZ&quot; (base62, 7 chars)
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  long_url    STRING
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>  created_at  TIMESTAMP
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>  user_id     STRING (nullable)
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>  expires_at  TIMESTAMP (nullable)
+</code></pre></div>
+<p>O acesso primário é <strong>lookup por chave exata</strong> (<code>short_key</code>) — não há joins, não há queries por range complexas. Isso favorece um <strong>KV store</strong> (DynamoDB, Cassandra, Redis como cache) sobre um RDBMS, embora um RDBMS particionado também funcione. Analytics, se existir, vai para um <strong>store separado</strong> (event stream → data warehouse), nunca acoplado ao caminho de redirect.</p>
+<p><strong>API (REST):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>POST /api/v1/shorten
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  body: { &quot;long_url&quot;: &quot;https://...&quot;, &quot;custom_alias&quot;: &quot;opcional&quot;, &quot;ttl&quot;: &quot;opcional&quot; }
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  resp: { &quot;short_url&quot;: &quot;https://bit.ly/3xY9aZ&quot; }
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>GET /{short_key}
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>  resp: 301/302 Location: https://...  (redirect)
+</code></pre></div>
+<p>O <code>GET /{short_key}</code> é o endpoint quente. A criação (<code>POST</code>) é rara e pode tolerar mais latência.</p>
+<h2 id="arquitetura-da-solucao">Arquitetura da solução<a class="headerlink" href="#arquitetura-da-solucao" title="Permanent link">&para;</a></h2>
+<p>Os componentes e o porquê de cada um:</p>
+<ul>
+<li><strong>API Gateway / Load Balancer:</strong> ponto de entrada, distribui carga, faz rate limiting (protege contra abuso de criação em massa e enumeração de chaves) e TLS termination.</li>
+<li><strong>Serviço de criação (Write path):</strong> recebe a URL longa, valida (URL bem-formada, blocklist de domínios maliciosos/phishing), gera a <code>short_key</code> única e persiste o mapeamento. É stateless e escala horizontalmente.</li>
+<li><strong>Gerador de IDs único:</strong> o componente crítico. Duas estratégias principais (detalhadas em Trade-offs): (a) <strong>contador distribuído + base62 encoding</strong> (ranges pré-alocados por nó via Redis/Zookeeper, ou IDs estilo <strong>Snowflake</strong>), ou (b) <strong>hash da URL truncado</strong> com resolução de colisão. A opção (a) elimina colisões por construção e é a recomendada.</li>
+<li><strong>Serviço de redirect (Read path):</strong> recebe <code>short_key</code>, busca a <code>long_url</code> (primeiro no cache, depois no banco) e responde com redirect HTTP. Stateless, replicado, atrás de cache/CDN.</li>
+<li><strong>Cache (Redis/Memcached):</strong> guarda os mapeamentos quentes (<code>short_key → long_url</code>). Como o tráfego segue uma distribuição <strong>power-law</strong> (poucos links concentram a maioria dos acessos — um link viral em milhões de tweets), um cache de poucos GB cobre a esmagadora maioria das leituras. Política <strong>LRU</strong>, padrão <strong>cache-aside</strong>.</li>
+<li><strong>Banco de dados (KV store particionado):</strong> a fonte da verdade, durável. Particionado por <code>short_key</code> (hash da chave → shard). DynamoDB, Cassandra ou MySQL/Postgres com sharding.</li>
+<li><strong>CDN (opcional, para 301):</strong> se usar redirect 301 (permanente, cacheável), a própria CDN pode cachear o redirect na borda, absorvendo a maior parte do tráfego sem nem tocar a origem.</li>
+<li><strong>Pipeline de analytics (assíncrono):</strong> o redirect emite um evento (clique) para uma fila/stream (Kafka), processado offline para contagens e dashboards. Desacoplado do caminho crítico para não adicionar latência ao redirect.</li>
+</ul>
+<p><strong>Fluxo de escrita:</strong> cliente → LB → serviço de criação → gerador de ID (base62) → grava no KV store → (popula cache) → retorna <code>short_url</code>.</p>
+<p><strong>Fluxo de leitura:</strong> cliente → CDN/LB → serviço de redirect → cache (hit? retorna) → (miss) banco → popula cache → emite evento de analytics async → responde 301/302.</p>
+<h2 id="diagrama-de-arquitetura">Diagrama de arquitetura<a class="headerlink" href="#diagrama-de-arquitetura" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TB
+    CLIENT["Cliente / Navegador"] --&gt; LB["Load Balancer / API Gateway&lt;br/&gt;(rate limiting, TLS)"]
+
+    LB --&gt;|"POST /shorten"| WRITE["Serviço de Criação"]
+    LB --&gt;|"GET /{key}"| READ["Serviço de Redirect"]
+
+    WRITE --&gt; IDGEN["Gerador de ID&lt;br/&gt;(contador distribuido + base62)"]
+    IDGEN --&gt; DB[("KV Store particionado&lt;br/&gt;short_key to long_url")]
+    WRITE --&gt; DB
+
+    READ --&gt; CACHE[("Cache Redis&lt;br/&gt;(LRU, hot keys)")]
+    CACHE --&gt;|"miss"| DB
+    READ --&gt;|"evento de clique"| QUEUE["Fila / Kafka"]
+    QUEUE --&gt; ANALYTICS[("Pipeline de Analytics&lt;br/&gt;(offline)")]
+
+    READ --&gt;|"301 / 302 Location"| CLIENT</code></pre>
+<h2 id="pontos-de-escala-e-gargalos">Pontos de escala e gargalos<a class="headerlink" href="#pontos-de-escala-e-gargalos" title="Permanent link">&para;</a></h2>
+<p><strong>O que quebra primeiro:</strong> o <strong>banco de dados no caminho de leitura</strong>, se servirmos 100k+ QPS direto dele. Solução: <strong>cache na frente</strong> (Redis), que absorve 90%+ das leituras dado o padrão power-law; e <strong>CDN</strong> para 301s cacheáveis, que absorve a borda.</p>
+<p><strong>Geração de IDs sob concorrência:</strong> um contador único centralizado vira gargalo de escrita e SPOF. Solução: <strong>pré-alocação de ranges</strong> — cada nó de criação pega um bloco de IDs (ex.: 1.000.000 IDs) de um coordenador (Redis <code>INCRBY</code>, Zookeeper) e os consome localmente, voltando ao coordenador só ao esgotar. Reduz a contenção em ~1.000.000×. Alternativa sem coordenador: <strong>Snowflake IDs</strong> (timestamp + machine_id + sequence) gerados localmente.</p>
+<p><strong>Sharding do banco:</strong> particione por <code>hash(short_key)</code> para distribuir uniformemente. Use <strong>consistent hashing</strong> para que adicionar/remover shards remapeie só uma fração das chaves. O lookup é sempre por chave exata, então o roteamento ao shard é direto.</p>
+<p><strong>Réplicas de leitura:</strong> mesmo com cache, mantenha réplicas read-only do banco para cache misses e tolerância a falha do primário.</p>
+<p><strong>Hot key no cache:</strong> um link extremamente viral pode sobrecarregar o nó de cache que o detém. Solução: <strong>replicar a hot key</strong> em múltiplos nós ou usar cache local (in-process) nos servidores de redirect para os top-N links.</p>
+<p><strong>Caminho de analytics:</strong> nunca grave a contagem de cliques sincronicamente no redirect (cada clique viraria uma escrita no banco quente). Emita um evento assíncrono; agregue offline. Isso desacopla a disponibilidade do analytics da disponibilidade do redirect.</p>
+<h2 id="trade-offs-e-decisoes-chave">Trade-offs e decisões-chave<a class="headerlink" href="#trade-offs-e-decisoes-chave" title="Permanent link">&para;</a></h2>
+<p><strong>Geração de chave: encoding de contador vs hashing.</strong></p>
+<ul>
+<li><strong>Base62 de ID sequencial/distribuído:</strong> pega um ID numérico único (de um contador distribuído ou Snowflake) e codifica em base62. <strong>Vantagem:</strong> zero colisão por construção, chaves curtas. <strong>Desvantagem:</strong> chaves sequenciais são previsíveis/enumeráveis (mitigável com Snowflake ou ofuscação). É a abordagem recomendada na maioria das entrevistas.</li>
+<li><strong>Hash (MD5/SHA) truncado:</strong> hasheia a URL longa e pega os primeiros N caracteres. <strong>Vantagem:</strong> mesma URL → mesma chave (deduplicação natural). <strong>Desvantagem:</strong> colisões são inevitáveis ao truncar (precisa detectar e resolver com retry/salt), o que adiciona uma leitura extra por escrita.</li>
+</ul>
+<p><strong>Redirect 301 vs 302.</strong></p>
+<ul>
+<li><strong>301 (Moved Permanently):</strong> o navegador/CDN <strong>cacheia</strong> o redirect. Cliques subsequentes nem chegam ao servidor — ótimo para latência e carga, mas <strong>você perde a contagem de cliques</strong> (o navegador pula você).</li>
+<li><strong>302 (Found, temporário):</strong> não cacheável; toda visita passa pelo servidor — permite <strong>analytics por clique</strong>, ao custo de mais carga. A escolha depende de o produto precisar de analytics. bit.ly usa redirects que permitem rastreamento.</li>
+</ul>
+<p><strong>Banco: KV/NoSQL vs SQL relacional.</strong> O acesso é puro lookup por chave, sem joins nem transações multi-linha complexas — favorece <strong>KV store</strong> (DynamoDB, Cassandra) pela escala horizontal e simplicidade. SQL particionado funciona mas exige sharding manual e oferece garantias que não usamos. A simplicidade do modelo é o argumento decisivo.</p>
+<p><strong>Cache-aside vs write-through.</strong> Cache-aside (popular o cache no miss) é suficiente dado o padrão de acesso; write-through (popular no momento da criação) ajuda só se links são acessados imediatamente após criados (comum em alguns fluxos), e pode ser combinado.</p>
+<h2 id="erros-comuns-em-entrevista">Erros comuns em entrevista<a class="headerlink" href="#erros-comuns-em-entrevista" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Usar UUID como chave curta.</strong> Um UUID tem 36 caracteres — não é "curto". A chave precisa ser compacta (base62, ~7 chars).</li>
+<li><strong>Contador único centralizado sem pré-alocação.</strong> Vira gargalo de escrita e SPOF. Esquecer a pré-alocação de ranges ou Snowflake é o erro clássico de ID generation.</li>
+<li><strong>Ignorar colisões no hashing.</strong> Quem propõe hash truncado e não menciona detecção/resolução de colisão tem uma falha de corretude — duas URLs podem mapear para a mesma chave e corromper redirects.</li>
+<li><strong>Gravar analytics sincronamente no redirect.</strong> Transforma cada clique numa escrita no banco quente, destruindo a latência e a disponibilidade. Analytics é sempre assíncrono.</li>
+<li><strong>Não distinguir 301 de 302.</strong> A escolha tem consequência direta em latência (cacheabilidade) vs capacidade de rastrear cliques. Mencionar o trade-off demonstra profundidade.</li>
+<li><strong>Esquecer a assimetria leitura/escrita.</strong> Otimizar o caminho de escrita quando o sistema é 100:1 read-heavy é otimizar a coisa errada.</li>
+<li><strong>Subdimensionar o espaço de chaves.</strong> Propor 5-6 caracteres "para economizar" pode esgotar o espaço; mostrar a conta <code>62^7 ≈ 3,5T</code> justifica a escolha.</li>
+<li><strong>Não validar a URL de entrada.</strong> Sem blocklist de phishing/malware, o encurtador vira vetor de ataque (links curtos escondem o destino).</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Consistent Hashing:</strong> usado para particionar o KV store por <code>short_key</code> com remapeamento mínimo ao escalar shards.</li>
+<li><strong>Cache patterns (cache-aside, LRU):</strong> o caminho de leitura depende de cache para sustentar 100k+ QPS; o padrão power-law do tráfego é o que torna o cache tão eficaz.</li>
+<li><strong>Sharding:</strong> dezenas de TB de mapeamentos exigem particionamento horizontal por hash da chave.</li>
+<li><strong>Snowflake / geração de IDs distribuídos:</strong> alternativa ao contador central para gerar IDs únicos sem coordenação.</li>
+<li><strong>Rate limiter:</strong> protege o endpoint de criação contra abuso em massa e o de redirect contra enumeração de chaves.</li>
+<li><strong>CDN e cache de borda:</strong> redirects 301 cacheáveis podem ser servidos na borda, descarregando a origem.</li>
+<li><strong>Message brokers (Kafka):</strong> o pipeline de analytics consome eventos de clique de forma desacoplada do caminho crítico.</li>
+<li><strong>CAP:</strong> no redirect, preferimos disponibilidade (servir um valor possivelmente levemente desatualizado do cache) sobre consistência forte — um link raramente muda de destino.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://bytebytego.com/courses/system-design-interview/design-a-url-shortener">Design A URL Shortener — ByteByteGo (Alex Xu)</a></li>
+<li><a href="https://www.hellointerview.com/learn/system-design/problem-breakdowns/bitly">Design a URL Shortener Like Bitly — Hello Interview</a></li>
+<li><a href="https://www.geeksforgeeks.org/system-design/system-design-url-shortening-service/">URL Shortening Service (bit.ly, TinyURL) — GeeksforGeeks</a></li>
+<li><a href="https://www.designgurus.io/blog/url-shortening">How to Design a URL Shortener — DesignGurus</a></li>
+<li><a href="https://dev.to/karanpratapsingh/system-design-url-shortener-10i5">System Design: URL Shortener — DEV Community (Karan Pratap Singh)</a></li>
+<li><a href="https://github.com/donnemartin/system-design-primer">System Design Primer — donnemartin (GitHub)</a></li>
+<li><a href="https://www.hellointerview.com/learn/system-design/core-concepts/consistent-hashing">Consistent Hashing for System Design Interviews — Hello Interview</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../../16-redes-e-protocolos/09-long-polling-sse-websockets/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Long polling, SSE, WebSockets">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Long polling, SSE, WebSockets
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../02-timeline-rede-social/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Timeline de rede social">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Timeline de rede social
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

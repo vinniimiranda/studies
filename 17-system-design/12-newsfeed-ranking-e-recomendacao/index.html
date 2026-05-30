@@ -1,0 +1,2384 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/17-system-design/12-newsfeed-ranking-e-recomendacao/">
+      
+      
+        <link rel="prev" href="../11-sistema-de-pagamentos/">
+      
+      
+        <link rel="next" href="../13-sistema-de-logs-distribuido/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Newsfeed ranking e recomendação - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#system-design-newsfeed-ranking-e-recomendacao" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Newsfeed ranking e recomendação
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_19" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_19" id="__nav_19_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_19_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_19">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    17 · System Design (estudos de caso)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-encurtador-de-url/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Encurtador de URL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-timeline-rede-social/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timeline de rede social
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-sistema-de-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de chat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-sistema-de-notificacoes-em-escala/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notificações em escala
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-rate-limiter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rate limiter
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-web-crawler-distribuido/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web crawler distribuído
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-sistema-de-busca/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de busca
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-upload-de-arquivos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upload de arquivos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-streaming-de-video/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Streaming de vídeo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-sistema-de-reservas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de reservas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-sistema-de-pagamentos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de pagamentos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Newsfeed ranking e recomendação
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Newsfeed ranking e recomendação
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requisitos-funcionais-e-nao-funcionais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requisitos (funcionais e não-funcionais)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estimativas-de-capacidade-back-of-the-envelope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estimativas de capacidade (back-of-the-envelope)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-de-dados-e-api-alto-nivel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo de dados e API (alto nível)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arquitetura-da-solucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arquitetura da solução
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-arquitetura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de arquitetura
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-de-escala-e-gargalos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos de escala e gargalos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trade-offs-e-decisoes-chave" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trade-offs e decisões-chave
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#erros-comuns-em-entrevista" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Erros comuns em entrevista
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-sistema-de-logs-distribuido/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sistema de logs distribuído
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-top-k-trending-count-min-sketch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Top K trending (count-min sketch)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requisitos-funcionais-e-nao-funcionais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requisitos (funcionais e não-funcionais)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estimativas-de-capacidade-back-of-the-envelope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estimativas de capacidade (back-of-the-envelope)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-de-dados-e-api-alto-nivel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo de dados e API (alto nível)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arquitetura-da-solucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arquitetura da solução
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-arquitetura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de arquitetura
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-de-escala-e-gargalos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos de escala e gargalos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trade-offs-e-decisoes-chave" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trade-offs e decisões-chave
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#erros-comuns-em-entrevista" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Erros comuns em entrevista
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="system-design-newsfeed-ranking-e-recomendacao">System Design: Newsfeed — Ranking e Recomendação<a class="headerlink" href="#system-design-newsfeed-ranking-e-recomendacao" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> System Design (estudos de caso) · <strong>Nível:</strong> Avançado · <strong>Tempo de leitura:</strong> ~34 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>Um newsfeed (Twitter/X, Facebook, Instagram) tem dois problemas entrelaçados. O primeiro é de <strong>distribuição</strong>: quando alguém posta, como entregar isso aos seguidores? A decisão clássica é <strong>fan-out on write (push)</strong> vs <strong>fan-out on read (pull)</strong>. No push, ao postar, o sistema escreve a referência do post na timeline pré-computada de cada seguidor — <strong>leitura barata, escrita cara</strong>; ótimo para os 99% de usuários com poucos seguidores. No pull, a timeline é montada na hora da leitura, buscando os posts de quem o usuário segue — <strong>leitura cara, escrita barata</strong>; melhor para usuários inativos e para o <strong>"celebrity problem"</strong> (uma celebridade com 100M de seguidores faria 100M de escritas por post). A solução real é <strong>híbrida</strong>: push para usuários normais, pull para celebridades, e merge na leitura.</p>
+<p>O segundo problema é de <strong>ranking/recomendação</strong>: a timeline moderna não é cronológica — é <strong>ordenada por relevância</strong> por um modelo de ML. O padrão é um <strong>funil</strong>: <strong>retrieval</strong> (recuperar centenas a milhares de candidatos baratos — de quem você segue + recomendados), <strong>ranking</strong> (um modelo pesado re-pontua e ordena os top-N), e <strong>re-ranking</strong> (regras de negócio, diversidade, anti-spam, frescor). Em entrevista, os pontos profundos são: a escolha e o híbrido de fan-out, o tratamento da celebridade, o funil retrieval → rank → re-rank, a infraestrutura de feature/embedding para o ML, e a tensão entre frescor (real-time) e custo de pré-computação.</p>
+<h2 id="requisitos-funcionais-e-nao-funcionais">Requisitos (funcionais e não-funcionais)<a class="headerlink" href="#requisitos-funcionais-e-nao-funcionais" title="Permanent link">&para;</a></h2>
+<p><strong>Funcionais:</strong></p>
+<ul>
+<li><strong>Publicar</strong> um post (texto, mídia).</li>
+<li><strong>Seguir/deixar de seguir</strong> usuários (o grafo social).</li>
+<li><strong>Gerar a timeline</strong> de um usuário: os posts relevantes de quem ele segue + recomendados.</li>
+<li><strong>Ranquear</strong> a timeline por relevância (não só cronológico).</li>
+<li><strong>Interagir</strong> (like, comment, share) — sinais que alimentam o ranking.</li>
+<li><strong>Frescor</strong>: posts recentes/relevantes aparecem rápido.</li>
+</ul>
+<p><strong>Não-funcionais:</strong></p>
+<ul>
+<li><strong>Baixa latência de leitura</strong>: a timeline é a tela inicial; deve carregar em &lt; 200 ms. Leitura é o caminho dominante.</li>
+<li><strong>Altíssima razão leitura:escrita</strong>: usuários leem muito mais do que postam (centenas:1).</li>
+<li><strong>Escala</strong>: bilhões de usuários, centenas de milhões de posts/dia, grafo social com hubs (celebridades).</li>
+<li><strong>Disponibilidade alta</strong>; <strong>eventual consistency aceitável</strong> (um post aparecer alguns segundos depois é tolerável — não é pagamento).</li>
+<li><strong>Relevância/qualidade</strong>: o ranking impacta diretamente engajamento; é um sistema de ML em produção.</li>
+</ul>
+<h2 id="estimativas-de-capacidade-back-of-the-envelope">Estimativas de capacidade (back-of-the-envelope)<a class="headerlink" href="#estimativas-de-capacidade-back-of-the-envelope" title="Permanent link">&para;</a></h2>
+<p>Premissas: <strong>2 bilhões de usuários</strong>, <strong>500 milhões DAU</strong>, cada DAU <strong>lê a timeline 10×/dia</strong> e <strong>posta 0,2×/dia</strong> (1 post a cada 5 dias). Seguidores médios: <strong>200</strong>; celebridades: até <strong>100M</strong>.</p>
+<ul>
+<li><strong>Leituras de timeline</strong>: 500M × 10 = 5 × 10⁹ leituras/dia ÷ 86.400 ≈ <strong>~58 mil QPS</strong> de média, pico ~3× → <strong>~175 mil QPS</strong>. A leitura domina — daí a obsessão por timeline pré-computada (push).</li>
+<li><strong>Posts (escritas)</strong>: 500M × 0,2 = 100M posts/dia ÷ 86.400 ≈ <strong>~1.150 posts/s</strong> de média, pico ~3.500/s.</li>
+<li><strong>Fan-out de escritas (push)</strong>: cada post × seguidores médios (200) = 100M × 200 = <strong>2 × 10¹⁰ escritas de fan-out/dia</strong> ÷ 86.400 ≈ <strong>~230 mil escritas/s</strong> na timeline. Esse é o custo do push — alto, mas em escritas baratas (append numa lista por seguidor). Para celebridades, esse número explode (1 post × 100M = 100M escritas) — daí o pull para elas.</li>
+<li><strong>Custo da celebridade</strong>: se 1.000 celebridades com 50M de seguidores médios postam 5×/dia: 1.000 × 5 × 50M = <strong>2,5 × 10¹¹ escritas/dia</strong> só de celebridades se usássemos push — ~5× o fan-out de todos os usuários normais juntos. Inviável. Por isso pull/merge para elas.</li>
+<li><strong>Armazenamento de timeline (push)</strong>: cada timeline guarda ~800 referências (IDs de post, ~16 bytes). 500M usuários × 800 × 16 B = <strong>~6,4 TB</strong> de timelines pré-computadas em memória/Redis — caro, mas justifica o cache só dos usuários ativos.</li>
+<li><strong>Funil de ranking</strong>: retrieval traz ~500–1.000 candidatos; o ranker (modelo) pontua esses ~1.000 por requisição. 175k QPS × 1.000 = <strong>175M inferências/s</strong> no pico — daí ranking em camadas (modelo leve cedo, pesado só no top).</li>
+</ul>
+<p>Conclusão: leitura domina (175k QPS), o push pré-computa para baratear a leitura, a celebridade quebra o push (vira pull), e o ranking é um funil para tornar viável pontuar candidatos em escala.</p>
+<h2 id="modelo-de-dados-e-api-alto-nivel">Modelo de dados e API (alto nível)<a class="headerlink" href="#modelo-de-dados-e-api-alto-nivel" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>users(user_id, ...)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>follows(follower_id, followee_id)              -- o grafo social (com hubs/celebridades)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>posts(post_id, author_id, content, media, created_at)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>timelines(user_id, [post_id ordenado])         -- timeline pre-computada (push), em Redis sorted set
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>interactions(user_id, post_id, type, ts)       -- sinais para o ranking
+</code></pre></div>
+<p>API:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>POST /posts          body: {content}     → {post_id}   # dispara fan-out (push) p/ seguidores nao-celebridade
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>GET  /timeline?cursor → [posts ranqueados]              # merge(push pre-computado, pull de celebridades) + ranking
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>POST /follow         body: {followee}
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>POST /posts/{id}/like
+</code></pre></div>
+<p>O <code>GET /timeline</code> faz: (1) lê a timeline pré-computada (push) do Redis; (2) busca em tempo real os posts recentes das celebridades que o usuário segue (pull); (3) faz o <strong>merge</strong> dos dois; (4) passa pelo <strong>funil de ranking</strong> (retrieval já feito, agora rank + re-rank); (5) devolve os top-N.</p>
+<h2 id="arquitetura-da-solucao">Arquitetura da solução<a class="headerlink" href="#arquitetura-da-solucao" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Post Service</strong>: recebe o post, persiste, e publica um evento de fan-out na fila.</li>
+<li><strong>Fan-out Service</strong>: consome o evento; para autores <strong>não-celebridade</strong>, escreve a referência do post nas timelines (Redis sorted set) de cada seguidor (push). Para <strong>celebridades</strong>, <strong>não</strong> faz fan-out (marca o post; será puxado na leitura).</li>
+<li><strong>Graph Service</strong>: o grafo social (follows); responde "quem segue X" e "quem X segue". Hubs (celebridades) tratados à parte.</li>
+<li><strong>Timeline Service (leitura)</strong>: monta a timeline = merge(timeline pré-computada do push + pull dos posts recentes das celebridades seguidas), depois aplica ranking.</li>
+<li><strong>Ranking/Recommendation Service</strong>: o funil ML:</li>
+<li><strong>Retrieval</strong>: candidatos baratos (de quem segue + recomendados via embeddings/similaridade). Reduz o universo a ~centenas/milhares.</li>
+<li><strong>Ranking</strong>: modelo (gradient boosting / rede neural) re-pontua candidatos usando features (afinidade autor-leitor, frescor, engajamento previsto). Em camadas: early-stage leve → late-stage pesado.</li>
+<li><strong>Re-ranking</strong>: diversidade (não repetir o mesmo autor), anti-spam, frescor, regras de negócio/políticas.</li>
+<li><strong>Feature Store / Embedding Service</strong>: serve features e embeddings de usuários/posts para o ranking, com baixa latência (online feature store).</li>
+<li><strong>Cache (Redis)</strong>: timelines quentes e posts populares.</li>
+<li><strong>Storage</strong>: posts em banco distribuído (Cassandra-like); timelines em Redis (sorted sets).</li>
+</ul>
+<h2 id="diagrama-de-arquitetura">Diagrama de arquitetura<a class="headerlink" href="#diagrama-de-arquitetura" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama mostra o caminho de escrita com fan-out híbrido; o segundo, o caminho de leitura com merge e funil de ranking.</p>
+<pre class="mermaid"><code>flowchart TB
+    AUTHOR["Autor posta"] --&gt; POST["Post Service"]
+    POST --&gt; DB["Posts DB"]
+    POST --&gt;|"evento fan-out"| FQ["Fila de fan-out"]
+    FQ --&gt; FANOUT["Fan-out Service"]
+    FANOUT --&gt;|"autor normal: push"| TL["Timelines (Redis)&lt;br/&gt;1 lista por seguidor"]
+    FANOUT --&gt;|"autor celebridade: NAO faz push"| MARK["marca p/ pull na leitura"]
+    GRAPH["Graph Service&lt;br/&gt;follows + hubs"] --&gt; FANOUT</code></pre>
+<pre class="mermaid"><code>flowchart TB
+    READER["Usuario abre o feed"] --&gt; TLS["Timeline Service"]
+    TLS --&gt;|"1. le push pre-computado"| TL["Timelines (Redis)"]
+    TLS --&gt;|"2. pull posts recentes de celebridades"| CELEB["Posts de celebridades seguidas"]
+    TL --&gt; MERGE["Merge push + pull"]
+    CELEB --&gt; MERGE
+    MERGE --&gt; RETR["Retrieval: ~1000 candidatos"]
+    RETR --&gt; RANK["Ranking ML (early -&gt; late)"]
+    RANK --&gt; RERANK["Re-ranking: diversidade, anti-spam, frescor"]
+    RERANK --&gt; OUT["Top-N para o usuario"]
+    FS["Feature/Embedding Store"] --&gt; RANK</code></pre>
+<h2 id="pontos-de-escala-e-gargalos">Pontos de escala e gargalos<a class="headerlink" href="#pontos-de-escala-e-gargalos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Fan-out de escrita (push)</strong>: ~230k escritas/s no caso normal. São escritas baratas (append em lista), mas em volume — Redis sorted sets, sharded por <code>user_id</code>. O custo é aceitável porque baixa a leitura (a tela mais acessada).</li>
+<li><strong>Celebrity problem</strong>: o push para 100M seguidores num post é inviável. Solução: <strong>não</strong> fazer push para celebridades; puxar seus posts na leitura e fazer merge. O limiar (ex.: &gt;10k seguidores = celebridade) é um parâmetro de tuning. Posts de celebridades são altamente cacheáveis (todo mundo puxa os mesmos).</li>
+<li><strong>Armazenamento de timelines</strong>: pré-computar para 2B usuários é caro; só se pré-computa para <strong>usuários ativos</strong> (push lazy: gerar a timeline de inativos sob demanda quando voltam — fan-out on read para eles).</li>
+<li><strong>Ranking em escala</strong>: pontuar ~1.000 candidatos × 175k QPS exige o funil (modelo leve filtra cedo, pesado só no topo) e feature store de baixa latência. O ranking é o maior consumidor de compute.</li>
+<li><strong>Frescor vs custo</strong>: timeline pré-computada pode ficar stale; eventos recentes (post agora) precisam aparecer rápido — daí o pull complementar e invalidação. Equilíbrio entre pré-computar (barato na leitura) e tempo real (fresco mas caro).</li>
+<li><strong>Hot posts (viral)</strong>: um post que viraliza é puxado por milhões — cache agressivo do post e dos seus contadores (likes), que são eventualmente consistentes/aproximados.</li>
+</ul>
+<h2 id="trade-offs-e-decisoes-chave">Trade-offs e decisões-chave<a class="headerlink" href="#trade-offs-e-decisoes-chave" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Push vs pull vs híbrido</strong>: push baixa a latência de leitura (timeline pronta) ao custo de escrita pesada; pull baliza escrita ao custo de leitura cara. O <strong>híbrido</strong> (push para normais, pull para celebridades, merge na leitura) é a resposta canônica — combina o melhor dos dois para a distribuição bimodal de seguidores.</li>
+<li><strong>Cronológico vs ranqueado por ML</strong>: feed cronológico é simples e previsível; ranqueado maximiza engajamento mas adiciona um sistema de ML inteiro (features, modelos, treino, viés/feedback loop). Quase todas as plataformas grandes ranqueiam — o trade-off é complexidade e questões de qualidade/ética (bolhas, engajamento tóxico).</li>
+<li><strong>Consistência eventual</strong>: aceitável aqui (um post aparecer 5 s depois não é problema) — escolhe-se disponibilidade/latência sobre consistência (AP). Contadores (likes/views) são aproximados/agregados assíncronamente.</li>
+<li><strong>Push lazy (só ativos)</strong>: pré-computar timelines de todos os 2B usuários desperdiça memória nos inativos. Pré-computar só ativos e gerar sob demanda para quem volta economiza muito — custo: primeira leitura mais lenta após inatividade.</li>
+<li><strong>Retrieval: follow-graph vs recomendação</strong>: a timeline mistura quem você segue (retrieval do grafo) com conteúdo recomendado (retrieval por embedding/similaridade — "para você"). O peso entre os dois é decisão de produto e impacta a infra de recomendação.</li>
+<li><strong>Limiar de celebridade</strong>: o número que separa push de pull (ex.: 10k seguidores) é um trade-off — baixo demais faz muitos usuários virarem pull (leitura cara); alto demais deixa push caro para usuários populares.</li>
+</ul>
+<h2 id="erros-comuns-em-entrevista">Erros comuns em entrevista<a class="headerlink" href="#erros-comuns-em-entrevista" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Escolher só push ou só pull.</strong> Sem o híbrido, ou a celebridade quebra o push, ou a leitura de todos fica cara. O entrevistador quer ver o tratamento da celebridade.</li>
+<li><strong>Ignorar o celebrity problem.</strong> É o ponto que mais distingue candidatos. Push para 100M seguidores por post é o erro clássico.</li>
+<li><strong>Pré-computar timeline de todos.</strong> Desperdiça memória nos inativos; pré-compute só ativos (push lazy).</li>
+<li><strong>Tratar ranking como "ordena por data".</strong> A timeline moderna é ML; não mencionar o funil retrieval → rank → re-rank ignora metade do problema.</li>
+<li><strong>Incrementar contadores transacionalmente.</strong> Likes/views são escrita massiva; agregue assíncrono, aceite aproximação.</li>
+<li><strong>Escolher consistência forte.</strong> Aqui é AP — eventual consistency é aceitável e necessária para a latência/escala. Forçar C é over-engineering.</li>
+<li><strong>Não dimensionar o fan-out.</strong> Sem os números (230k escritas/s normal, explosão na celebridade), não se justifica o híbrido nem o limiar.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Cache patterns / caching multicamada</strong>: timelines pré-computadas em Redis, posts de celebridades altamente cacheáveis, contadores em cache — leitura dominante servida de cache.</li>
+<li><strong>Stream processing</strong>: fan-out, agregação de contadores (likes/views) e sinais de ranking são processados como streams (Kafka + processador), eventualmente consistentes.</li>
+<li><strong>Mensageria / filas (Outbox)</strong>: o evento "novo post" dispara o fan-out via fila; Outbox garante que o post persistido e o evento de fan-out convergem.</li>
+<li><strong>Consistent Hashing</strong>: sharding de timelines e do grafo social por <code>user_id</code>.</li>
+<li><strong>Estruturas probabilísticas</strong>: deduplicação de "já vi este post" (não mostrar repetido) pode usar Bloom filter; contagem de itens populares relaciona-se com count-min sketch / top-K.</li>
+<li><strong>Streaming de vídeo</strong>: o subsistema de recomendação da Netflix/YouTube é o mesmo problema de ranking/funil aplicado a vídeo.</li>
+<li><strong>Top-K / heavy hitters</strong>: identificar posts/hashtags em alta (trending) usa as mesmas estruturas do estudo de caso de top-K.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://bytebytego.com/courses/system-design-interview/design-a-news-feed-system">Design A News Feed System — ByteByteGo</a></li>
+<li><a href="https://github.com/donnemartin/system-design-primer/blob/master/solutions/system_design/twitter/README.md">system-design-primer: Twitter (timeline e busca) — donnemartin (GitHub)</a></li>
+<li><a href="https://www.designgurus.io/blog/design-social-media-news-feed">How to Design a Social Media News Feed — DesignGurus</a></li>
+<li><a href="https://www.calibreos.com/learn/hld-news-feed">News Feed Architecture: Fan-Out on Write vs Read — CalibreOS</a></li>
+<li><a href="https://corgicorporation.medium.com/baseline-system-design-facebook-newsfeed-and-fanout-e95311d52f65">Baseline System Design — Facebook Newsfeed and "Fanout" (Medium)</a></li>
+<li><a href="https://noahtigner.com/articles/system-design-interview-volume-1-chapter-11/">System Design Interview Vol.1 Ch.11 — Design a News Feed (Noah Tigner)</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../11-sistema-de-pagamentos/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Sistema de pagamentos">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Sistema de pagamentos
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../13-sistema-de-logs-distribuido/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Sistema de logs distribuído">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Sistema de logs distribuído
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

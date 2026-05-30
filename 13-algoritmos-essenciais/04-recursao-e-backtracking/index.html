@@ -1,0 +1,2539 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/13-algoritmos-essenciais/04-recursao-e-backtracking/">
+      
+      
+        <link rel="prev" href="../03-two-pointers-sliding-window-fast-slow/">
+      
+      
+        <link rel="next" href="../05-divide-and-conquer/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Recursão e Backtracking - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#recursao-e-backtracking-n-queens-permutacoes-combinacoes-e-sudoku" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Recursão e Backtracking
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_15" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_15" id="__nav_15_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_15_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_15">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    13 · Algoritmos essenciais
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sorting (quick, merge, heap, radix, counting)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-searching-busca-binaria-e-variacoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Searching (busca binária e variações)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-two-pointers-sliding-window-fast-slow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Two Pointers, Sliding Window, Fast & Slow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recursão e Backtracking
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recursão e Backtracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recursao-anatomia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recursão: anatomia
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backtracking-o-esqueleto-universal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backtracking: o esqueleto universal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permutacoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Permutações
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combinacoes-e-subconjuntos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Combinações e Subconjuntos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#n-queens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        N-Queens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sudoku" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sudoku
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-papel-decisivo-da-poda" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O papel decisivo da poda
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ordenacao-de-escolhas-e-heuristicas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ordenação de escolhas e heurísticas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-divide-and-conquer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Divide and Conquer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-greedy-algorithms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Greedy Algorithms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-dynamic-programming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic Programming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-graph-algorithms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Graph Algorithms (BFS, DFS, Dijkstra…)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-string-algorithms-kmp-rabin-karp-z/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    String Algorithms (KMP, Rabin-Karp, Z)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recursao-anatomia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recursão: anatomia
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backtracking-o-esqueleto-universal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backtracking: o esqueleto universal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permutacoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Permutações
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combinacoes-e-subconjuntos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Combinações e Subconjuntos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#n-queens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        N-Queens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sudoku" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sudoku
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-papel-decisivo-da-poda" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O papel decisivo da poda
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ordenacao-de-escolhas-e-heuristicas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ordenação de escolhas e heurísticas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="recursao-e-backtracking-n-queens-permutacoes-combinacoes-e-sudoku">Recursão e Backtracking: N-Queens, Permutações, Combinações e Sudoku<a class="headerlink" href="#recursao-e-backtracking-n-queens-permutacoes-combinacoes-e-sudoku" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Algoritmos essenciais · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~29 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p><strong>Recursão</strong> é uma função que se chama com uma instância menor do mesmo problema, descansando sobre dois pilares: o <strong>caso base</strong> (a instância trivial que para a recursão) e o <strong>passo recursivo</strong> (reduzir o problema em direção ao caso base). Sem caso base correto, há recursão infinita e <strong>stack overflow</strong>. <strong>Backtracking</strong> é uma estratégia de busca exaustiva sistemática construída sobre recursão: <strong>constrói candidatos a solução incrementalmente</strong> (uma escolha por vez), e quando uma escolha leva a um beco sem saída — viola uma restrição —, <strong>desfaz a escolha (backtrack) e tenta outra</strong>. O esqueleto universal é: <em>escolher → recursar → desfazer</em> (choose, explore, un-choose), percorrendo uma <strong>árvore de decisão</strong> onde cada nó é um estado parcial e cada aresta é uma escolha. O que separa backtracking de força bruta cega é a <strong>poda (pruning)</strong>: abandonar ramos inteiros assim que se torna provável (ou certo) que não levam a solução — em N-Queens, abandonar uma coluna assim que ela conflita com uma rainha já posta, em vez de completar o tabuleiro para descobrir que é inválido. Os problemas canônicos exercitam padrões distintos: <strong>permutações</strong> (ordem importa, sem repetição — escolha-se quem ainda não foi usado), <strong>combinações/subconjuntos</strong> (ordem não importa — avança-se um índice para nunca olhar para trás), <strong>N-Queens</strong> (posicionar com restrições de linha/coluna/diagonal, poda agressiva), e <strong>Sudoku</strong> (preencher célula a célula respeitando linha/coluna/bloco, backtrack ao chegar num impasse). A complexidade é tipicamente <strong>exponencial ou fatorial</strong> (O(n!), O(2ⁿ), O(b^d)), porque o espaço de soluções é exponencial — backtracking não muda a classe, mas a <strong>poda reduz drasticamente a constante</strong>, tornando viável o que a força bruta torna impraticável. A armadilha número um de entrevista é <strong>recursão sem poda</strong> (explorar candidatos inválidos até o fim) e <strong>esquecer de desfazer o estado</strong> (mutação compartilhada que vaza entre ramos).</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>Há uma classe enorme de problemas — <strong>combinatórios e de satisfação de restrições</strong> — em que a resposta é "encontre todas (ou alguma, ou a melhor) configuração que satisfaz um conjunto de regras", e o espaço de configurações possíveis é <strong>exponencial</strong>. Não há fórmula fechada nem algoritmo polinomial conhecido para muitos deles; é preciso <strong>explorar o espaço de possibilidades</strong>. Exemplos: gerar todas as permutações de uma lista, todos os subconjuntos, posicionar N rainhas que não se atacam, resolver um Sudoku, colorir um grafo com K cores, encontrar caminhos num labirinto, particionar um conjunto.</p>
+<p>A força bruta ingênua para esses problemas é: <strong>gere todas as configurações completas e teste cada uma</strong>. Para Sudoku, isso seria gerar todos os 9^(células vazias) preenchimentos e verificar quais são válidos — astronômico e completamente inviável. O problema dessa abordagem é que ela <strong>desperdiça trabalho monumentalmente</strong>: completa configurações inteiras antes de descobrir que uma escolha feita no segundo passo já as invalidou todas.</p>
+<p>Backtracking resolve isso com duas ideias:</p>
+<ul>
+<li><strong>Construção incremental.</strong> Em vez de gerar configurações completas, construa-as <strong>uma escolha por vez</strong>, e verifique a validade <em>a cada escolha</em>. Assim que uma escolha parcial viola uma restrição, você sabe <strong>imediatamente</strong> — antes de gastar esforço completando-a.</li>
+<li><strong>Poda de ramos inválidos (pruning).</strong> Ao detectar que um estado parcial não pode levar a nenhuma solução válida, <strong>abandone o ramo inteiro</strong> da árvore de decisão. Isso elimina, de uma só vez, <em>todas</em> as configurações completas que teriam aquele prefixo inválido — frequentemente uma fração gigantesca do espaço.</li>
+</ul>
+<p>A pergunta central: <strong>"como explorar sistematicamente um espaço exponencial de configurações, construindo-as incrementalmente e abandonando ramos sem futuro o mais cedo possível, sem esquecer de nenhuma possibilidade válida nem repetir trabalho?"</strong>. A resposta é o backtracking. E a recursão é o veículo natural para expressá-lo, porque a árvore de decisão é intrinsecamente recursiva: explorar um nó é explorar recursivamente seus filhos, e voltar (backtrack) é simplesmente retornar da chamada recursiva.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="recursao-anatomia">Recursão: anatomia<a class="headerlink" href="#recursao-anatomia" title="Permanent link">&para;</a></h3>
+<p>Uma função <strong>recursiva</strong> resolve um problema reduzindo-o a instâncias menores de si mesmo. Tem dois componentes obrigatórios:</p>
+<ul>
+<li><strong>Caso(s) base:</strong> a(s) instância(s) tão pequena(s) que a resposta é direta, sem mais recursão. É a condição de parada. Faltar um caso base (ou ter um inalcançável) causa <strong>recursão infinita → stack overflow</strong>.</li>
+<li><strong>Passo recursivo:</strong> expressa a solução do problema em termos de uma ou mais chamadas a instâncias <em>menores</em>, garantindo <strong>progresso</strong> em direção ao caso base.</li>
+</ul>
+<p>Cada chamada recursiva empilha um <strong>stack frame</strong> (parâmetros, variáveis locais, endereço de retorno). A <strong>profundidade máxima da recursão</strong> determina o uso de pilha — O(profundidade) de espaço. Linguagens com <strong>tail-call optimization</strong> (TCO) podem transformar recursão em cauda em iteração (O(1) pilha), mas muitas (Python, Java, JavaScript em geral) <strong>não</strong> otimizam, então recursão profunda demais estoura a pilha. Toda recursão pode ser convertida em iteração com uma pilha explícita.</p>
+<p>A recursão brilha quando a estrutura do problema é <strong>auto-similar</strong>: árvores (percorrer = percorrer recursivamente as subárvores), divide-and-conquer (mergesort, quicksort), e — o foco aqui — exploração de árvores de decisão (backtracking).</p>
+<h3 id="backtracking-o-esqueleto-universal">Backtracking: o esqueleto universal<a class="headerlink" href="#backtracking-o-esqueleto-universal" title="Permanent link">&para;</a></h3>
+<p><strong>Backtracking</strong> é busca em profundidade (DFS) sobre a <strong>árvore de decisão</strong> do problema, com retrocesso. O esqueleto que serve para <em>quase todos</em> os problemas é:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>backtrack(estado_parcial):
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  se estado_parcial é solução completa:
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    registra/conta a solução
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    retorna
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  para cada escolha possível a partir do estado:
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    se a escolha é válida (passa nas restrições):   // PODA
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>      aplica a escolha (modifica o estado)           // CHOOSE
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>      backtrack(estado com a escolha)                // EXPLORE
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>      desfaz a escolha (restaura o estado)           // UN-CHOOSE / BACKTRACK
+</code></pre></div>
+<p>Três peças definem qualquer instância: <strong>(1) o que é uma solução completa</strong> (condição do caso base), <strong>(2) quais escolhas são possíveis em cada estado</strong> (e como gerá-las sem repetição/omissão), e <strong>(3) quais restrições podam escolhas inválidas</strong> (a poda). A linha "desfaz a escolha" é o que dá nome à técnica e a fonte número um de bugs quando esquecida: se o estado é mutável e compartilhado entre ramos, <em>não</em> desfazer faz o lixo de um ramo vazar para o próximo.</p>
+<ul>
+<li><strong>Complexidade:</strong> depende do problema, mas é tipicamente <strong>exponencial (O(2ⁿ), O(b^d)) ou fatorial (O(n!))</strong>, porque o número de folhas da árvore de decisão é exponencial. A poda <strong>não muda a classe assintótica do pior caso</strong>, mas reduz dramaticamente o número de nós visitados na prática (frequentemente de fatorial inviável para "roda em milissegundos").</li>
+</ul>
+<h3 id="permutacoes">Permutações<a class="headerlink" href="#permutacoes" title="Permanent link">&para;</a></h3>
+<p><strong>Permutações</strong> de <code>n</code> elementos: todas as ordenações (a ordem importa, sem repetição). Há <strong>n!</strong> delas. Padrão de backtracking: a cada nível, escolha um elemento <strong>ainda não usado</strong>; um array <code>usado[]</code> (ou remover/recolocar do conjunto disponível) marca quem já está na permutação parcial.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>permuta(parcial, usado):
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  se tamanho(parcial) == n:
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    registra(parcial); retorna
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  para cada i de 0 a n-1:
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    se não usado[i]:
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>      usado[i] = true; parcial.push(A[i])     // choose
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>      permuta(parcial, usado)                  // explore
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>      parcial.pop(); usado[i] = false          // un-choose
+</code></pre></div>
+<p>Complexidade O(n · n!) (n! folhas, O(n) para copiar cada). Variante com <strong>duplicatas</strong>: ordene e pule escolhas iguais à anterior no mesmo nível para evitar permutações repetidas.</p>
+<h3 id="combinacoes-e-subconjuntos">Combinações e Subconjuntos<a class="headerlink" href="#combinacoes-e-subconjuntos" title="Permanent link">&para;</a></h3>
+<p><strong>Combinações</strong> (escolher <code>k</code> de <code>n</code>, ordem não importa) e <strong>subconjuntos</strong> (todos os 2ⁿ subconjuntos). A chave para <em>não</em> gerar a mesma combinação em ordens diferentes é avançar um <strong>índice de início (start)</strong>: a cada escolha, só considere elementos <strong>a partir</strong> do índice atual, nunca olhando para trás. Isso impõe uma ordem canônica e elimina duplicatas estruturalmente.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>combina(start, parcial):
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  registra(parcial)                  // todo subconjunto é válido (para subsets)
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  para i de start a n-1:
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    parcial.push(A[i])               // choose
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    combina(i + 1, parcial)          // explore — i+1 evita olhar para trás
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    parcial.pop()                    // un-choose
+</code></pre></div>
+<p>Subconjuntos: O(2ⁿ) (cada elemento entra ou não). Combinações de <code>k</code>: poda quando <code>tamanho(parcial) == k</code>.</p>
+<h3 id="n-queens">N-Queens<a class="headerlink" href="#n-queens" title="Permanent link">&para;</a></h3>
+<p><strong>N-Queens:</strong> posicionar <code>N</code> rainhas num tabuleiro <code>N×N</code> de modo que nenhuma ataque outra (nenhuma compartilha linha, coluna ou diagonal). Padrão: posicione <strong>uma rainha por linha</strong> (já elimina conflitos de linha por construção), escolhendo a coluna; para cada coluna candidata, <strong>pode</strong> se ela já está ocupada ou está numa diagonal de uma rainha anterior. As duas diagonais se identificam por <code>linha + coluna</code> (diagonal ↘ constante) e <code>linha - coluna</code> (diagonal ↙ constante) — manter conjuntos de colunas e diagonais ocupadas torna a checagem de validade O(1).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>resolve(linha, cols, diag1, diag2):
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  se linha == N: registra(tabuleiro); retorna
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  para col de 0 a N-1:
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    se col não em cols e (linha+col) não em diag1 e (linha-col) não em diag2:   // PODA
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>      marca col, diag1, diag2
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>      resolve(linha+1, ...)
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>      desmarca col, diag1, diag2
+</code></pre></div>
+<p>A poda é o coração: sem ela, seriam N^N tentativas; com ela, o espaço cai a uma fração viável. N-Queens é o exemplo didático máximo de <strong>poda agressiva</strong>.</p>
+<h3 id="sudoku">Sudoku<a class="headerlink" href="#sudoku" title="Permanent link">&para;</a></h3>
+<p><strong>Sudoku solver:</strong> preencher uma grade 9×9 de modo que cada linha, coluna e bloco 3×3 contenha 1-9 sem repetição. Padrão: encontre a próxima célula vazia; para cada dígito 1-9, <strong>verifique</strong> se ele é válido naquela linha/coluna/bloco (poda); se sim, coloque-o e recursе para a próxima célula vazia; se a recursão falha (nenhum dígito completa a grade), <strong>desfaça</strong> (limpe a célula) e tente o próximo dígito. Se nenhum dígito serve, retorna falso (backtrack para a célula anterior).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>resolve_sudoku(grade):
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  célula = próxima vazia em grade
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  se não há vazia: retorna true     // resolvido
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  para d de 1 a 9:
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    se válido(grade, célula, d):     // checa linha/coluna/bloco — PODA
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>      grade[célula] = d
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>      se resolve_sudoku(grade): retorna true   // explore
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>      grade[célula] = vazio          // un-choose (backtrack)
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>  retorna false                      // nenhum dígito serviu
+</code></pre></div>
+<h3 id="glossario-rapido">Glossário rápido<a class="headerlink" href="#glossario-rapido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Caso base:</strong> condição de parada da recursão (resposta direta).</li>
+<li><strong>Passo recursivo:</strong> redução do problema a instância menor.</li>
+<li><strong>Stack frame:</strong> registro de uma chamada na pilha (parâmetros, locais).</li>
+<li><strong>Árvore de decisão:</strong> árvore onde nós são estados parciais e arestas são escolhas.</li>
+<li><strong>Poda (pruning):</strong> abandonar um ramo assim que ele não pode levar a solução.</li>
+<li><strong>Choose / explore / un-choose:</strong> as três fases do esqueleto de backtracking.</li>
+<li><strong>Índice de start:</strong> técnica para combinações que evita duplicatas (não olhar para trás).</li>
+<li><strong>Branching factor (b):</strong> número de escolhas por nó; profundidade (d): níveis da árvore.</li>
+</ul>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>O fluxo de qualquer backtracking é um <strong>DFS</strong> sobre a árvore de decisão:</p>
+<ol>
+<li><strong>No nó atual</strong> (estado parcial), verifique se é uma solução completa → registre e volte.</li>
+<li><strong>Gere as escolhas</strong> possíveis (filhos do nó na árvore).</li>
+<li><strong>Para cada escolha</strong>, aplique a <strong>poda</strong>: se a escolha leva a um estado inválido (ou que provavelmente não tem solução), <strong>pule-a</strong> — abandona-se aquele ramo inteiro.</li>
+<li>Se a escolha passa na poda, <strong>aplique-a</strong> (modifique o estado), <strong>recursе</strong> (desça na árvore), e ao voltar, <strong>desfaça</strong> (restaure o estado para tentar a próxima escolha).</li>
+</ol>
+<p>A <strong>profundidade</strong> da recursão é o número de decisões até uma solução completa (ex.: N para N-Queens, número de células vazias para Sudoku). O uso de pilha é O(profundidade). A <strong>poda</strong> opera "cortando galhos" da árvore: cada ramo cortado elimina todas as folhas (configurações completas) que estavam abaixo dele.</p>
+<h3 id="o-papel-decisivo-da-poda">O papel decisivo da poda<a class="headerlink" href="#o-papel-decisivo-da-poda" title="Permanent link">&para;</a></h3>
+<p>Vale dimensionar o efeito da poda, porque é o que torna backtracking viável. Em N-Queens com N=8, o espaço bruto (uma rainha por linha, qualquer coluna) é 8⁸ = ~16,7 milhões de configurações; testar cada uma completa é lento. Com poda (rejeitar uma coluna assim que conflita com uma rainha já posta), o backtracking visita apenas ~15 mil nós e encontra todas as 92 soluções em milissegundos. A poda não mudou a classe de complexidade do <em>pior caso</em> teórico, mas transformou um problema "lento" num "instantâneo" porque a esmagadora maioria dos ramos é cortada cedo. Quanto <strong>mais cedo</strong> e <strong>mais agressiva</strong> a poda, mais galhos morrem perto da raiz (onde cada galho representa mais folhas). Daí a regra: <strong>verifique as restrições assim que possível</strong>, não no fim.</p>
+<h3 id="ordenacao-de-escolhas-e-heuristicas">Ordenação de escolhas e heurísticas<a class="headerlink" href="#ordenacao-de-escolhas-e-heuristicas" title="Permanent link">&para;</a></h3>
+<p>Em problemas difíceis (Sudoku difícil, satisfação de restrições), a <strong>ordem em que você tenta as escolhas</strong> importa para a velocidade. A heurística <strong>MRV (Minimum Remaining Values)</strong> — sempre preencher a célula com <strong>menos candidatos válidos</strong> primeiro — poda mais cedo porque falha mais rápido nos ramos ruins. É a diferença entre um Sudoku solver que resolve grades "diabólicas" instantaneamente e um que trava. Backtracking + heurísticas de ordenação é a base dos <em>constraint satisfaction solvers</em> profissionais.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama mostra a árvore de decisão de permutações de <code>[1,2,3]</code>; o segundo, o ciclo choose/explore/un-choose; o terceiro, a poda no N-Queens.</p>
+<pre class="mermaid"><code>flowchart TD
+    R["[ ]"] --&gt; A["[1]"]
+    R --&gt; B["[2]"]
+    R --&gt; C["[3]"]
+    A --&gt; A1["[1,2]"]
+    A --&gt; A2["[1,3]"]
+    A1 --&gt; A1a["[1,2,3]"]
+    A2 --&gt; A2a["[1,3,2]"]
+    B --&gt; B1["[2,1]"]
+    B --&gt; B2["[2,3]"]
+    C --&gt; C1["[3,1]"]
+    C --&gt; C2["[3,2]"]</code></pre>
+<pre class="mermaid"><code>flowchart TD
+    S["estado parcial"] --&gt; Q{"é solução&lt;br/&gt;completa?"}
+    Q --&gt;|"sim"| REG["registra solução, retorna"]
+    Q --&gt;|"não"| LOOP["para cada escolha"]
+    LOOP --&gt; VAL{"escolha válida?&lt;br/&gt;(PODA)"}
+    VAL --&gt;|"não"| SKIP["pula (corta o ramo)"]
+    VAL --&gt;|"sim"| CH["aplica escolha (choose)"]
+    CH --&gt; EXP["backtrack recursivo (explore)"]
+    EXP --&gt; UN["desfaz escolha (un-choose)"]
+    UN --&gt; LOOP
+    SKIP --&gt; LOOP</code></pre>
+<pre class="mermaid"><code>flowchart TD
+    L0["linha 0: rainha em col 0"] --&gt; L1a["linha 1: col 0 ✗ (mesma coluna)"]
+    L0 --&gt; L1b["linha 1: col 1 ✗ (diagonal)"]
+    L0 --&gt; L1c["linha 1: col 2 ✓ continua"]
+    L1c --&gt; L2a["linha 2: col 0 ✗ (coluna)"]
+    L1c --&gt; L2b["linha 2: col 4 ✓ continua"]
+    L1a -.podado.-&gt; X1["ramo morto"]
+    L1b -.podado.-&gt; X2["ramo morto"]</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p><strong>Caso 1 — geração de configurações/combinações em sistemas reais.</strong> Combinações e subconjuntos aparecem além do quadro-branco. Um sistema de <strong>precificação de planos</strong> que precisa avaliar todos os pacotes possíveis de add-ons (subconjuntos de features) usa geração de subconjuntos (2ⁿ). Um motor de <strong>regras de desconto</strong> que testa combinações de cupons aplicáveis, ou um sistema de <strong>A/B testing</strong> que gera combinações de variantes de feature flags, percorre o mesmo espaço combinatório. O ponto de arquitetura: <strong>2ⁿ explode rápido</strong> — para 30 features, são 1 bilhão de subconjuntos. Reconhecer que um requisito "avalie todas as combinações" é exponencial é crucial para <em>recusar</em> a abordagem ingênua e buscar poda, amostragem ou reformulação (programação inteira, heurísticas).</p>
+<p><strong>Caso 2 — Sudoku solver e constraint satisfaction.</strong> O Sudoku solver é o representante didático de uma classe industrial: <strong>problemas de satisfação de restrições (CSP)</strong>. Alocação de salas/horários (timetabling) numa universidade, escalonamento de turnos respeitando regras trabalhistas, configuração de produtos com dependências (um carro com opções incompatíveis), roteamento de veículos com janelas de tempo — todos são CSPs resolvidos por backtracking + poda + heurísticas (MRV, forward checking). Os <em>solvers</em> profissionais (OR-Tools do Google, SAT solvers) são backtracking sofisticado. Entender o esqueleto choose/explore/un-choose e a poda é entender o núcleo dessas ferramentas.</p>
+<p><strong>Caso 3 — N-Queens como benchmark de poda.</strong> N-Queens raramente aparece em produção, mas é o <strong>exemplo canônico de entrevista</strong> porque isola perfeitamente o conceito de poda: a versão sem poda (testar tabuleiros completos) é inviável já para N=12, enquanto a versão com poda (rejeitar colunas/diagonais conflitantes a cada linha) resolve N=20+ rapidamente. Em entrevista, a pergunta real por trás do N-Queens é "você sabe podar cedo e desfazer o estado corretamente?". O entrevistador observa se o candidato (a) posiciona uma rainha por linha (poda estrutural de conflitos de linha), (b) checa coluna/diagonais antes de recursar (poda), e (c) desfaz a marcação ao voltar (estado limpo entre ramos).</p>
+<p><strong>Caso 4 — labirintos, parsing e árvores de jogo.</strong> Encontrar um caminho num labirinto (DFS com backtrack ao bater em parede), gerar/validar expressões em parsers recursivos, e a busca em árvores de jogo (minimax explora a árvore de jogadas, com poda alfa-beta sendo uma poda de backtracking) são variações do mesmo padrão.</p>
+<p>Exemplo de poda mal feita vs bem feita (pseudo, Sudoku):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>// RUIM: preenche tudo, valida no fim — força bruta disfarçada
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>preenche_tudo_depois_valida(grade)   // 9^vazias configurações → inviável
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>// BOM: valida a cada célula (poda cedo), MRV opcional para podar mais cedo
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>resolve(grade):
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>  cel = célula vazia com MENOS candidatos válidos   // heurística MRV
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>  para d em candidatos_válidos(cel):                // já podado
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    grade[cel] = d
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    se resolve(grade): retorna true
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    grade[cel] = vazio                              // desfaz
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>  retorna false
+</code></pre></div>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Recursão:</strong> use quando o problema é <strong>auto-similar</strong> (árvores, divide-and-conquer, exploração de espaços) e a expressão recursiva é mais clara que a iterativa. <strong>Evite/cuidado</strong> quando a profundidade pode ser grande em linguagens sem TCO (risco de stack overflow — converta para iteração com pilha explícita) ou quando há sobreposição massiva de subproblemas sem memoização (recursão ingênua de Fibonacci é O(2ⁿ) — use DP).</p>
+<p><strong>Backtracking:</strong> use para <strong>problemas combinatórios e de satisfação de restrições</strong> onde você precisa enumerar/encontrar configurações válidas num espaço exponencial e há <strong>restrições que permitem poda</strong> (permutações, combinações, N-Queens, Sudoku, coloração de grafo, labirintos, particionamento). <strong>Evite</strong> quando: existe algoritmo polinomial específico (não use backtracking para ordenar ou buscar); o espaço é tão grande e a poda tão fraca que mesmo podado é inviável (aí: programação dinâmica se há subestrutura ótima, programação inteira/heurísticas/aproximação, ou aceitar solução não-ótima); ou o problema pede <em>contagem</em> que tem fórmula fechada (use combinatória, não enumere).</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Recursão sem caso base (ou inalcançável).</strong> Recursão infinita → stack overflow. Garanta que todo caminho recursivo progride em direção a um caso base alcançável. Pegadinha clássica de entrevista.</li>
+<li><strong>Backtracking sem poda.</strong> Explorar candidatos inválidos até o fim e só então rejeitá-los é força bruta disfarçada — frequentemente a diferença entre "roda em ms" e "trava". <strong>Valide as restrições o mais cedo possível</strong>, antes de recursar.</li>
+<li><strong>Esquecer de desfazer o estado (un-choose).</strong> Se o estado é mutável e compartilhado (array, set, grade), não restaurá-lo após a recursão faz o lixo de um ramo vazar para o próximo, produzindo resultados errados sutis. O par choose/un-choose deve ser simétrico.</li>
+<li><strong>Passar estado mutável sem cuidado.</strong> Registrar a referência da lista parcial (em vez de uma <strong>cópia</strong>) na lista de soluções faz todas as soluções apontarem para a mesma lista, que termina vazia. Copie ao registrar uma solução, ou desfaça corretamente.</li>
+<li><strong>Gerar combinações com duplicatas por não usar índice de start.</strong> Sem o <code>start</code> (só considerar elementos a partir do índice atual), combinações são geradas em todas as ordens → duplicatas e explosão. O índice impõe a ordem canônica.</li>
+<li><strong>Confundir permutação (ordem importa) com combinação (ordem não importa).</strong> Usar o padrão errado gera o conjunto errado de soluções. Permutação usa <code>usado[]</code>; combinação usa índice de <code>start</code>.</li>
+<li><strong>Profundidade de recursão estourando a pilha.</strong> Em problemas com profundidade grande (ex.: backtracking sobre milhares de itens), a pilha estoura em linguagens sem TCO. Considere limite de recursão, iteração com pilha explícita, ou reformulação.</li>
+<li><strong>Não tratar duplicatas na entrada.</strong> Permutações/combinações de <code>[1,1,2]</code> geram duplicatas se não ordenar e pular escolhas iguais à anterior no mesmo nível. A pegadinha "subsets II / permutations II".</li>
+<li><strong>Backtracking onde DP era a resposta.</strong> Se há sobreposição de subproblemas e subestrutura ótima (ex.: "número de caminhos", "soma de subconjuntos contando"), backtracking exponencial pode ser substituído por DP polinomial. Reconhecer a diferença é maturidade algorítmica.</li>
+<li><strong>Continuar buscando após encontrar a (única) solução.</strong> Em "encontre <em>uma</em> solução" (Sudoku tem solução única), não pare após achá-la desperdiça tempo explorando o resto. Propague um <code>retorna true</code> para abortar a busca.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Divide and Conquer:</strong> ambos usam recursão, mas D&amp;C divide em subproblemas <strong>independentes</strong> e combina (mergesort), enquanto backtracking explora uma árvore de decisão com <strong>retrocesso</strong>; não há "combinação" de resultados, há tentativa e desfazimento. Ver o estudo de Divide and Conquer.</li>
+<li><strong>Dynamic Programming:</strong> quando a árvore de recursão de um backtracking tem <strong>subproblemas sobrepostos</strong> e busca otimização (não enumeração), DP (memoização) elimina a repetição, transformando exponencial em polinomial. Backtracking enumera <em>todas</em> as soluções; DP computa a <em>ótima/contagem</em> eficientemente. Ver o estudo de DP.</li>
+<li><strong>Grafos (DFS):</strong> backtracking é literalmente DFS sobre a árvore de decisão (implícita); detecção de ciclo, coloração de grafo e busca de caminhos são backtracking sobre grafos.</li>
+<li><strong>Complexidade algorítmica:</strong> backtracking é tipicamente O(b^d), O(n!) ou O(2ⁿ) — exponencial/fatorial; entender que esses problemas são intrinsecamente caros (muitos são NP-completos/NP-difíceis) calibra expectativas. Ver Complexidade.</li>
+<li><strong>Estruturas de dados (pilha):</strong> a recursão usa a pilha de chamadas; backtracking iterativo usa pilha explícita. Sets/bitmasks aceleram a checagem de restrições (colunas/diagonais em N-Queens).</li>
+<li><strong>System Design — CSP/scheduling:</strong> backtracking + heurísticas é o núcleo de timetabling, escalonamento, configuração de produtos e solvers (OR-Tools, SAT) — conecta com problemas de otimização do mundo real.</li>
+</ul>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Recursão = <strong>caso base</strong> (para) + <strong>passo recursivo</strong> (progride); sem caso base alcançável → stack overflow.</li>
+<li>Backtracking = DFS sobre árvore de decisão com o esqueleto <strong>choose → explore → un-choose</strong>; constrói candidatos incrementalmente e desfaz becos sem saída.</li>
+<li>A <strong>poda</strong> é o que torna backtracking viável: valide restrições <strong>o mais cedo possível</strong> para cortar ramos perto da raiz (cada ramo cortado elimina muitas folhas).</li>
+<li><strong>Permutações</strong> (ordem importa) usam <code>usado[]</code>; <strong>combinações/subconjuntos</strong> (ordem não importa) usam <strong>índice de start</strong> para não olhar para trás.</li>
+<li><strong>N-Queens</strong> = poda agressiva (uma rainha por linha + checar coluna/diagonais via sets); <strong>Sudoku</strong> = preencher célula a célula com poda por linha/coluna/bloco (+ heurística MRV).</li>
+<li>Complexidade é <strong>exponencial/fatorial</strong> (O(n!), O(2ⁿ), O(b^d)) — a poda reduz a constante, não a classe.</li>
+<li>Armadilhas: recursão sem poda, esquecer de desfazer o estado, registrar referência em vez de cópia, e usar backtracking onde DP resolveria polinomialmente.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://www.geeksforgeeks.org/dsa/introduction-to-backtracking-2/">Introduction to Backtracking — GeeksforGeeks</a></li>
+<li><a href="https://www.geeksforgeeks.org/dsa/backtracking-algorithms/">Backtracking Algorithm — GeeksforGeeks</a></li>
+<li><a href="https://www.geeksforgeeks.org/dsa/n-queen-problem-backtracking-3/">N Queen Problem (Backtracking) — GeeksforGeeks</a></li>
+<li><a href="https://www.geeksforgeeks.org/dsa/sudoku-backtracking-7/">Sudoku Solver (Backtracking) — GeeksforGeeks</a></li>
+<li><a href="https://labuladong.online/algo/en/practice-in-action/sudoku-nqueue/">Backtracking in Action: Sudoku and N-Queens — Labuladong Algo Notes</a></li>
+<li><a href="https://www.geeksforgeeks.org/dsa/backtracking-algorithm-in-python/">Backtracking Algorithm in Python — GeeksforGeeks</a></li>
+<li><a href="https://www.geeksforgeeks.org/dsa/top-20-backtracking-algorithm-interview-questions/">Top Backtracking Algorithm Interview Questions — GeeksforGeeks</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../03-two-pointers-sliding-window-fast-slow/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Two Pointers, Sliding Window, Fast &amp; Slow">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Two Pointers, Sliding Window, Fast & Slow
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../05-divide-and-conquer/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Divide and Conquer">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Divide and Conquer
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

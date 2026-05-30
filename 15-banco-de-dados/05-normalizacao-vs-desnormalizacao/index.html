@@ -1,0 +1,2451 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/15-banco-de-dados/05-normalizacao-vs-desnormalizacao/">
+      
+      
+        <link rel="prev" href="../04-query-optimization-explain-e-n-mais-1/">
+      
+      
+        <link rel="next" href="../06-sql-vs-nosql/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Normalização vs desnormalização - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#normalizacao-1nf-2nf-3nf-bcnf-vs-desnormalizacao" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Normalização vs desnormalização
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_17" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_17" id="__nav_17_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_17_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_17">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    15 · Banco de dados
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Níveis de isolamento e anomalias
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-locking-pessimista-vs-otimista/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Locking pessimista vs otimista
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-indices-de-banco-btree-hash-composite-covering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Índices (B-Tree, Hash, composite, covering)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-query-optimization-explain-e-n-mais-1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query optimization (EXPLAIN, N+1)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Normalização vs desnormalização
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Normalização vs desnormalização
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#as-formas-normais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        As formas normais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#por-que-a-normalizacao-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que a normalização funciona
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#desnormalizacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Desnormalização
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-caminho-pratico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O caminho prático
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-sql-vs-nosql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SQL vs NoSQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#as-formas-normais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        As formas normais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#por-que-a-normalizacao-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que a normalização funciona
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#desnormalizacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Desnormalização
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-caminho-pratico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O caminho prático
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="normalizacao-1nf-2nf-3nf-bcnf-vs-desnormalizacao">Normalização (1NF, 2NF, 3NF, BCNF) vs Desnormalização<a class="headerlink" href="#normalizacao-1nf-2nf-3nf-bcnf-vs-desnormalizacao" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Banco de dados · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~28 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>A <strong>normalização</strong> é um processo formal (Edgar Codd, anos 1970) de organizar tabelas relacionais para <strong>eliminar redundância</strong> e as <strong>anomalias de modificação</strong> (inserção, atualização e remoção) que dela decorrem. Avança por <strong>formas normais</strong> progressivamente mais estritas: <strong>1NF</strong> (valores atômicos, sem grupos repetidos), <strong>2NF</strong> (1NF + nenhuma coluna não-chave depende <em>apenas de parte</em> de uma chave composta — sem dependência parcial), <strong>3NF</strong> (2NF + nenhuma coluna não-chave depende de outra não-chave — sem dependência transitiva), <strong>BCNF</strong> (refinamento do 3NF: <em>todo</em> determinante é chave candidata). A ideia central é <strong>uma única fonte da verdade para cada fato</strong>: cada dado vive em um só lugar, então atualizá-lo é um único <code>UPDATE</code> e não há cópias divergentes. O preço é que ler dados relacionados exige <strong>joins</strong>. A <strong>desnormalização</strong> é o movimento inverso e deliberado: <strong>reintroduzir redundância controlada</strong> (duplicar colunas, pré-agregar, manter contadores) para <strong>evitar joins caros</strong> e acelerar leituras quentes — ao custo de ter que manter as cópias sincronizadas (e o risco de divergência). A regra de ouro: <strong>normalize primeiro (é o default seguro e correto); desnormalize depois, com dados de performance na mão, apenas onde a leitura comprovadamente domina e o join é o gargalo.</strong> Desnormalizar cedo demais é otimização prematura que troca corretude garantida por bugs de inconsistência.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>Imagine guardar pedidos numa única tabela "achatada", repetindo o nome e o endereço do cliente em <strong>cada linha de pedido</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>pedido_id</th>
+<th>cliente_nome</th>
+<th>cliente_endereco</th>
+<th>produto</th>
+<th>preco</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>João Silva</td>
+<td>Rua A, 100</td>
+<td>Mouse</td>
+<td>50</td>
+</tr>
+<tr>
+<td>2</td>
+<td>João Silva</td>
+<td>Rua A, 100</td>
+<td>Teclado</td>
+<td>120</td>
+</tr>
+<tr>
+<td>3</td>
+<td>João Silva</td>
+<td>Rua A, 100</td>
+<td>Monitor</td>
+<td>800</td>
+</tr>
+</tbody>
+</table>
+<p>O nome e endereço de João estão <strong>duplicados</strong> em três linhas. Isso gera as <strong>anomalias de modificação</strong> — o problema que a normalização resolve:</p>
+<ul>
+<li><strong>Anomalia de atualização:</strong> João muda de endereço. Você precisa atualizar <strong>todas</strong> as linhas dele. Se esquecer uma, há duas "verdades" sobre o endereço de João — qual é a correta? Os dados ficam <strong>inconsistentes</strong>.</li>
+<li><strong>Anomalia de inserção:</strong> quer cadastrar um cliente novo que ainda não fez pedido? Não consegue — a tabela exige um pedido. Você teria que inventar uma linha-fantasma ou deixar campos nulos.</li>
+<li><strong>Anomalia de remoção:</strong> o único pedido de um cliente é cancelado e a linha apagada. Você <strong>perde também</strong> o nome e endereço dele — informação que queria manter.</li>
+</ul>
+<p>A causa raiz dessas três anomalias é a <strong>redundância</strong>: o mesmo fato (endereço de João) armazenado em vários lugares. A normalização ataca a redundância decompondo a tabela em tabelas menores ligadas por chaves, de modo que <strong>cada fato viva em exatamente um lugar</strong>. A pergunta que organiza o tema: <strong>"este dado tem uma única fonte da verdade, ou está duplicado de forma que pode divergir?"</strong> Se está duplicado sem necessidade, há anomalias à espera.</p>
+<p>O contraponto — a desnormalização — resolve um problema <em>diferente</em>: depois de normalizar, ler dados relacionados exige reuni-los com <strong>joins</strong>, que custam em tabelas grandes ou queries muito frequentes. A desnormalização troca a garantia de consistência (uma fonte da verdade) por <strong>velocidade de leitura</strong> (dados já reunidos), reintroduzindo redundância de forma <em>controlada e consciente</em>. As duas forças — integridade (normalizar) vs performance de leitura (desnormalizar) — são o eixo de toda modelagem relacional.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="as-formas-normais">As formas normais<a class="headerlink" href="#as-formas-normais" title="Permanent link">&para;</a></h3>
+<p>Cada forma normal é uma condição sobre as <strong>dependências funcionais</strong> (quando o valor de uma coluna determina o de outra) entre colunas. Em ordem crescente de rigor:</p>
+<p><strong>1NF — Primeira Forma Normal.</strong> Cada célula contém um <strong>valor atômico</strong> (indivisível); não há <strong>grupos repetidos</strong> nem listas/arrays numa coluna. Cada linha é única (há chave primária). Exemplo de violação: uma coluna <code>telefones</code> contendo <code>"(11)9999, (11)8888"</code> — dois valores numa célula. Correção: uma tabela <code>telefone</code> separada, uma linha por telefone.</p>
+<p><strong>2NF — Segunda Forma Normal.</strong> Está em 1NF <strong>e</strong> nenhuma coluna não-chave depende <strong>apenas de parte</strong> de uma chave primária composta (eliminação de <strong>dependências parciais</strong>). Só é relevante quando a chave primária é <strong>composta</strong> (múltiplas colunas). Exemplo de violação: tabela <code>(pedido_id, produto_id, quantidade, nome_produto)</code> com chave <code>(pedido_id, produto_id)</code> — <code>nome_produto</code> depende só de <code>produto_id</code> (parte da chave), não da chave inteira. Correção: mover <code>nome_produto</code> para a tabela <code>produto</code>.</p>
+<p><strong>3NF — Terceira Forma Normal.</strong> Está em 2NF <strong>e</strong> nenhuma coluna não-chave depende de <strong>outra coluna não-chave</strong> (eliminação de <strong>dependências transitivas</strong>). Exemplo de violação: tabela <code>funcionario(id, nome, cep, cidade)</code> — <code>cidade</code> depende de <code>cep</code>, que não é chave; <code>cidade</code> depende transitivamente da chave através de <code>cep</code>. Correção: tabela separada <code>cep → cidade</code>. A regra mnemônica clássica: cada coluna não-chave depende "da chave, da chave inteira, e de nada além da chave" (the key, the whole key, and nothing but the key).</p>
+<p><strong>BCNF — Boyce-Codd Normal Form.</strong> Refinamento mais estrito do 3NF (Boyce e Codd, 1974): para <strong>toda</strong> dependência funcional <code>X → Y</code>, <code>X</code> deve ser uma <strong>chave candidata</strong> (superchave). O 3NF tolera certas anomalias residuais quando há múltiplas chaves candidatas sobrepostas; BCNF as elimina exigindo que <em>todo determinante</em> seja chave. Na prática, a maioria das tabelas em 3NF já está em BCNF; a diferença só aparece em esquemas com várias chaves candidatas compostas e sobrepostas. Para a maioria dos sistemas, <strong>3NF é o alvo prático</strong>, com BCNF como rigor adicional quando o caso exige.</p>
+<p>(Há formas mais altas — 4NF, 5NF — que tratam dependências multivaloradas e de junção; raramente relevantes na prática de aplicação, citadas para completude.)</p>
+<h3 id="por-que-a-normalizacao-funciona">Por que a normalização funciona<a class="headerlink" href="#por-que-a-normalizacao-funciona" title="Permanent link">&para;</a></h3>
+<p>A normalização garante, por construção, <strong>uma única fonte da verdade por fato</strong>. O endereço de João vive numa única linha da tabela <code>cliente</code>; mudá-lo é um único <code>UPDATE</code>; nunca há cópias divergentes. As três anomalias somem porque sua causa (redundância) some. Integridade referencial (chaves estrangeiras) costura as tabelas de volta nas consultas. O custo é estrutural: dados que "andam juntos" agora estão em tabelas diferentes, e reuni-los exige <strong>joins</strong>.</p>
+<h3 id="desnormalizacao">Desnormalização<a class="headerlink" href="#desnormalizacao" title="Permanent link">&para;</a></h3>
+<p>A <strong>desnormalização</strong> reintroduz redundância de forma <strong>deliberada e gerenciada</strong>, partindo de um esquema normalizado, para otimizar leituras. Técnicas comuns:</p>
+<ul>
+<li><strong>Coluna duplicada / pré-junção:</strong> copiar uma coluna de outra tabela para evitar o join (ex.: gravar <code>cliente_nome</code> na tabela <code>pedido</code> para listar pedidos sem juntar com <code>cliente</code>).</li>
+<li><strong>Pré-agregação / colunas calculadas:</strong> manter <code>total_pedido</code>, <code>contador_de_itens</code>, <code>media_avaliacao</code> materializados em vez de recalcular com <code>SUM</code>/<code>COUNT</code>/<code>AVG</code> a cada leitura.</li>
+<li><strong>Materialized views:</strong> projeções pré-computadas de queries caras, atualizadas periodicamente ou via trigger/CDC.</li>
+<li><strong>Tabelas de leitura (read models, CQRS):</strong> uma representação separada e desnormalizada otimizada para consulta, alimentada por eventos do modelo de escrita normalizado.</li>
+</ul>
+<p>O <strong>trade-off explícito</strong>: leitura mais rápida (sem join, dado já reunido) ao custo de <strong>escrita mais complexa</strong> (precisa atualizar todas as cópias) e <strong>risco de inconsistência</strong> (se uma cópia não for atualizada, diverge — exatamente a anomalia que a normalização eliminava, agora aceita conscientemente). A diferença entre desnormalização (boa) e modelo mal-normalizado (ruim) é <strong>intencionalidade e controle</strong>: você sabe que duplicou, sabe por quê, e tem um mecanismo confiável (trigger, CDC, evento) que mantém as cópias em sincronia.</p>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>Tabela das formas normais — o que cada uma elimina:</p>
+<table>
+<thead>
+<tr>
+<th>Forma</th>
+<th>Exige</th>
+<th>Elimina</th>
+<th>Quando relevante</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1NF</strong></td>
+<td>Valores atômicos, sem grupos repetidos</td>
+<td>Listas/arrays em célula, linhas duplicadas</td>
+<td>Sempre (base)</td>
+</tr>
+<tr>
+<td><strong>2NF</strong></td>
+<td>1NF + sem dependência <strong>parcial</strong> da chave</td>
+<td>Coluna que depende de <em>parte</em> de chave composta</td>
+<td>Só com chave primária <strong>composta</strong></td>
+</tr>
+<tr>
+<td><strong>3NF</strong></td>
+<td>2NF + sem dependência <strong>transitiva</strong></td>
+<td>Coluna não-chave que depende de outra não-chave</td>
+<td><strong>Alvo prático</strong> da maioria dos esquemas</td>
+</tr>
+<tr>
+<td><strong>BCNF</strong></td>
+<td>Todo determinante é chave candidata</td>
+<td>Anomalias residuais com chaves candidatas sobrepostas</td>
+<td>Esquemas com múltiplas chaves candidatas</td>
+</tr>
+</tbody>
+</table>
+<p>Tabela do trade-off normalizar × desnormalizar:</p>
+<table>
+<thead>
+<tr>
+<th>Dimensão</th>
+<th>Normalizado (3NF/BCNF)</th>
+<th>Desnormalizado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Redundância</strong></td>
+<td>Mínima (uma fonte da verdade)</td>
+<td>Controlada/intencional</td>
+</tr>
+<tr>
+<td><strong>Anomalias de modificação</strong></td>
+<td>Eliminadas</td>
+<td>Reintroduzidas (precisa sincronizar)</td>
+</tr>
+<tr>
+<td><strong>Escrita</strong></td>
+<td>Simples (1 lugar por fato)</td>
+<td>Complexa (atualizar todas as cópias)</td>
+</tr>
+<tr>
+<td><strong>Leitura</strong></td>
+<td>Exige <strong>joins</strong></td>
+<td>Rápida (dado já reunido)</td>
+</tr>
+<tr>
+<td><strong>Consistência</strong></td>
+<td>Garantida por construção</td>
+<td>Depende do mecanismo de sync</td>
+</tr>
+<tr>
+<td><strong>Espaço</strong></td>
+<td>Menor</td>
+<td>Maior (cópias)</td>
+</tr>
+<tr>
+<td><strong>Default recomendado</strong></td>
+<td><strong>Sim — comece aqui</strong></td>
+<td>Só onde a leitura comprovadamente domina</td>
+</tr>
+</tbody>
+</table>
+<h3 id="o-caminho-pratico">O caminho prático<a class="headerlink" href="#o-caminho-pratico" title="Permanent link">&para;</a></h3>
+<p>A sequência sã de modelagem:</p>
+<ol>
+<li><strong>Normalize até 3NF (ou BCNF) por padrão.</strong> É o modelo correto, com integridade garantida e sem anomalias. Não é otimização prematura — é a base.</li>
+<li><strong>Meça.</strong> Coloque o sistema sob carga representativa. Identifique as queries lentas (slow log, <code>EXPLAIN ANALYZE</code> — ver <code>04-query-optimization</code>). O gargalo é mesmo o join?</li>
+<li><strong>Tente otimizar dentro do modelo normalizado primeiro:</strong> índices certos (ver <code>03-indices</code>), covering indexes, reescrita de query, cache. Frequentemente isso resolve sem desnormalizar.</li>
+<li><strong>Desnormalize cirurgicamente</strong> apenas onde (a) a leitura domina largamente a escrita, (b) o join é comprovadamente o gargalo, e (c) você tem um mecanismo confiável de sincronização. Documente <em>por que</em> duplicou.</li>
+</ol>
+<p>O ponto-chave: a desnormalização é uma <strong>decisão de último recurso baseada em medição</strong>, não um ponto de partida. Bancos modernos juntam tabelas bem indexadas com extrema eficiência; o "join é lento" é frequentemente "join sem índice é lento".</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama mostra a decomposição de uma tabela achatada (com anomalias) para 3NF. O segundo, o fluxo de decisão normalizar→medir→desnormalizar.</p>
+<pre class="mermaid"><code>flowchart TB
+    FLAT["Tabela achatada&lt;br/&gt;pedido(id, cliente_nome,&lt;br/&gt;cliente_endereco, produto, preco)&lt;br/&gt;— redundância → anomalias"] --&gt; DECOMP["Decomposição (3NF)"]
+    DECOMP --&gt; CLI["cliente(id, nome, endereco)&lt;br/&gt;— endereço em 1 só lugar"]
+    DECOMP --&gt; PED["pedido(id, cliente_id*)"]
+    DECOMP --&gt; ITEM["item_pedido(pedido_id*,&lt;br/&gt;produto_id*, qtd)"]
+    DECOMP --&gt; PROD["produto(id, nome, preco)"]
+    CLI -.-&gt;|"FK"| PED
+    PED -.-&gt;|"FK"| ITEM
+    PROD -.-&gt;|"FK"| ITEM</code></pre>
+<pre class="mermaid"><code>flowchart TB
+    START["Novo modelo de dados"] --&gt; NORM["Normalize até 3NF/BCNF&lt;br/&gt;(default seguro)"]
+    NORM --&gt; LOAD["Sob carga real, meça"]
+    LOAD --&gt; SLOW{"join é o gargalo&lt;br/&gt;comprovado?"}
+    SLOW --&gt;|"não"| KEEP["Mantenha normalizado&lt;br/&gt;(ajuste índices/cache)"]
+    SLOW --&gt;|"sim"| TRY{"índice/covering/&lt;br/&gt;reescrita resolve?"}
+    TRY --&gt;|"sim"| KEEP
+    TRY --&gt;|"não"| DENORM["Desnormalize cirurgicamente&lt;br/&gt;+ mecanismo de sync confiável&lt;br/&gt;(trigger/CDC/evento)"]</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p><strong>Cenário — e-commerce, do achatado ao normalizado.</strong> Partindo da tabela achatada problemática:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">-- RUIM: redundância → anomalias de update/insert/delete</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">pedido_flat</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="n">pedido_id</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span><span class="w"> </span><span class="n">cliente_nome</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span><span class="w"> </span><span class="n">cliente_endereco</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="n">produto_nome</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span><span class="w"> </span><span class="n">produto_preco</span><span class="w"> </span><span class="nb">NUMERIC</span><span class="p">,</span><span class="w"> </span><span class="n">quantidade</span><span class="w"> </span><span class="nb">INT</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">);</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1">-- endereço do cliente repetido em toda linha de pedido</span>
+</code></pre></div>
+<p>Normalizando até 3NF:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">cliente</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span><span class="w"> </span><span class="n">nome</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span><span class="w"> </span><span class="n">endereco</span><span class="w"> </span><span class="nb">TEXT</span><span class="w">     </span><span class="c1">-- endereço em 1 lugar</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="p">);</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">produto</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span><span class="w"> </span><span class="n">nome</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span><span class="w"> </span><span class="n">preco</span><span class="w"> </span><span class="nb">NUMERIC</span><span class="w">      </span><span class="c1">-- preço em 1 lugar</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">);</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">pedido</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span><span class="w"> </span><span class="n">cliente_id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">cliente</span><span class="p">(</span><span class="n">id</span><span class="p">),</span><span class="w"> </span><span class="n">criado_em</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">);</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">item_pedido</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="n">pedido_id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">pedido</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span><span class="n">produto_id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">produto</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">  </span><span class="n">quantidade</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">  </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">pedido_id</span><span class="p">,</span><span class="w"> </span><span class="n">produto_id</span><span class="p">)</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="p">);</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="c1">-- Mudar endereço do cliente: UPDATE cliente ... → 1 linha. Sem anomalia.</span>
+</code></pre></div>
+<p>Note uma sutileza: o <strong>preço do produto no momento da compra</strong> <em>deve</em> ser copiado para <code>item_pedido</code> (ex.: <code>preco_unitario</code>). Isso parece desnormalização, mas <strong>não é</strong> — é capturar um <strong>fato histórico</strong>: o preço pago na época, que é semanticamente diferente do preço atual do produto (que pode mudar). Distinguir "redundância acidental" (anomalia) de "snapshot histórico intencional" (correto) é discernimento de modelagem sênior.</p>
+<p><strong>Desnormalização justificada — contador de avaliações.</strong> A tela de produto mostra "4,7 estrelas (1.832 avaliações)". Calcular <code>AVG(nota)</code> e <code>COUNT(*)</code> sobre milhões de avaliações <strong>a cada exibição</strong> da página (que é altíssima leitura) é caro. Desnormalização cirúrgica:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">produto</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">media_avaliacao</span><span class="w"> </span><span class="nb">NUMERIC</span><span class="p">,</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">qtd_avaliacoes</span><span class="w"> </span><span class="nb">INT</span><span class="p">;</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1">-- mantidos por trigger ou por evento ao inserir/atualizar avaliação:</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1">-- toda nova avaliação atualiza os contadores no produto.</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1">-- Leitura da página: 0 agregação, lê 2 colunas prontas.</span>
+</code></pre></div>
+<p>Aqui a leitura domina massivamente, o cálculo é o gargalo, e há um mecanismo de sync (trigger/evento). A redundância é intencional e mantida — desnormalização legítima.</p>
+<p><strong>Desnormalização para escala (NoSQL/wide-column).</strong> Num feed de timeline (Cassandra), modela-se <strong>por query</strong>: duplica-se a postagem em cada timeline de seguidor (fan-out na escrita), aceitando enorme redundância para que ler a timeline seja um único acesso por chave, sem join (que nem existe nesse modelo). É desnormalização levada ao extremo, justificada por leitura massiva e escala horizontal — conecta com <code>06-sql-vs-nosql.md</code> e persistência poliglota.</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Normalizar (até 3NF/BCNF) — usar quando:</strong></p>
+<ul>
+<li><strong>Por padrão, sempre.</strong> É o modelo correto para dados transacionais (OLTP): pedidos, contas, cadastros. Integridade garantida, anomalias eliminadas.</li>
+<li>A escrita é frequente e a consistência é crítica (uma fonte da verdade evita divergência).</li>
+<li><strong>Evite/relaxe</strong> apenas quando medição comprovar que o join normalizado é o gargalo e as alternativas (índice, cache) não bastam.</li>
+</ul>
+<p><strong>Desnormalizar — usar quando:</strong></p>
+<ul>
+<li>A <strong>leitura domina massivamente</strong> a escrita (read-heavy) e o <strong>join/agregação é o gargalo comprovado</strong> por medição.</li>
+<li>Há <strong>pré-agregações caras</strong> repetidas (contadores, médias, somas) que valem ser materializadas.</li>
+<li>Você tem um <strong>mecanismo confiável de sincronização</strong> (trigger, CDC, evento, materialized view) para manter as cópias coerentes.</li>
+<li>Em modelos NoSQL/colunar onde a modelagem é <strong>orientada à query</strong> e joins são inviáveis (Cassandra, DynamoDB).</li>
+</ul>
+<p><strong>Evitar desnormalizar quando:</strong></p>
+<ul>
+<li><strong>Cedo demais</strong>, sem dados de performance — otimização prematura que troca corretude por bugs.</li>
+<li>A escrita é frequente (cada escrita vira N escritas + risco de divergência).</li>
+<li>Não há mecanismo de sync — você está apenas criando anomalias de atualização disfarçadas.</li>
+</ul>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Desnormalizar cedo demais (otimização prematura).</strong> O erro mais comum. Trocar a corretude garantida do modelo normalizado por velocidade que você nem mediu precisar. Normalize primeiro; desnormalize com dados na mão.</li>
+<li><strong>Confundir "join é lento" com "join sem índice é lento".</strong> Frequentemente o problema não é o join, é a falta de índice na FK. Tente índices/covering antes de desnormalizar. Ver <code>03-indices</code>.</li>
+<li><strong>Desnormalizar sem mecanismo de sync.</strong> Duplicar uma coluna e atualizá-la manualmente "quando lembrar" recria exatamente a anomalia de atualização. Sem trigger/CDC/evento confiável, a redundância vira inconsistência.</li>
+<li><strong>Sub-normalizar por preguiça (não é desnormalização).</strong> Deixar uma tabela achatada porque "dava trabalho normalizar" não é uma decisão de performance — é dívida técnica que causará anomalias. Desnormalização é <em>intencional e medida</em>; sub-normalização é descuido.</li>
+<li><strong>Confundir snapshot histórico com redundância.</strong> Copiar o preço pago no momento da compra para <code>item_pedido</code> é capturar um fato histórico (correto), não desnormalizar. Distinga "valor na época" de "valor atual".</li>
+<li><strong>Normalizar ao extremo sem necessidade (over-normalization).</strong> Decompor em dezenas de tabelas minúsculas pode tornar queries comuns um festival de joins sem benefício de integridade real. 3NF é o alvo prático; 4NF/5NF raramente compensam.</li>
+<li><strong>Esquecer índices nas foreign keys.</strong> Joins em modelo normalizado dependem de índices nas FKs; sem eles, o join <em>realmente</em> fica lento — e aí culpa-se a normalização injustamente.</li>
+<li><strong>Achar que NoSQL "dispensa" o pensamento de normalização.</strong> Em NoSQL você desnormaliza por design (modelagem por query), mas precisa entender <em>o que</em> está duplicando e como manter coerente — o raciocínio de fonte da verdade continua valendo.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Índices:</strong> o "custo do join" do modelo normalizado é largamente mitigado por índices nas FKs e covering indexes; antes de desnormalizar, indexe. Ver <code>03-indices-de-banco-btree-hash-composite-covering.md</code>.</li>
+<li><strong>Query optimization / EXPLAIN:</strong> a decisão de desnormalizar deve ser guiada por medição do plano (o join é o gargalo real?). Ver <code>04-query-optimization-explain-e-n-mais-1.md</code>.</li>
+<li><strong>SQL vs NoSQL:</strong> NoSQL (documento, colunar) adota desnormalização/modelagem por query como padrão; SQL normaliza por padrão. A escolha de store influencia o grau de normalização. Ver <code>06-sql-vs-nosql.md</code>.</li>
+<li><strong>CQRS / Materialized Views:</strong> read models desnormalizados alimentados por eventos do modelo de escrita normalizado são a forma arquitetural de desnormalizar com sync confiável. Ver <code>../05-dados-e-persistencia/04-materialized-views-e-projecoes.md</code>.</li>
+<li><strong>CDC (Change Data Capture):</strong> o mecanismo de baixo acoplamento para manter cópias desnormalizadas/projeções em sincronia. Ver <code>../05-dados-e-persistencia/05-cdc-change-data-capture-debezium.md</code>.</li>
+<li><strong>Polyglot Persistence:</strong> stores especializados (busca, colunar) são frequentemente projeções desnormalizadas de uma verdade relacional normalizada. Ver <code>../05-dados-e-persistencia/01-polyglot-persistence.md</code>.</li>
+</ul>
+<h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
+<p>Três ideias para carregar:</p>
+<ol>
+<li><strong>Normalização é sobre uma fonte da verdade por fato.</strong> As três anomalias (insert/update/delete) têm uma causa única — redundância — e uma cura única — cada fato em um só lugar. 1NF→2NF→3NF→BCNF é a escada que progressivamente remove tipos de dependência que geram redundância.</li>
+<li><strong>Normalize primeiro; desnormalize por medição.</strong> O modelo normalizado é o default correto, não otimização prematura. A desnormalização é uma troca consciente (consistência por velocidade de leitura) que só se justifica com dados de performance e um mecanismo de sincronização confiável. Cedo demais é o anti-padrão clássico.</li>
+<li><strong>Redundância controlada ≠ redundância acidental.</strong> A diferença entre desnormalização (boa) e modelo mal-feito (ruim) é intencionalidade, justificativa medida e sincronização garantida. Sem isso, "desnormalizar" é só recriar as anomalias que a normalização eliminava.</li>
+</ol>
+<p>O fio condutor: há duas forças em tensão — <strong>integridade</strong> (normalizar: uma verdade, sem anomalias, joins na leitura) e <strong>performance de leitura</strong> (desnormalizar: dado reunido, sem join, cópias para sincronizar). A engenharia madura começa pela integridade (segura por construção) e só cede performance onde a medição prova necessidade e há como manter a coerência. O preço da desnormalização nunca some — ele se transfere da leitura para a escrita e para o risco de divergência.</p>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Normalização elimina <strong>redundância</strong> e, com ela, as <strong>anomalias</strong> de inserção, atualização e remoção.</li>
+<li><strong>1NF:</strong> valores atômicos, sem grupos repetidos. <strong>2NF:</strong> 1NF + sem dependência <strong>parcial</strong> de chave composta. <strong>3NF:</strong> 2NF + sem dependência <strong>transitiva</strong> (não-chave → não-chave). <strong>BCNF:</strong> todo determinante é chave candidata.</li>
+<li>Mnemônico do 3NF: cada coluna não-chave depende "da chave, da chave inteira e de nada além da chave".</li>
+<li><strong>3NF é o alvo prático</strong>; BCNF é rigor extra para esquemas com chaves candidatas sobrepostas; 4NF/5NF raramente importam.</li>
+<li>Modelo normalizado = <strong>uma fonte da verdade por fato</strong>; lê com <strong>joins</strong>.</li>
+<li><strong>Desnormalização</strong> = reintroduzir redundância controlada para evitar joins/agregações caras; troca consistência por velocidade de leitura.</li>
+<li>Regra de ouro: <strong>normalize primeiro (default); desnormalize por medição</strong>, só onde leitura domina, o join é o gargalo e há mecanismo de sync (trigger/CDC/evento).</li>
+<li>Desnormalizar <strong>cedo demais</strong> é otimização prematura; desnormalizar <strong>sem sync</strong> recria as anomalias.</li>
+<li><strong>Snapshot histórico</strong> (preço pago na compra) não é desnormalização — é capturar um fato no tempo.</li>
+<li>"Join lento" frequentemente é "join sem índice na FK"; <strong>indexe antes de desnormalizar</strong>.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Database_normalization">Database normalization — Wikipedia</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Third_normal_form">Third normal form — Wikipedia</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Boyce%E2%80%93Codd_normal_form">Boyce–Codd normal form — Wikipedia</a></li>
+<li><a href="https://www.digitalocean.com/community/tutorials/database-normalization">Database Normalization: 1NF, 2NF, 3NF &amp; BCNF Examples — DigitalOcean</a></li>
+<li><a href="https://learn.microsoft.com/en-us/troubleshoot/microsoft-365-apps/access/database-normalization-description">Database normalization description — Microsoft Learn</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Denormalization">Denormalization — Wikipedia</a></li>
+<li><a href="https://dataintensive.net/">Designing Data-Intensive Applications — Martin Kleppmann (site oficial)</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../04-query-optimization-explain-e-n-mais-1/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Query optimization (EXPLAIN, N+1)">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Query optimization (EXPLAIN, N+1)
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../06-sql-vs-nosql/" class="md-footer__link md-footer__link--next" aria-label="Próximo: SQL vs NoSQL">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                SQL vs NoSQL
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

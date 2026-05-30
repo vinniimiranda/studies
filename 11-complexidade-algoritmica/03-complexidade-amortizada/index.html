@@ -1,0 +1,2440 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/11-complexidade-algoritmica/03-complexidade-amortizada/">
+      
+      
+        <link rel="prev" href="../02-pior-melhor-e-caso-medio/">
+      
+      
+        <link rel="next" href="../04-time-vs-space-complexity-tradeoffs/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Complexidade amortizada - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#complexidade-amortizada-metodos-agregado-de-credito-accounting-e-do-potencial" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Complexidade amortizada
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    11 · Complexidade algorítmica
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notação assintótica (Big O, Θ, Ω)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-pior-melhor-e-caso-medio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pior, melhor e caso médio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Complexidade amortizada
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Complexidade amortizada
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metodo-agregado-aggregate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Método agregado (aggregate)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metodo-contabil-de-credito-accounting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Método contábil / de crédito (accounting)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metodo-do-potencial-potential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Método do potencial (potential)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#os-tres-metodos-comparados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Os três métodos comparados
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#por-que-dobrar-e-o-trade-off-do-fator-de-crescimento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que dobrar — e o trade-off do fator de crescimento
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-intuicao-unificadora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A intuição unificadora
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amortizado-vs-pior-caso-de-uma-operacao-isolada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Amortizado vs pior caso de uma operação isolada
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-time-vs-space-complexity-tradeoffs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time vs space complexity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-analise-de-recursao-arvore-e-master-theorem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Análise de recursão e Master Theorem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metodo-agregado-aggregate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Método agregado (aggregate)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metodo-contabil-de-credito-accounting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Método contábil / de crédito (accounting)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metodo-do-potencial-potential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Método do potencial (potential)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#os-tres-metodos-comparados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Os três métodos comparados
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#por-que-dobrar-e-o-trade-off-do-fator-de-crescimento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que dobrar — e o trade-off do fator de crescimento
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-intuicao-unificadora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A intuição unificadora
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amortizado-vs-pior-caso-de-uma-operacao-isolada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Amortizado vs pior caso de uma operação isolada
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="complexidade-amortizada-metodos-agregado-de-credito-accounting-e-do-potencial">Complexidade Amortizada: Métodos Agregado, de Crédito (Accounting) e do Potencial<a class="headerlink" href="#complexidade-amortizada-metodos-agregado-de-credito-accounting-e-do-potencial" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Complexidade e análise algorítmica · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~30 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>Análise amortizada calcula o <strong>custo médio por operação sobre uma sequência de operações no pior caso</strong>, garantindo que mesmo que <em>algumas</em> operações sejam caras, o <strong>custo médio ao longo da sequência seja baixo</strong>. A distinção crucial: é uma média <strong>determinística sobre uma sequência</strong>, não uma média probabilística sobre entradas (isso é caso médio — ver <code>02-pior-melhor-e-caso-medio.md</code>). O exemplo canônico é o <strong>array dinâmico (ArrayList, vector, slice)</strong>: a maioria dos <code>append</code> é O(1), mas quando o array enche, ele <strong>dobra de capacidade</strong> copiando todos os <code>n</code> elementos — uma operação O(n) cara. Apesar desses picos, o custo <strong>amortizado</strong> de cada <code>append</code> é <strong>O(1)</strong>, porque as cópias caras são raras o suficiente para serem "diluídas" pelos muitos appends baratos. Três métodos formalizam isso: <strong>agregado</strong> (aggregate) — soma o custo total de <code>n</code> operações e divide por <code>n</code>; <strong>crédito/contábil</strong> (accounting) — cobra um "preço" fixo de cada operação, guardando o excedente como crédito que paga as operações caras; <strong>potencial</strong> (potential) — define uma função de potencial <code>Φ</code> (energia armazenada na estrutura) e mostra que cada operação tem custo amortizado baixo. A armadilha de entrevista é dizer que array dinâmico é O(1) "no pior caso" (errado — um append isolado é O(n)) ou confundir amortizado com caso médio.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>Considere a operação <code>append</code> num array dinâmico (a estrutura por trás de <code>ArrayList</code> em Java, <code>vector</code> em C++, <code>list</code> em Python, <code>slice</code> em Go). Você quer reportar sua complexidade. Olhando uma operação isolada, há um dilema:</p>
+<ul>
+<li>Na <strong>maioria</strong> das vezes, há espaço livre: o append escreve no próximo slot e termina em O(1).</li>
+<li>Mas <strong>ocasionalmente</strong>, o array está cheio: é preciso alocar um array maior, <strong>copiar todos os <code>n</code> elementos existentes</strong> e só então inserir — O(n).</li>
+</ul>
+<p>Se você reportar o pior caso de uma operação, dirá "append é O(n)" — tecnicamente verdade para <em>aquela</em> operação específica, mas <strong>profundamente enganoso</strong> como caracterização da estrutura. Porque essas operações O(n) são <strong>raras</strong>: entre cada redimensionamento, há muitos appends O(1). Se você fizer 1 milhão de appends sequenciais, o custo <em>total</em> não é 1 milhão × O(n) — está muito longe disso. Reportar O(n) por append superestima grosseiramente o custo real de usar a estrutura.</p>
+<p>Por outro lado, reportar "append é O(1)" sem qualificação é igualmente impreciso — esconde que existem operações caras. E você <em>não pode</em> usar análise de caso médio aqui, porque não há nada probabilístico: dado um array em determinado estado, o custo do próximo append é <strong>determinístico</strong> (ou tem espaço, ou não tem). Não há distribuição de entradas para tirar média.</p>
+<p>A análise amortizada resolve exatamente essa lacuna. Ela responde à pergunta certa: <strong>"Se eu fizer uma longa sequência de operações nesta estrutura, qual o custo médio por operação — contando os picos caros, mas reconhecendo que eles são raros?"</strong> A resposta para o array dinâmico é <strong>O(1) amortizado</strong>: ao longo de qualquer sequência de <code>n</code> appends, o custo total é O(n), logo o custo médio por append é O(1). É uma <strong>garantia sobre a sequência</strong> (determinística, no pior caso de sequência), não uma esperança probabilística.</p>
+<p>A pergunta central que a análise amortizada responde: <strong>"Como caracterizar honestamente o custo de uma estrutura cujas operações têm custo irregular — barato quase sempre, caro de vez em quando — de modo que o número reflita o custo real de usá-la em sequência?"</strong> Sem ela, você ou superestima (reportando o pior caso pontual) ou subestima (ignorando os picos). Com ela, você obtém um número justo e defensável: o custo amortizado.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<p><strong>Análise amortizada</strong> é uma técnica para determinar o <strong>custo médio por operação sobre uma sequência de operações no pior caso</strong>, sem recorrer a probabilidade. A garantia que ela fornece é forte: <em>para qualquer sequência de <code>n</code> operações</em>, o custo total é no máximo <code>n × (custo amortizado)</code>. Não importa o quão azarada seja a sequência — a média se mantém.</p>
+<p>A intuição financeira esclarece o nome: assim como uma despesa grande (comprar uma máquina) é "amortizada" ao longo de meses no orçamento, um custo computacional grande (copiar todo o array) é "diluído" ao longo das muitas operações baratas que o cercam. O custo amortizado é o "custo por parcela".</p>
+<p>Três métodos formalizam a análise amortizada, do mais simples ao mais poderoso.</p>
+<h3 id="metodo-agregado-aggregate">Método agregado (aggregate)<a class="headerlink" href="#metodo-agregado-aggregate" title="Permanent link">&para;</a></h3>
+<p>O mais direto: <strong>calcule o custo total <code>T(n)</code> de uma sequência de <code>n</code> operações no pior caso, e o custo amortizado é <code>T(n)/n</code></strong> — o mesmo custo para todas as operações.</p>
+<p>Para o array dinâmico que <strong>dobra</strong> quando cheio (começando com capacidade 1): considere <code>n</code> appends. A maioria custa 1 (escrever no slot). As cópias acontecem quando o array enche — nas capacidades 1, 2, 4, 8, ..., até <code>n</code>. O custo total das cópias é:</p>
+<p><code>1 + 2 + 4 + 8 + ... + n ≤ 2n</code> (soma de uma série geométrica que é menor que o dobro do último termo).</p>
+<p>Somando o custo das escritas (<code>n</code>) e das cópias (<code>&lt; 2n</code>): <code>T(n) &lt; 3n = O(n)</code>. Portanto o custo amortizado por append é <code>T(n)/n = O(n)/n = O(1)</code>.</p>
+<p>A chave do truque é a <strong>série geométrica</strong>: porque a capacidade <em>dobra</em>, os redimensionamentos ficam exponencialmente mais raros à medida que crescem, e a soma de todas as cópias é apenas <strong>linear</strong> em <code>n</code>, não quadrática. Se em vez de dobrar você <strong>somasse uma constante</strong> à capacidade a cada redimensionamento (crescer de 1 em 1, ou de 10 em 10), os redimensionamentos seriam frequentes, o custo total seria O(n²), e o amortizado por append seria O(n) — péssimo. <strong>É por isso que arrays dinâmicos dobram (crescem por fator multiplicativo), nunca somam constante.</strong></p>
+<p>O método agregado é simples mas tem limitação: dá o mesmo custo amortizado para <em>todas</em> as operações, mesmo quando elas têm custos amortizados diferentes. Para análises mais finas, usam-se os outros dois métodos.</p>
+<h3 id="metodo-contabil-de-credito-accounting">Método contábil / de crédito (accounting)<a class="headerlink" href="#metodo-contabil-de-credito-accounting" title="Permanent link">&para;</a></h3>
+<p>A ideia: <strong>atribua a cada operação um "custo amortizado" (uma cobrança fixa) que pode diferir do custo real.</strong> Quando o custo amortizado cobrado é <em>maior</em> que o custo real, a diferença vira <strong>crédito</strong> armazenado na estrutura. Quando uma operação cara aparece, ela usa o crédito acumulado para pagar o excedente. A regra de validade: <strong>o crédito total nunca pode ficar negativo</strong> — você não pode gastar o que não acumulou. Se essa invariante se mantém, o custo amortizado cobrado é um teto válido para o custo real da sequência.</p>
+<p>Para o array dinâmico que dobra: cobre <strong>3 unidades</strong> por append (esse é o custo amortizado proposto).</p>
+<ul>
+<li>1 unidade paga a escrita imediata do elemento.</li>
+<li>2 unidades viram crédito guardado <em>no próprio elemento recém-inserido</em>.</li>
+</ul>
+<p>Por que 2 de crédito? Quando o array dobra (digamos, de capacidade <code>k</code> para <code>2k</code>), é preciso copiar <code>k</code> elementos. A questão é: há crédito suficiente para pagar essas <code>k</code> cópias? Sim: desde o último redimensionamento, a metade nova do array (os últimos <code>k/2</code>... — na verdade, com o esquema de dobra, cada elemento contribui 2 de crédito, e isso cobre a cópia dele próprio mais a de um elemento "antigo" que já gastou seu crédito). O esquema clássico do CLRS mostra que cobrar 3 por inserção mantém o crédito sempre não-negativo, provando custo amortizado O(1). A metáfora: cada elemento "paga adiantado" pela cópia futura que vai sofrer.</p>
+<p>O método contábil é intuitivo quando você consegue identificar <em>quem</em> paga <em>o quê</em> — útil quando diferentes operações têm custos amortizados diferentes (ex.: numa pilha com operação <code>multipop</code>, cada <code>push</code> cobra 2 para pré-pagar seu eventual <code>pop</code>).</p>
+<h3 id="metodo-do-potencial-potential">Método do potencial (potential)<a class="headerlink" href="#metodo-do-potencial-potential" title="Permanent link">&para;</a></h3>
+<p>O mais geral e poderoso. Define-se uma <strong>função de potencial</strong> <code>Φ(D)</code> que mapeia o estado da estrutura <code>D</code> para um número real — uma espécie de "energia armazenada" ou "trabalho pré-pago" embutido no estado atual. O custo amortizado de uma operação é definido como:</p>
+<p><code>custo_amortizado = custo_real + Φ(D_depois) − Φ(D_antes)</code></p>
+<p>Em palavras: o custo amortizado de uma operação é seu custo real <strong>mais a variação de potencial</strong> que ela causa. Operações baratas que <em>aumentam</em> o potencial (acumulam energia) têm custo amortizado um pouco maior que o real (estão "poupando"); operações caras que <em>consomem</em> o potencial (liberam energia) têm custo amortizado menor que o real (estão "gastando a poupança"). A condição de validade: <code>Φ</code> deve começar em 0 (<code>Φ(D₀) = 0</code>) e nunca ficar negativa (<code>Φ(Dᵢ) ≥ 0</code>). Sob essas condições, a soma dos custos amortizados é um teto para a soma dos custos reais (os termos telescópicos de <code>Φ</code> se cancelam, sobrando <code>Φ_final − Φ_inicial ≥ 0</code>).</p>
+<p>Para o array dinâmico, uma função de potencial clássica (CLRS) é:</p>
+<p><code>Φ = 2 · num − tamanho</code></p>
+<p>onde <code>num</code> é o número de elementos e <code>tamanho</code> é a capacidade alocada. Imediatamente após um redimensionamento, <code>num = tamanho/2</code>, então <code>Φ = 2·(tamanho/2) − tamanho = 0</code> (energia zerada). Conforme você faz appends sem redimensionar, <code>num</code> cresce e <code>Φ</code> aumenta (acumulando energia). Quando o array enche (<code>num = tamanho</code>), <code>Φ = 2·tamanho − tamanho = tamanho</code> — há energia acumulada exatamente igual ao custo da cópia que vem a seguir. O append que dispara o redimensionamento tem custo real O(n) (a cópia), mas a queda de <code>Φ</code> (de <code>tamanho</code> para 0) absorve esse custo, deixando o custo amortizado em O(1). A análise mostra que cada append, redimensionando ou não, tem custo amortizado constante (tipicamente 3).</p>
+<p>O método do potencial é o preferido em análises sofisticadas (splay trees, Fibonacci heaps, union-find com compressão de caminho) porque a função <code>Φ</code> captura, num único número, a "dívida" ou "crédito" embutido em estados complexos.</p>
+<h3 id="os-tres-metodos-comparados">Os três métodos comparados<a class="headerlink" href="#os-tres-metodos-comparados" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Método</th>
+<th>Ideia central</th>
+<th>Quando brilha</th>
+<th>Resultado para array dinâmico</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Agregado</strong></td>
+<td>Custo total / <code>n</code>; mesmo custo p/ todas</td>
+<td>Análise simples, operações uniformes</td>
+<td>O(1) por append</td>
+</tr>
+<tr>
+<td><strong>Contábil (accounting)</strong></td>
+<td>Cobra preço fixo; excedente vira crédito; crédito ≥ 0</td>
+<td>Custos amortizados diferentes por operação; raciocínio "quem paga"</td>
+<td>Cobra 3 por append → O(1)</td>
+</tr>
+<tr>
+<td><strong>Potencial</strong></td>
+<td><code>Φ</code> = energia do estado; amortizado = real + ΔΦ</td>
+<td>Estados complexos; estruturas avançadas</td>
+<td><code>Φ = 2·num − tamanho</code> → O(1)</td>
+</tr>
+</tbody>
+</table>
+<p>Os três sempre dão o <strong>mesmo</strong> resultado para o custo amortizado (eles são lentes diferentes para o mesmo fenômeno); a escolha é sobre conveniência de prova.</p>
+<h3 id="por-que-dobrar-e-o-trade-off-do-fator-de-crescimento">Por que dobrar — e o trade-off do fator de crescimento<a class="headerlink" href="#por-que-dobrar-e-o-trade-off-do-fator-de-crescimento" title="Permanent link">&para;</a></h3>
+<p>A propriedade que torna o array dinâmico O(1) amortizado é o <strong>crescimento multiplicativo</strong> (dobrar). O fator de crescimento exato é um trade-off:</p>
+<ul>
+<li><strong>Fator 2 (dobrar):</strong> simples, redimensionamentos raros (log n vezes ao crescer até n), mas desperdiça até ~50% de memória logo após um redimensionamento (capacidade <code>2k</code> com só <code>k+1</code> elementos). Java <code>ArrayList</code> cresce ~1,5×; C++ <code>std::vector</code> frequentemente 2× (libstdc++) ou 1,5× (MSVC).</li>
+<li><strong>Fator menor (ex.: 1,5):</strong> menos desperdício de memória, mas redimensionamentos mais frequentes (constante amortizada maior). Há também um argumento sutil de reutilização de memória: com fator &lt; φ (≈1,618, a razão áurea), o bloco liberado por um redimensionamento pode eventualmente ser reaproveitado pelo alocador para o próximo, o que favorece fatores como 1,5.</li>
+</ul>
+<p>O ponto invariante: <strong>qualquer fator constante &gt; 1 dá O(1) amortizado</strong>; somar uma constante (fator não-multiplicativo) dá O(n) amortizado. O fator específico afeta a <em>constante</em> (memória vs. frequência de cópia), não a <em>classe</em>.</p>
+<h3 id="glossario-rapido">Glossário rápido<a class="headerlink" href="#glossario-rapido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Custo amortizado:</strong> custo médio por operação sobre uma sequência no pior caso; garantia determinística sobre a sequência.</li>
+<li><strong>Método agregado:</strong> custo total <code>T(n)</code> dividido por <code>n</code>; mesmo custo amortizado para todas as operações.</li>
+<li><strong>Método contábil (accounting):</strong> cobra um custo amortizado fixo; excedente vira crédito (≥ 0) que paga operações caras.</li>
+<li><strong>Método do potencial:</strong> <code>Φ(D)</code> = energia do estado; <code>amortizado = real + ΔΦ</code>; exige <code>Φ ≥ 0</code> e <code>Φ(D₀) = 0</code>.</li>
+<li><strong>Crédito:</strong> trabalho pré-pago armazenado (método contábil), análogo ao potencial.</li>
+<li><strong>Redimensionamento (resize):</strong> alocar array maior e copiar elementos quando a capacidade enche.</li>
+<li><strong>Fator de crescimento:</strong> múltiplo pelo qual a capacidade cresce no resize (2×, 1,5×); precisa ser &gt; 1.</li>
+<li><strong>Série geométrica:</strong> <code>1 + 2 + 4 + ... + n &lt; 2n</code>; razão pela qual dobrar dá custo total linear.</li>
+</ul>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>A receita para uma análise amortizada, em qualquer método:</p>
+<p><strong>Método agregado, passo a passo:</strong></p>
+<ol>
+<li>Escolha uma sequência de <code>n</code> operações (a pior possível, para garantir o teto).</li>
+<li>Some o custo real de todas — separando as baratas das caras.</li>
+<li>Para estruturas que dobram, a soma das operações caras é uma série geométrica → linear.</li>
+<li>Divida o total por <code>n</code> → custo amortizado.</li>
+</ol>
+<p><strong>Método contábil, passo a passo:</strong></p>
+<ol>
+<li>Proponha um custo amortizado (uma cobrança) para cada tipo de operação.</li>
+<li>Mostre que, em qualquer ponto, o crédito acumulado (cobranças − custos reais) é ≥ 0.</li>
+<li>Se o crédito nunca fica negativo, a cobrança é um teto válido → custo amortizado.</li>
+</ol>
+<p><strong>Método do potencial, passo a passo:</strong></p>
+<ol>
+<li>Defina <code>Φ(D)</code> ≥ 0 com <code>Φ(D₀) = 0</code>, capturando a "energia" do estado.</li>
+<li>Para cada operação, calcule <code>amortizado = real + Φ(depois) − Φ(antes)</code>.</li>
+<li>Mostre que esse valor é baixo (constante) para toda operação → custo amortizado.</li>
+</ol>
+<h3 id="a-intuicao-unificadora">A intuição unificadora<a class="headerlink" href="#a-intuicao-unificadora" title="Permanent link">&para;</a></h3>
+<p>Os três métodos partilham uma ideia: <strong>operações baratas "poupam" para pagar as caras</strong>. No agregado, isso é implícito na soma. No contábil, é explícito (crédito). No potencial, é abstrato (energia <code>Φ</code>). A operação cara (a cópia O(n)) não é gratuita — ela é <em>pré-paga</em> pelas O(n) operações baratas que vieram antes desde o último resize. Como há exatamente ~<code>n</code> appends baratos entre resizes de tamanho <code>n</code>, cada um "deixa" uma fração constante para pagar a cópia futura. O equilíbrio fecha em O(1) por operação.</p>
+<h3 id="amortizado-vs-pior-caso-de-uma-operacao-isolada">Amortizado vs pior caso de uma operação isolada<a class="headerlink" href="#amortizado-vs-pior-caso-de-uma-operacao-isolada" title="Permanent link">&para;</a></h3>
+<p>É vital separar duas grandezas:</p>
+<ul>
+<li><strong>Pior caso de UMA operação:</strong> O(n) — um append individual pode disparar a cópia.</li>
+<li><strong>Amortizado por operação sobre a sequência:</strong> O(1) — em média, ao longo de <code>n</code> appends, cada um custa constante.</li>
+</ul>
+<p>Ambas são verdadeiras simultaneamente. A distinção importa em sistemas com <strong>latência sensível</strong>: um append amortizado O(1) ainda tem <strong>picos de latência O(n)</strong> quando redimensiona. Para a maioria das aplicações (throughput), o amortizado é o que conta. Mas para <strong>sistemas de tempo real</strong> (controle, áudio, garantias hard de latência), um pico O(n) imprevisível pode ser inaceitável — e aí se preferem estruturas com pior caso O(1) <em>garantido por operação</em> (não só amortizado), como arrays dinâmicos "incrementais" que espalham a cópia, ou estruturas que pré-alocam.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama mostra o crescimento do array dinâmico e onde os custos O(n) acontecem; o segundo, o modelo de crédito do método contábil.</p>
+<pre class="mermaid"><code>flowchart LR
+    A1["append (cap 1)&lt;br/&gt;custo O(1)"] --&gt; A2["append: CHEIO&lt;br/&gt;dobra p/ 2, copia 1&lt;br/&gt;custo O(n)"]
+    A2 --&gt; A3["append (cap 2)&lt;br/&gt;custo O(1)"]
+    A3 --&gt; A4["append: CHEIO&lt;br/&gt;dobra p/ 4, copia 2&lt;br/&gt;custo O(n)"]
+    A4 --&gt; A5["appends baratos O(1)..."]
+    A5 --&gt; A6["append: CHEIO&lt;br/&gt;dobra p/ 8, copia 4&lt;br/&gt;custo O(n)"]
+    A6 --&gt; SUM["copias: 1+2+4+... &lt; 2n&lt;br/&gt;=&gt; total O(n) =&gt; amortizado O(1)"]</code></pre>
+<pre class="mermaid"><code>flowchart TB
+    OP["Cada append cobra 3 (custo amortizado)"] --&gt; PAY["1 paga a escrita imediata"]
+    OP --&gt; SAVE["2 viram CREDITO no elemento"]
+    SAVE --&gt; BANK["Credito acumula na estrutura (sempre &gt;= 0)"]
+    FULL{"Array encheu?"} --&gt;|"sim"| COPY["Copia O(n) elementos"]
+    BANK --&gt;|"paga as copias"| COPY
+    COPY --&gt; RESET["Credito consumido; recomeca a acumular"]
+    PAY --&gt; FULL</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p>Considere o serviço de <strong>ingestão de eventos de um sistema de analytics</strong> de uma plataforma brasileira. Eventos chegam em rajadas e são acumulados num buffer em memória (um array dinâmico) antes do flush em lote para o storage. A estrutura faz milhões de <code>append</code> por segundo no pico.</p>
+<p><strong>Por que o array dinâmico é a escolha certa.</strong> O custo amortizado O(1) por append é o que viabiliza o throughput. Se cada append fosse genuinamente O(n) (como seria com crescimento por constante, ou com uma lista que realoca a cada inserção), ingerir <code>n</code> eventos custaria O(n²) — inviável para milhões de eventos. Com dobra de capacidade, ingerir <code>n</code> eventos custa O(n) total: a maioria dos appends é escrita direta, e as raras cópias (acontecem ~log₂(n) vezes) somam, pela série geométrica, apenas O(n). O sistema sustenta o throughput porque o <strong>custo amortizado</strong>, não o pior caso pontual, é o que governa o consumo agregado de CPU.</p>
+<p><strong>O pico de latência que apareceu nas métricas.</strong> Mesmo com amortizado O(1), a equipe notou <strong>spikes periódicos de latência</strong> no p99.9 da ingestão. A causa: quando o buffer crescia e precisava redimensionar (digamos, de 8 milhões para 16 milhões de slots), aquele append específico pagava o O(n) de copiar 8 milhões de elementos — um pico de dezenas de milissegundos no meio de operações de microssegundos. O amortizado O(1) é honesto sobre o <em>custo agregado</em>, mas <strong>esconde a variância</strong>: a cauda da latência (p99.9) é dominada por esses redimensionamentos. As correções aplicadas:</p>
+<ul>
+<li><strong>Pré-alocar capacidade</strong> (<code>reserve</code>/<code>ensureCapacity</code>) quando o tamanho aproximado é conhecido — elimina os resizes, removendo os picos. Esta é a otimização mais comum: se você sabe que vai inserir ~10M elementos, aloque 10M de uma vez e todos os appends são O(1) reais.</li>
+<li>Para o caso de tamanho desconhecido onde a latência hard importa, considerar uma estrutura que <strong>espalha a cópia</strong> (incremental resizing) ou um buffer em chunks (deque/rope), trocando o pico O(n) por um custo O(1) de pior caso por operação, à custa de constante maior.</li>
+</ul>
+<p><strong>A pegadinha de capacity planning.</strong> Outro time reportou no design doc que "o append é O(n) no pior caso" e dimensionou CPU como se <em>toda</em> ingestão fosse quadrática — superdimensionando a infraestrutura em ordens de magnitude. O erro foi confundir o <strong>pior caso de uma operação isolada</strong> (O(n), real, mas raro) com o <strong>custo de uma sequência</strong> (O(n) total, O(1) amortizado por op). O dimensionamento correto usa o amortizado para throughput agregado e o pior caso pontual só para a análise de latência de cauda.</p>
+<p>Pseudocódigo do array dinâmico com dobra:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>append(arr, elemento):
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    se arr.num == arr.capacidade:           # array cheio
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        nova_cap = arr.capacidade * 2        # DOBRA (crescimento multiplicativo)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        novo = aloca(nova_cap)
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        copia(arr.dados -&gt; novo, arr.num)    # custo O(n) -- o pico
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        arr.dados = novo
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        arr.capacidade = nova_cap
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    arr.dados[arr.num] = elemento            # custo O(1) -- o caso comum
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    arr.num = arr.num + 1
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a># Amortizado: O(1) por append; pior caso de UMA operacao: O(n).
+</code></pre></div>
+<p>Estruturas reais que dependem dessa análise: <code>ArrayList</code>/<code>Vector</code> (Java), <code>std::vector</code> (C++), <code>list</code> (Python, com over-allocation), <code>slice</code> (Go, com <code>append</code> que dobra até certo ponto e depois cresce ~1,25×), <code>Vec</code> (Rust), <code>StringBuilder</code> (concatenação amortizada O(1)). Além do array dinâmico, a análise amortizada também caracteriza: <strong>union-find</strong> com compressão de caminho (quase O(1) amortizado, α(n) inverso de Ackermann), <strong>splay trees</strong> (O(log n) amortizado), <strong>Fibonacci heaps</strong> (decrease-key O(1) amortizado), e <strong>hash tables</strong> com rehashing (O(1) amortizado de inserção, análogo ao array).</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Use a análise amortizada</strong> para caracterizar estruturas cujas operações têm <strong>custo irregular mas padrão previsível</strong>: array dinâmico, hash table com rehashing, union-find, splay tree, Fibonacci heap. É a forma honesta de reportar o custo dessas estruturas — nem o pior caso pontual (superestima) nem um O(1) sem qualificação (esconde os picos).</p>
+<p><strong>Use o amortizado para dimensionar throughput</strong> e custo agregado de CPU — é o que governa o consumo total ao longo de muitas operações.</p>
+<p><strong>Não confie só no amortizado quando a latência de cauda importa.</strong> Em sistemas de tempo real, controle, áudio/vídeo de baixa latência, ou qualquer caso com garantia <em>hard</em> de latência por operação, os picos O(n) dos redimensionamentos são inaceitáveis. Aí: pré-aloque capacidade, use estruturas de pior caso O(1) por operação, ou espalhe o custo (incremental resizing).</p>
+<p><strong>Não use análise amortizada quando o custo NÃO é irregular</strong> — se toda operação tem o mesmo custo (acesso a array, push em pilha sobre array pré-alocado), a análise de pior caso simples basta; amortizar não acrescenta nada.</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Confundir amortizado com caso médio.</strong> A armadilha de entrevista número um. <strong>Amortizado</strong> = média <em>determinística sobre uma sequência de operações</em> (garantida, sem probabilidade). <strong>Caso médio</strong> = média <em>probabilística sobre entradas diferentes</em> (depende de distribuição). Array dinâmico é O(1) <strong>amortizado</strong> (garantido sobre qualquer sequência); hash table é O(1) <strong>médio</strong> (depende de boa distribuição de hash). Ver <code>02-pior-melhor-e-caso-medio.md</code>.</li>
+<li><strong>Dizer que array dinâmico é O(1) "no pior caso".</strong> Errado: um append individual que dispara resize é O(n) no pior caso. O O(1) é <strong>amortizado</strong>. Sempre use a palavra "amortizado".</li>
+<li><strong>Reportar O(n) por append e superdimensionar.</strong> O oposto: tratar o pior caso pontual (raro) como o custo de toda operação, inflando o capacity planning. Use o amortizado para throughput.</li>
+<li><strong>Crescer a capacidade por constante em vez de fator.</strong> Adicionar +1 (ou +k fixo) a cada resize faz os redimensionamentos frequentes e o custo total O(n²) → amortizado O(n) por append, péssimo. <strong>Sempre cresça por fator multiplicativo (&gt; 1).</strong> Este é um bug de performance clássico e silencioso.</li>
+<li><strong>Ignorar a variância em sistemas de latência sensível.</strong> O amortizado O(1) esconde picos O(n). Se você tem SLA de latência por operação (não só throughput), os resizes aparecem no p99.9. Pré-aloque ou use estrutura de pior caso garantido.</li>
+<li><strong>Esquecer de pré-alocar quando o tamanho é conhecido.</strong> Se você sabe que vai inserir ~N elementos, alocar capacidade N de uma vez elimina todos os resizes e seus picos. Deixar a estrutura crescer organicamente quando o tamanho é conhecido é desperdício evitável.</li>
+<li><strong>Achar que os três métodos dão resultados diferentes.</strong> Agregado, contábil e potencial são lentes diferentes para o mesmo fenômeno — sempre dão o mesmo custo amortizado. A escolha é só sobre qual prova é mais conveniente.</li>
+<li><strong>Violar a invariante do método (crédito negativo, Φ negativo).</strong> No contábil, o crédito nunca pode ficar negativo; no potencial, <code>Φ ≥ 0</code> e <code>Φ(D₀) = 0</code>. Uma prova que viola isso não é válida.</li>
+<li><strong>Esquecer o shrink.</strong> Algumas estruturas encolhem quando ficam muito vazias. Encolher na metade quando o array fica meio vazio causa <strong>thrashing</strong> (resize repetido na fronteira). A solução clássica: só encolher quando cai a 1/4 da capacidade (histerese), preservando o O(1) amortizado.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Pior, melhor e caso médio</strong> (<code>02-pior-melhor-e-caso-medio.md</code>): amortizado é uma <em>quarta</em> noção de custo, frequentemente confundida com caso médio; a distinção (sequência determinística vs distribuição probabilística) é o ponto crítico.</li>
+<li><strong>Notação assintótica</strong> (<code>01-notacao-assintotica-big-o-theta-omega.md</code>): o custo amortizado é expresso na mesma notação (O(1) amortizado, O(log n) amortizado).</li>
+<li><strong>Time vs space tradeoffs</strong> (<code>04-time-vs-space-complexity-tradeoffs.md</code>): o fator de crescimento do array é um trade-off direto entre tempo (frequência de cópia) e espaço (memória desperdiçada).</li>
+<li><strong>Estruturas de dados dinâmicas</strong> (bloco 12): array dinâmico (ArrayList/vector/slice), hash table com rehashing, union-find, splay tree, Fibonacci heap — todas caracterizadas por análise amortizada.</li>
+<li><strong>Tabelas hash</strong> (bloco 12/13): inserção é O(1) amortizado (por causa do rehashing periódico, análogo ao resize do array) E O(1) médio (por causa da distribuição de hash) — um exemplo onde <em>ambas</em> as noções se aplicam por motivos diferentes.</li>
+<li><strong>Algoritmos em grafos</strong> (bloco 13): Kruskal/conectividade usam union-find, cujo custo quase-constante por operação é resultado de análise amortizada.</li>
+<li><strong>Latência de cauda e observabilidade</strong> (blocos 07/09): os picos O(n) dos resizes aparecem no p99.9; conhecer isso explica spikes de latência aparentemente inexplicáveis.</li>
+</ul>
+<h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
+<p>Três ideias para carregar:</p>
+<ol>
+<li><strong>Amortizado é média sobre uma sequência, garantida e determinística — não probabilística.</strong> É a diferença com caso médio. Array dinâmico é O(1) amortizado <em>para qualquer sequência</em>; nenhuma sorte é assumida. Confundir os dois é o erro de entrevista mais comum sobre o tema.</li>
+<li><strong>Dobrar é o que torna append O(1) amortizado.</strong> O crescimento multiplicativo torna os resizes exponencialmente raros, e a série geométrica das cópias soma apenas linear. Crescer por constante quebra tudo (O(n²) total). Esse é o insight de design por trás de toda estrutura dinâmica.</li>
+<li><strong>O amortizado governa o throughput, mas esconde a variância.</strong> O custo agregado é O(1) por operação, mas cada operação pode pontualmente custar O(n) (o resize). Para throughput, use o amortizado; para latência de cauda hard, conheça os picos e pré-aloque ou use estrutura de pior caso garantido.</li>
+</ol>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Amortizado</strong> = custo médio por operação sobre uma <strong>sequência no pior caso</strong>; garantia determinística, <strong>não</strong> probabilística.</li>
+<li><strong>Array dinâmico:</strong> append é <strong>O(1) amortizado</strong> (mas O(n) no pior caso de uma operação isolada — o resize).</li>
+<li><strong>Dobrar a capacidade</strong> torna os resizes raros; pela <strong>série geométrica</strong> (<code>1+2+4+...&lt; 2n</code>), o total de cópias é O(n) → amortizado O(1). Crescer por constante daria O(n²).</li>
+<li><strong>Três métodos:</strong> <strong>agregado</strong> (<code>T(n)/n</code>), <strong>contábil</strong> (cobra preço fixo; crédito ≥ 0), <strong>potencial</strong> (<code>amortizado = real + ΔΦ</code>, com <code>Φ ≥ 0</code>). Todos dão o mesmo resultado.</li>
+<li>Função de potencial clássica do array: <strong><code>Φ = 2·num − tamanho</code></strong> (zero após resize, igual ao custo da cópia quando cheio).</li>
+<li><strong>Amortizado ≠ caso médio:</strong> amortizado é sobre sequência (determinístico); médio é sobre distribuição de entradas (probabilístico).</li>
+<li>O amortizado <strong>governa throughput</strong> mas <strong>esconde picos</strong> O(n) — para latência hard, pré-aloque (<code>reserve</code>) ou use pior caso garantido.</li>
+<li>Outras estruturas amortizadas: hash table (rehashing), union-find (compressão de caminho), splay tree, Fibonacci heap.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Amortized_analysis">Amortized analysis — Wikipedia</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Dynamic_array">Dynamic array — Wikipedia (crescimento geométrico, fator, amortizado O(1))</a></li>
+<li><a href="https://ocw.mit.edu/courses/6-046j-design-and-analysis-of-algorithms-spring-2012/83b82d45beb3776da72b7f3e1b3f42df_MIT6_046JS12_lec11.pdf">Lecture 11: Amortized Analysis (CLRS Cap. 17) — MIT OpenCourseWare 6.046J</a></li>
+<li><a href="https://www.cs.cornell.edu/courses/cs3110/2009sp/lectures/lec21.html">Lecture 21: Amortized analysis and dynamic tables — Cornell CS3110</a></li>
+<li><a href="https://www.cs.cmu.edu/~15451-f23/lectures/lecture05-amortized.pdf">Amortized Analysis (agregado, contábil, potencial) — CMU 15-451</a></li>
+<li><a href="https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/">Introduction to Algorithms (6.006), Spring 2020 — MIT OpenCourseWare</a></li>
+<li><a href="https://www.bigocheatsheet.com/">Big-O Algorithm Complexity Cheat Sheet</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../02-pior-melhor-e-caso-medio/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Pior, melhor e caso médio">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Pior, melhor e caso médio
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../04-time-vs-space-complexity-tradeoffs/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Time vs space complexity">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Time vs space complexity
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

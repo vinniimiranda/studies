@@ -1,0 +1,2679 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/14-concorrencia-e-paralelismo/09-async-await-futures-promises-reactive-streams/">
+      
+      
+        <link rel="prev" href="../08-thread-pools-e-tuning/">
+      
+      
+        <link rel="next" href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Async/await, Futures, Reactive Streams - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#asyncawait-futurespromises-e-reactive-streams" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Async/await, Futures, Reactive Streams
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_16" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_16" id="__nav_16_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_16_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_16">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    14 · Concorrência e paralelismo
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concorrência vs Paralelismo e context switching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-race-condition-e-critical-section/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Race Condition e Critical Section
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-deadlock-livelock-starvation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deadlock, Livelock, Starvation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-primitivas-de-sincronizacao-mutex-semaphore-monitor-spinlock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Primitivas (Mutex, Semaphore, Monitor, Spinlock)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-atomic-cas-lock-free-wait-free/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Atomic, CAS, lock-free, wait-free
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-memory-model-happens-before-volatile-barriers-false-sharing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory model e false sharing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-problemas-classicos-producer-consumer-readers-writers-dining-philosophers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Problemas clássicos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-thread-pools-e-tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Thread pools e tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Async/await, Futures, Reactive Streams
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Async/await, Futures, Reactive Streams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sincrono-bloqueante-vs-assincrono-nao-bloqueante" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Síncrono-bloqueante vs assíncrono-não-bloqueante
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#event-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event loop
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-escada-evolutiva-callbacks-futurespromises-asyncawait" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A escada evolutiva: callbacks → Futures/Promises → async/await
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reactive-streams-publisher-subscriber-subscription-processor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reactive Streams: Publisher, Subscriber, Subscription, Processor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backpressure-via-requestn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backpressure via request(n)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project-reactor-e-rxjava" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project Reactor e RxJava
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cold-streams-vs-hot-streams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cold streams vs hot streams
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#future-vs-reactive-stream-a-comparacao-que-fecha-o-tema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Future vs Reactive Stream: a comparação que fecha o tema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-threads-e-coroutines-o-contexto-atual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Virtual threads e coroutines: o contexto atual
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Anti-padrões e armadilhas comuns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#por-que-async-nao-e-paralelismo-e-por-que-isso-importa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que async não é paralelismo (e por que isso importa)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sincrono-bloqueante-vs-assincrono-nao-bloqueante" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Síncrono-bloqueante vs assíncrono-não-bloqueante
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#event-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event loop
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-escada-evolutiva-callbacks-futurespromises-asyncawait" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A escada evolutiva: callbacks → Futures/Promises → async/await
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reactive-streams-publisher-subscriber-subscription-processor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reactive Streams: Publisher, Subscriber, Subscription, Processor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backpressure-via-requestn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backpressure via request(n)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project-reactor-e-rxjava" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project Reactor e RxJava
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cold-streams-vs-hot-streams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cold streams vs hot streams
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#future-vs-reactive-stream-a-comparacao-que-fecha-o-tema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Future vs Reactive Stream: a comparação que fecha o tema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-threads-e-coroutines-o-contexto-atual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Virtual threads e coroutines: o contexto atual
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Anti-padrões e armadilhas comuns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#por-que-async-nao-e-paralelismo-e-por-que-isso-importa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que async não é paralelismo (e por que isso importa)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="asyncawait-futurespromises-e-reactive-streams">Async/await, Futures/Promises e Reactive Streams<a class="headerlink" href="#asyncawait-futurespromises-e-reactive-streams" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Concorrência e paralelismo · <strong>Nível:</strong> Avançado · <strong>Tempo de leitura:</strong> ~30 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>São os modelos para escrever código <strong>assíncrono não-bloqueante</strong> — coordenar trabalho que <em>espera</em> (I/O de rede, banco, disco) sem prender uma thread parada na espera. O ponto de partida é a oposição <strong>síncrono-bloqueante × assíncrono-não-bloqueante</strong>: no modelo bloqueante, a thread chama uma operação de I/O e <em>dorme</em> até ela retornar (uma thread por requisição em voo — caro sob alta concorrência, ver thread pools); no modelo não-bloqueante, a operação é <strong>registrada</strong> e a thread fica livre para fazer outra coisa, sendo <strong>notificada</strong> quando o resultado chega. O mecanismo que orquestra essa notificação é o <strong>event loop</strong>: um laço de thread única (ou poucas) que tira tarefas/callbacks de uma fila e os executa um a um até completar — base do Node.js, do navegador e de runtimes reactive. A <strong>escada evolutiva</strong> da abstração é o coração do tema: começou em <strong>callbacks</strong> (passar uma função "me chame quando pronto"), que escalam mal e produzem o <em>callback hell</em> (aninhamento profundo, erro propagado na mão); evoluiu para <strong>Futures/Promises</strong> — um objeto que representa <strong>um valor que ainda não existe</strong> (um resultado futuro), componível via <code>then</code>/<code>map</code>/<code>flatMap</code> em vez de aninhar; e culminou em <strong>async/await</strong>, que é <strong>açúcar sintático sobre Promises/continuations</strong> — escrever código que <em>parece</em> síncrono (<code>await x</code>) mas que o compilador transforma em continuations que não bloqueiam a thread. Para fluxos de <strong>múltiplos valores ao longo do tempo</strong> (0..N, não apenas um), Future não basta: entram os <strong>Reactive Streams</strong>, um padrão (e especificação JVM) com quatro interfaces — <code>Publisher</code>, <code>Subscriber</code>, <code>Subscription</code>, <code>Processor</code> — cuja inovação central é o <strong>backpressure via <code>request(n)</code></strong>: o consumidor pede explicitamente quantos elementos consegue processar, e o produtor nunca envia mais que isso, evitando que um produtor rápido afogue um consumidor lento (push-pull dinâmico). Implementações: <strong>Project Reactor</strong> (<code>Mono</code>=0..1, <code>Flux</code>=0..N — base do Spring WebFlux) e <strong>RxJava</strong> (<code>Observable</code> sem backpressure, <code>Flowable</code> com). Distinção fina cobrada: <strong>cold streams</strong> (cada assinante dispara a execução do zero — preguiçoso, como uma requisição HTTP) × <strong>hot streams</strong> (emitem independentemente de assinantes — como eventos de mouse ou um tópico Kafka). Comparação que fecha o tema: <strong>Future/Promise = um valor (0..1) futuro</strong>; <strong>Reactive Stream = 0..N valores com backpressure</strong>. E o contexto atual: <strong>virtual threads (Project Loom, Java 21+) e coroutines/goroutines</strong> trazem de volta o estilo bloqueante <em>que parece síncrono mas escala</em> — questionando quando o custo cognitivo de reactive ainda compensa.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>Imagine um endpoint que, para responder, precisa chamar três serviços: estoque, preço e frete. No modelo <strong>síncrono-bloqueante</strong> ingênuo, a thread faz a chamada ao estoque e <strong>bloqueia</strong> (dorme) até a resposta chegar — digamos 100ms; depois bloqueia 100ms no preço; depois 100ms no frete. Total: 300ms de parede, e durante <strong>todo</strong> esse tempo a thread está parada, consumindo memória (stack de ~1MB) e ocupando um slot do pool <strong>sem fazer nada útil</strong> — só esperando bytes na rede. Para servir 10.000 requisições concorrentes assim, você precisaria de ~10.000 threads bloqueadas, e o número de threads do SO é finito; o context-switch entre elas degrada tudo (ver <code>08-thread-pools-e-tuning.md</code>). O recurso desperdiçado é gritante: a CPU está <strong>ociosa</strong> e mesmo assim o sistema não escala, porque o limite é o número de threads que podem ficar dormindo esperando I/O.</p>
+<p>A pergunta central é: <strong>"Como atender altíssima concorrência de operações dominadas por espera (I/O) sem dedicar uma thread bloqueada a cada operação em voo — e como compor várias dessas operações de forma legível, sem virar um emaranhado de callbacks?"</strong></p>
+<p>A resposta tem duas faces. A primeira é <strong>não bloquear</strong>: em vez de a thread dormir esperando o I/O, ela <strong>registra interesse</strong> (no event loop ou no sistema operacional via <code>epoll</code>/<code>kqueue</code>/IOCP) e segue trabalhando; quando o resultado chega, um callback é agendado. Com isso, <strong>uma única thread</strong> pode ter milhares de operações de I/O em voo simultaneamente — ela só executa código quando há resultado para processar, nunca enquanto espera. A segunda face é <strong>composição legível</strong>: callbacks crus resolvem o "não bloquear" mas tornam o código ilegível (o <em>callback hell</em>); Futures/Promises e depois async/await dão uma forma de <strong>encadear e combinar</strong> operações assíncronas que se lê quase como código sequencial, com tratamento de erro unificado.</p>
+<p>Há ainda um terceiro problema, que Futures <strong>não</strong> resolvem e que motiva os Reactive Streams: muitos cenários não produzem <em>um</em> valor, mas <strong>uma sequência de valores ao longo do tempo</strong> (linhas de um arquivo gigante, mensagens de um tópico, eventos de UI, resultados paginados de um banco). E quando o produtor é mais rápido que o consumidor, é preciso um mecanismo para o consumidor <strong>dizer quanto aguenta</strong> — caso contrário buffers crescem sem limite (OOM) ou mensagens são perdidas. Esse é o problema do <strong>backpressure</strong> (ver <code>../06-mensageria-e-streaming/03-backpressure.md</code>), e é exatamente o que a especificação Reactive Streams formaliza com <code>request(n)</code>.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="sincrono-bloqueante-vs-assincrono-nao-bloqueante">Síncrono-bloqueante vs assíncrono-não-bloqueante<a class="headerlink" href="#sincrono-bloqueante-vs-assincrono-nao-bloqueante" title="Permanent link">&para;</a></h3>
+<p>São dois eixos que frequentemente se confundem, mas é útil separá-los:</p>
+<ul>
+<li><strong>Bloqueante × não-bloqueante</strong> descreve o que acontece com a <em>thread chamadora</em> durante uma operação de I/O. <strong>Bloqueante:</strong> a thread fica suspensa até a operação completar (<code>InputStream.read()</code> clássico, JDBC). <strong>Não-bloqueante:</strong> a chamada retorna imediatamente (ou registra um callback) e a thread segue; o resultado vem depois por notificação.</li>
+<li><strong>Síncrono × assíncrono</strong> descreve <em>quando</em> você obtém o resultado em relação à chamada. <strong>Síncrono:</strong> o resultado volta no retorno da função. <strong>Assíncrono:</strong> o resultado volta depois, por callback/Future/evento.</li>
+</ul>
+<p>Na prática, o par que importa para escalabilidade de I/O é <strong>assíncrono-não-bloqueante</strong>: nenhuma thread fica dormindo esperando o I/O. É o oposto do <strong>síncrono-bloqueante</strong> (thread-por-requisição que dorme na espera). O ganho é direto pela natureza IO-bound da carga: como a tarefa passa a maior parte do tempo <em>esperando</em>, liberar a thread durante a espera permite que <strong>pouquíssimas threads</strong> sustentem <strong>enorme concorrência</strong> de I/O.</p>
+<h3 id="event-loop">Event loop<a class="headerlink" href="#event-loop" title="Permanent link">&para;</a></h3>
+<p>O <strong>event loop</strong> é o motor que torna o não-bloqueante viável com poucas threads. É um laço (tipicamente de thread única, como em JavaScript/Node, ou poucas threads como nos <em>event loops</em> do Netty/Reactor) que:</p>
+<ol>
+<li>Pega a próxima tarefa/callback de uma <strong>fila</strong> (a <em>message queue</em> / <em>task queue</em>).</li>
+<li><strong>Executa essa tarefa por completo</strong> (run-to-completion — nada a interrompe no meio).</li>
+<li>Volta a buscar a próxima.</li>
+</ol>
+<p>Operações de I/O não são feitas <em>dentro</em> do loop bloqueando-o; são delegadas ao SO (ou a um pool de I/O), e quando completam, <strong>enfileiram um callback</strong> para o loop processar. Em JavaScript, há ainda a distinção entre <strong>macrotasks</strong> (a <em>task queue</em>) e <strong>microtasks</strong> (a fila de callbacks de Promise, drenada <em>integralmente</em> entre cada macrotask, com prioridade maior). O modelo run-to-completion tem uma propriedade valiosa — enquanto um callback roda, <strong>nada o preempta</strong>, o que elimina muitas races <em>dentro</em> do loop — e um perigo correspondente: se um callback faz trabalho <strong>CPU-bound longo</strong> ou uma chamada <strong>bloqueante</strong>, ele <strong>trava o loop inteiro</strong> (nenhum outro evento é processado), derrubando a vazão de tudo. A regra de ouro do event loop é: <strong>nunca bloqueie o loop</strong>.</p>
+<h3 id="a-escada-evolutiva-callbacks-futurespromises-asyncawait">A escada evolutiva: callbacks → Futures/Promises → async/await<a class="headerlink" href="#a-escada-evolutiva-callbacks-futurespromises-asyncawait" title="Permanent link">&para;</a></h3>
+<p><strong>Callbacks.</strong> A forma mais primitiva de assincronia: você passa para a função uma outra função a ser chamada quando o resultado estiver pronto.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>// JS — callback
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>buscaEstoque(id, function(err, estoque) {
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    if (err) return trata(err);
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    buscaPreco(id, function(err, preco) {            // aninhado
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        if (err) return trata(err);
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        buscaFrete(id, function(err, frete) {        // mais aninhado
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>            if (err) return trata(err);
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>            responde(estoque, preco, frete);         // &quot;callback hell&quot;
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        });
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    });
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>});
+</code></pre></div>
+<p>O problema é duplo: o <strong>aninhamento</strong> cresce em "pirâmide" (callback hell), e o <strong>tratamento de erro</strong> tem de ser repetido manualmente em cada nível (não há propagação automática). Compor ("faça A e B em paralelo, depois C") vira código manual e frágil.</p>
+<p><strong>Futures/Promises.</strong> Um <strong>Future</strong> (ou <strong>Promise</strong>) é um objeto que representa <strong>um valor que ainda não existe</strong> — o resultado futuro de uma computação assíncrona. Tem três estados: <em>pendente</em> (ainda computando), <em>resolvido/cumprido</em> (com um valor) ou <em>rejeitado/falho</em> (com um erro). A inovação é que ele é um <strong>valor de primeira classe</strong>: você pode passá-lo adiante e, sobretudo, <strong>encadear</strong> transformações sobre ele <em>antes</em> de o valor existir. Os combinadores principais:</p>
+<ul>
+<li><strong><code>then</code> / <code>map</code>:</strong> aplica uma função ao valor quando ele chegar, produzindo um novo Future. <code>map</code> transforma <code>Future&lt;A&gt;</code> em <code>Future&lt;B&gt;</code>.</li>
+<li><strong><code>flatMap</code> / <code>thenCompose</code>:</strong> quando a função em si retorna <em>outro</em> Future (uma operação assíncrona dependente), <code>flatMap</code> "achata" <code>Future&lt;Future&lt;B&gt;&gt;</code> em <code>Future&lt;B&gt;</code> — é a composição <strong>sequencial</strong> de etapas assíncronas dependentes.</li>
+<li><strong>Combinadores de junção:</strong> <code>thenCombine</code> (Java) / <code>Promise.all</code> (JS) / <code>zip</code> — esperam <strong>dois ou mais</strong> Futures e combinam seus resultados; permitem disparar operações <strong>em paralelo</strong> e juntar quando todas terminam.</li>
+<li><strong>Tratamento de erro componível:</strong> <code>exceptionally</code>/<code>handle</code> (Java), <code>.catch</code> (JS) — o erro <strong>propaga pela cadeia</strong> automaticamente, sem <code>if (err)</code> em cada nível.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>// JS — Promises: linear, erro unificado
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>buscaEstoque(id)
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    .then(estoque =&gt; buscaPreco(id).then(preco =&gt; ({estoque, preco})))
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    .then(({estoque, preco}) =&gt; buscaFrete(id).then(frete =&gt; responde(estoque, preco, frete)))
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    .catch(trata);   // um único ponto de erro para toda a cadeia
+</code></pre></div>
+<p>Em Java, o <code>CompletableFuture</code> materializa isso com <code>thenApply</code> (map), <code>thenCompose</code> (flatMap), <code>thenCombine</code> (junção) e <code>exceptionally</code>.</p>
+<p><strong>async/await.</strong> É <strong>açúcar sintático sobre Promises/continuations</strong>. A palavra-chave <code>await</code> <em>suspende</em> a função assíncrona naquele ponto até a Promise resolver, <strong>sem bloquear a thread</strong> — o compilador transforma o que vem <em>depois</em> do <code>await</code> numa <strong>continuation</strong> (um callback) registrada na Promise. Você escreve código que <em>se lê</em> como sequencial e bloqueante, mas que por baixo é exatamente a cadeia de <code>then</code> de antes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>// JS — async/await: lê como síncrono, executa como Promises
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>async function checkout(id) {
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    try {
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        const [estoque, preco, frete] = await Promise.all([   // em paralelo
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>            buscaEstoque(id), buscaPreco(id), buscaFrete(id)
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        ]);
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        return responde(estoque, preco, frete);
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    } catch (e) { trata(e); }                                 // try/catch normal
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>}
+</code></pre></div>
+<p>O ganho é cognitivo: erro com <code>try/catch</code> comum, fluxo linear, sem pirâmide. Mas é crucial entender que <strong><code>await</code> não bloqueia a thread</strong> — ele <em>cede o controle ao event loop</em>, que processa outros eventos enquanto a Promise não resolve. Tratar <code>await</code> como "espera bloqueante" leva a erros de desempenho (serializar coisas que poderiam ser paralelas) e, em alguns runtimes, a deadlocks.</p>
+<h3 id="reactive-streams-publisher-subscriber-subscription-processor">Reactive Streams: Publisher, Subscriber, Subscription, Processor<a class="headerlink" href="#reactive-streams-publisher-subscriber-subscription-processor" title="Permanent link">&para;</a></h3>
+<p>Futures/Promises modelam <strong>um</strong> valor futuro. Mas e quando há <strong>0..N valores ao longo do tempo</strong> com necessidade de controle de fluxo? Entram os <strong>Reactive Streams</strong> — uma especificação (padrão na JVM desde o Java 9, como <code>java.util.concurrent.Flow</code>) que define um contrato de <strong>processamento de streams assíncrono com backpressure não-bloqueante</strong>. Quatro interfaces:</p>
+<ul>
+<li><strong><code>Publisher&lt;T&gt;</code>:</strong> a fonte. Produz uma sequência potencialmente ilimitada de elementos, <strong>de acordo com a demanda</strong> recebida de seus <code>Subscriber</code>s. Tem um método: <code>subscribe(Subscriber)</code>.</li>
+<li><strong><code>Subscriber&lt;T&gt;</code>:</strong> o consumidor. Recebe os callbacks do ciclo de vida: <code>onSubscribe(Subscription)</code> (uma vez, ao se inscrever), depois zero ou mais <code>onNext(T)</code> (cada elemento), e termina com <strong><code>onComplete()</code></strong> (fim normal) <strong>ou</strong> <code>onError(Throwable)</code> (falha) — nunca ambos, nunca depois de cancelar.</li>
+<li><strong><code>Subscription</code>:</strong> representa o vínculo um-a-um entre um <code>Subscriber</code> e um <code>Publisher</code>. Tem dois métodos: <strong><code>request(long n)</code></strong> — sinaliza que o subscriber está pronto para receber <em>até <code>n</code></em> elementos — e <code>cancel()</code> — encerra o fluxo e libera recursos.</li>
+<li><strong><code>Processor&lt;T,R&gt;</code>:</strong> é ao mesmo tempo <code>Subscriber&lt;T&gt;</code> e <code>Publisher&lt;R&gt;</code> — um estágio intermediário que consome de um upstream e produz para um downstream (a peça de transformação no meio do pipeline).</li>
+</ul>
+<p>O protocolo de sinais é estrito: <code>onSubscribe</code> sempre primeiro, seguido de um número (limitado pela demanda) de <code>onNext</code>, terminando com <code>onError</code> <strong>ou</strong> <code>onComplete</code>, enquanto a <code>Subscription</code> não for cancelada.</p>
+<h3 id="backpressure-via-requestn">Backpressure via <code>request(n)</code><a class="headerlink" href="#backpressure-via-requestn" title="Permanent link">&para;</a></h3>
+<p>Esta é <strong>a</strong> inovação dos Reactive Streams e o que os distingue de um simples stream de callbacks. Num modelo <em>puramente push</em>, o <code>Publisher</code> emitiria <code>onNext</code> o mais rápido que pudesse; se o <code>Subscriber</code> for mais lento (ex.: grava em banco), os elementos se acumulam num buffer que cresce sem limite até estourar a memória — ou são descartados. O Reactive Streams resolve invertendo o controle: <strong>nenhum elemento é enviado até que o <code>Subscriber</code> peça</strong>, via <code>subscription.request(n)</code>. O <code>Subscriber</code> declara explicitamente "estou pronto para <em>n</em> elementos"; o <code>Publisher</code> envia <strong>no máximo</strong> <em>n</em> <code>onNext</code> e então espera o próximo <code>request</code>. É um modelo <strong>push-pull dinâmico</strong>: o consumidor <em>puxa</em> a demanda (controle de fluxo), o produtor <em>empurra</em> os dados dentro do limite concedido. Assim o consumidor lento <strong>nunca é afogado</strong> — ele dita o ritmo. (Demanda cumulativa de <code>Long.MAX_VALUE</code> é tratada como "ilimitada", efetivamente desligando o backpressure quando o consumidor declara que aguenta tudo.)</p>
+<h3 id="project-reactor-e-rxjava">Project Reactor e RxJava<a class="headerlink" href="#project-reactor-e-rxjava" title="Permanent link">&para;</a></h3>
+<p>As implementações que dão ergonomia ao contrato cru:</p>
+<ul>
+<li><strong>Project Reactor</strong> (base do Spring WebFlux): expõe dois tipos reativos compostos sobre <code>Publisher</code> — <strong><code>Mono&lt;T&gt;</code></strong> (0..1 elemento — o "Future reativo") e <strong><code>Flux&lt;T&gt;</code></strong> (0..N elementos). Oferece um vocabulário riquíssimo de <strong>operadores</strong> (<code>map</code>, <code>flatMap</code>, <code>filter</code>, <code>zip</code>, <code>merge</code>, <code>buffer</code>, <code>window</code>, <code>retry</code>, <code>timeout</code>, <code>onErrorResume</code>…), cada um envolvendo o <code>Publisher</code> anterior num novo (a analogia da "linha de montagem" de estações de trabalho).</li>
+<li><strong>RxJava</strong> (Reactive Extensions para a JVM): distingue <strong><code>Observable</code></strong> (sem backpressure — para sequências curtas, eventos de UI) de <strong><code>Flowable</code></strong> (com backpressure, implementando Reactive Streams). Estratégias quando o produtor excede a demanda: <code>onBackpressureBuffer</code>, <code>onBackpressureDrop</code>, <code>onBackpressureLatest</code>.</li>
+</ul>
+<h3 id="cold-streams-vs-hot-streams">Cold streams vs hot streams<a class="headerlink" href="#cold-streams-vs-hot-streams" title="Permanent link">&para;</a></h3>
+<p>Distinção sutil e cobrada:</p>
+<ul>
+<li><strong>Cold stream (frio):</strong> a produção é <strong>preguiçosa e por assinante</strong> — começa do zero a cada <code>subscribe</code>, e cada assinante recebe a sequência <strong>completa e independente</strong>. Exemplo canônico: um <code>Mono</code>/<code>Flux</code> que representa uma requisição HTTP ou uma query — nada acontece até alguém assinar, e dois assinantes disparam duas execuções. Cold streams casam <strong>naturalmente com o backpressure pull</strong>.</li>
+<li><strong>Hot stream (quente):</strong> emite <strong>independentemente</strong> de haver assinantes, e assinantes recebem apenas o que for emitido <strong>a partir do momento</strong> em que se inscreveram (perdem o passado). Exemplos: eventos de mouse/teclado, preços de ações, um tópico Kafka, um <code>Sink</code>/<code>Subject</code> compartilhado. Hot streams lidam mal com pull puro (a fonte não controla seu ritmo — o mundo externo gera os eventos) e exigem outras estratégias de fluxo (buffer, drop, sampling).</li>
+</ul>
+<h3 id="future-vs-reactive-stream-a-comparacao-que-fecha-o-tema">Future vs Reactive Stream: a comparação que fecha o tema<a class="headerlink" href="#future-vs-reactive-stream-a-comparacao-que-fecha-o-tema" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Future / Promise</th>
+<th>Reactive Stream (<code>Flux</code>/<code>Flowable</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Quantidade de valores</td>
+<td><strong>um</strong> (0..1)</td>
+<td><strong>muitos</strong> (0..N, ao longo do tempo)</td>
+</tr>
+<tr>
+<td>Disparo</td>
+<td>geralmente já em execução (eager)</td>
+<td>tipicamente preguiçoso (cold) — só ao assinar</td>
+</tr>
+<tr>
+<td>Backpressure</td>
+<td>não tem (um valor só)</td>
+<td><strong>sim</strong>, via <code>request(n)</code></td>
+</tr>
+<tr>
+<td>Cancelamento</td>
+<td>limitado (<code>cancel</code> em alguns)</td>
+<td><code>subscription.cancel()</code> de primeira classe</td>
+</tr>
+<tr>
+<td>Composição</td>
+<td><code>then</code>/<code>map</code>/<code>flatMap</code>/junção</td>
+<td>operadores ricos (map, filter, zip, window…)</td>
+</tr>
+<tr>
+<td>Caso de uso</td>
+<td>uma chamada assíncrona, agregar N chamadas</td>
+<td>streaming, eventos contínuos, paginação infinita</td>
+</tr>
+</tbody>
+</table>
+<p>Regra mnemônica: <strong>Future é um <code>Optional</code> assíncrono; Reactive Stream é um <code>Stream</code> assíncrono com controle de fluxo.</strong></p>
+<h3 id="virtual-threads-e-coroutines-o-contexto-atual">Virtual threads e coroutines: o contexto atual<a class="headerlink" href="#virtual-threads-e-coroutines-o-contexto-atual" title="Permanent link">&para;</a></h3>
+<p>O modelo reactive nasceu para resolver o custo das threads de plataforma bloqueadas. <strong>Virtual threads</strong> (Project Loom, Java 21+) e <strong>coroutines/goroutines</strong> (Kotlin, Go) atacam o mesmo problema por outro ângulo: tornam as threads <strong>baratíssimas</strong> e fazem o <em>bloqueio parecer bloqueio</em> (código síncrono linear) enquanto, por baixo, <strong>desmontam</strong> a thread leve da carrier durante o I/O — entregando a escalabilidade do não-bloqueante com a ergonomia do síncrono. Isso reabre a pergunta: se eu posso escrever <code>var x = chamaServico()</code> bloqueante e mesmo assim ter milhões de "threads" em voo, <strong>quando o custo cognitivo de async/await e Reactor ainda compensa?</strong> A resposta atual: reactive continua imbatível para <strong>streaming com backpressure de ponta a ponta (0..N)</strong> e operadores ricos de composição de fluxos; para o caso comum de <strong>agregar chamadas e responder (0..1) sob alta concorrência</strong>, virtual threads/coroutines oferecem uma alternativa muito mais simples de ler e depurar.</p>
+<h3 id="glossario-rapido">Glossário rápido<a class="headerlink" href="#glossario-rapido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Bloqueante × não-bloqueante:</strong> se a thread dorme durante o I/O ou é liberada.</li>
+<li><strong>Síncrono × assíncrono:</strong> se o resultado vem no retorno ou depois (callback/Future/evento).</li>
+<li><strong>Event loop:</strong> laço run-to-completion que processa callbacks de uma fila; não pode ser bloqueado.</li>
+<li><strong>Callback hell:</strong> aninhamento profundo de callbacks, com erro tratado na mão.</li>
+<li><strong>Future/Promise:</strong> objeto que representa <strong>um</strong> valor futuro (0..1); componível por <code>then</code>/<code>map</code>/<code>flatMap</code>.</li>
+<li><strong>async/await:</strong> açúcar sintático sobre Promises/continuations; <code>await</code> suspende sem bloquear a thread.</li>
+<li><strong>Reactive Streams:</strong> contrato <code>Publisher</code>/<code>Subscriber</code>/<code>Subscription</code>/<code>Processor</code> para 0..N com backpressure.</li>
+<li><strong><code>request(n)</code>:</strong> o subscriber pede <em>n</em> elementos; o publisher nunca envia mais que isso (backpressure).</li>
+<li><strong>Mono / Flux:</strong> Reactor — 0..1 e 0..N. <strong>Observable / Flowable:</strong> RxJava — sem/com backpressure.</li>
+<li><strong>Cold × hot:</strong> produção preguiçosa por assinante × emissão independente de assinantes.</li>
+<li><strong>Virtual thread / coroutine:</strong> thread leve que bloqueia parecendo síncrona, mas escala como não-bloqueante.</li>
+</ul>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>O fluxo de uma operação <strong>async/await sobre event loop</strong> (estilo Node/navegador):</p>
+<ol>
+<li><strong>Chamada não-bloqueante.</strong> A função assíncrona executa até o primeiro <code>await fetch(...)</code>. A operação de I/O é registrada (delegada ao SO/libuv), e a função <strong>devolve o controle ao event loop</strong> — a thread não dorme.</li>
+<li><strong>Loop livre.</strong> O event loop processa <strong>outros</strong> callbacks/eventos enquanto o I/O está em voo. Uma única thread mantém centenas de operações pendentes.</li>
+<li><strong>Conclusão do I/O.</strong> Quando a resposta chega, um callback (a <strong>continuation</strong> registrada pelo <code>await</code>) é enfileirado (na microtask queue, no caso de Promise).</li>
+<li><strong>Retomada.</strong> O loop, ao drenar a fila, executa a continuation: a função assíncrona <strong>retoma</strong> exatamente após o <code>await</code>, com o valor resolvido, e segue até o próximo <code>await</code> ou o fim.</li>
+</ol>
+<p>O fluxo de um <strong>pipeline Reactive Streams com backpressure</strong>:</p>
+<ol>
+<li><strong>Assinatura.</strong> <code>publisher.subscribe(subscriber)</code>. O publisher chama <code>subscriber.onSubscribe(subscription)</code>, entregando o controle de demanda.</li>
+<li><strong>Demanda.</strong> O subscriber chama <code>subscription.request(n)</code> — "estou pronto para <em>n</em> elementos". <strong>Antes disso, nada é emitido.</strong></li>
+<li><strong>Emissão limitada.</strong> O publisher emite <strong>no máximo <em>n</em></strong> <code>onNext(elemento)</code>. Se tem mais para enviar, <strong>espera</strong> o próximo <code>request</code>.</li>
+<li><strong>Ritmo do consumidor.</strong> Conforme processa, o subscriber chama <code>request(n)</code> de novo, ditando o ritmo. Um consumidor lento simplesmente pede menos/mais devagar — o produtor desacelera junto (backpressure de ponta a ponta).</li>
+<li><strong>Término.</strong> Ao esgotar a fonte, o publisher chama <code>onComplete()</code>; em caso de falha, <code>onError(e)</code>. O subscriber pode encerrar antes com <code>subscription.cancel()</code>.</li>
+</ol>
+<p>O ponto que liga os dois: tanto o <code>await</code> quanto o <code>onNext</code>/<code>request</code> são <strong>callbacks agendados</strong> — a thread nunca fica parada esperando. A diferença é a <strong>cardinalidade e o controle de fluxo</strong>: async/await orquestra <strong>um</strong> resultado (ou um conjunto fixo, via <code>Promise.all</code>); Reactive Streams orquestra <strong>uma sequência</strong> com o consumidor regulando o ritmo. E ambos vivem sobre o mesmo princípio do <code>08-thread-pools-e-tuning.md</code>: para carga <strong>IO-bound</strong>, liberar a thread durante a espera é o que permite escalar com poucas threads.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama mostra o event loop processando uma operação async/await sem bloquear a thread; o segundo mostra o pipeline Publisher→Subscriber com backpressure via <code>request(n)</code>, <code>onNext</code> e <code>onComplete</code>.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant F as "Funcao async"
+    participant L as "Event loop"
+    participant IO as "I/O (SO/libuv)"
+    F-&gt;&gt;IO: "await fetch() — registra I/O"
+    F--&gt;&gt;L: "devolve controle (nao bloqueia)"
+    Note over L: "loop processa OUTROS callbacks&lt;br/&gt;enquanto o I/O esta em voo"
+    IO--&gt;&gt;L: "I/O completou — enfileira continuation"
+    L-&gt;&gt;F: "retoma apos o await com o valor"
+    Note over F: "segue ate o proximo await ou o fim"</code></pre>
+<pre class="mermaid"><code>sequenceDiagram
+    participant S as "Subscriber"
+    participant Sub as "Subscription"
+    participant P as "Publisher"
+    P-&gt;&gt;S: "onSubscribe(subscription)"
+    S-&gt;&gt;Sub: "request(2)"
+    Sub-&gt;&gt;P: "demanda = 2"
+    P-&gt;&gt;S: "onNext(e1)"
+    P-&gt;&gt;S: "onNext(e2)"
+    Note over P: "para — demanda esgotada&lt;br/&gt;(backpressure: nao afoga o consumidor)"
+    S-&gt;&gt;Sub: "request(2)"
+    P-&gt;&gt;S: "onNext(e3)"
+    P-&gt;&gt;S: "onComplete()"</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p>Cenário: a página de <strong>checkout</strong> de um e-commerce brasileiro, em Java/Spring, que ao montar o resumo do pedido precisa consultar três serviços — <strong>estoque</strong> (~80ms), <strong>preço/promoções</strong> (~120ms) e <strong>frete</strong> (~150ms) — todos por HTTP.</p>
+<p><strong>O ponto de partida bloqueante.</strong> A versão original, com <code>RestTemplate</code> síncrono numa thread do pool do Tomcat, fazia as três chamadas em sequência: ~80 + 120 + 150 = <strong>350ms</strong> de parede, com a thread <strong>bloqueada e ociosa</strong> durante quase todo esse tempo (é I/O de rede). Na Black Friday, com milhares de checkouts concorrentes, o pool de threads do Tomcat esgotou: cada requisição prendia uma thread por 350ms sem fazer trabalho de CPU, e o servidor passou a recusar conexões mesmo com a CPU em 20%. O recurso limitante eram <strong>threads bloqueadas</strong>, não computação.</p>
+<p><strong>Correção 1 — agregar em paralelo com CompletableFuture (0..1).</strong> O time disparou as três chamadas <strong>concorrentemente</strong> e combinou os resultados, transformando 350ms sequenciais em ~150ms (o tempo da mais lenta):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>// Java — agrega 3 chamadas em paralelo, sem bloquear; junta com thenCombine
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>CompletableFuture&lt;Estoque&gt; fe = clienteEstoque.buscarAsync(id);   // dispara já
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>CompletableFuture&lt;Preco&gt;   fp = clientePreco.buscarAsync(id);     // em paralelo
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>CompletableFuture&lt;Frete&gt;   ff = clienteFrete.buscarAsync(id);     // em paralelo
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>CompletableFuture&lt;Resumo&gt; resumo = fe
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    .thenCombine(fp, (e, p) -&gt; new Parcial(e, p))                 // junta estoque+preco
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    .thenCombine(ff, (parcial, f) -&gt; montaResumo(parcial, f))    // + frete
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    .exceptionally(ex -&gt; resumoDegradado(ex));                   // erro propaga p/ um lugar
+</code></pre></div>
+<p>Com um cliente HTTP <strong>não-bloqueante</strong> por baixo (<code>WebClient</code>), nenhuma thread fica dormindo na espera: as três operações ficam em voo registradas no event loop, e a continuation (<code>thenCombine</code>) roda quando ambas resolvem. Poucas threads de I/O sustentam milhares de checkouts. Note a <strong>composição</strong>: <code>thenCombine</code> para junção paralela, <code>exceptionally</code> como ponto único de erro — nada de callback hell.</p>
+<p><strong>Correção 2 — quando vira streaming (0..N com backpressure).</strong> Numa segunda fase, o catálogo de uma página de categoria passou a transmitir <strong>milhares de produtos</strong> vindos do banco para o cliente conforme são lidos, em vez de carregar tudo na memória. Aqui Future não serve — é uma <strong>sequência</strong> (0..N). Usaram <code>Flux</code> (Reactor) com um driver de banco reativo (R2DBC):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>// Java/Reactor — stream de produtos com backpressure de ponta a ponta
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>Flux&lt;Produto&gt; produtos = repositorio.streamPorCategoria(catId)   // cold: so executa ao assinar
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    .map(p -&gt; aplicaPromocao(p))                                 // operador de transformacao
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    .filter(Produto::disponivel);
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>// O cliente (WebFlux) faz request(n) conforme consome; se a rede do cliente
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>// esta lenta, o request desacelera, o driver puxa menos linhas do banco,
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>// e nada estoura a memoria do servidor — backpressure ate o banco.
+</code></pre></div>
+<p>O <code>Flux</code> é <strong>cold</strong>: nada acontece até o WebFlux assinar a resposta HTTP. Conforme o cliente consome (e seu <code>request(n)</code> reflete o quanto a rede dele aguenta), o Reactor propaga a demanda <strong>até o banco</strong>, que lê linhas no ritmo do consumidor mais lento. Um cliente em 3G lento simplesmente faz o pipeline inteiro desacelerar, sem buffers crescendo no servidor.</p>
+<p><strong>A armadilha que quase voltou.</strong> Num PR, alguém, acostumado ao estilo bloqueante, escreveu <code>produto.block()</code> no meio do pipeline Reactor para "pegar o valor logo" — bloqueando uma das poucas threads do event loop e anulando todo o ganho (sob carga, travaria o loop e derrubaria a vazão). O code review barrou: <strong>nunca <code>.block()</code>/<code>.get()</code> dentro de um pipeline reactive</strong>.</p>
+<p>Realidade por stack: em <strong>JavaScript/Node</strong>, <code>async/await</code> sobre o event loop do libuv é o default; em <strong>Java</strong>, <code>CompletableFuture</code> (0..1) e Project Reactor/<code>Flux</code> (0..N, base do Spring WebFlux), com RxJava como alternativa; em <strong>Go</strong>, o estilo é o oposto — goroutines bloqueantes baratas (<code>go chamaServico()</code> + channels) entregam concorrência sem async/await explícito, com o scheduler M:N liberando a thread do SO no I/O; em <strong>Kotlin</strong>, coroutines (<code>suspend fun</code>) dão async/await estrutural.</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Assíncrono-não-bloqueante (em geral):</strong> use para cargas <strong>IO-bound</strong> de alta concorrência (gateways, agregadores, proxies, serviços que orquestram muitas chamadas externas) — escala com poucas threads. <strong>Evite</strong> para cargas <strong>CPU-bound</strong> (cálculo pesado): assincronia não cria paralelismo de CPU, e código CPU-bound no event loop <strong>trava o loop</strong>; aí o que importa é pool ≈ núcleos (ver <code>08-thread-pools-e-tuning.md</code>).</p>
+<p><strong>Futures/Promises + async/await (0..1):</strong> use quando há <strong>um</strong> resultado assíncrono ou um <strong>conjunto fixo</strong> de chamadas a agregar (o caso do checkout). É o default legível para "chame N serviços e combine". <strong>Evite</strong> quando o resultado é uma <strong>sequência contínua/ilimitada</strong> com necessidade de controle de fluxo — Future não tem backpressure.</p>
+<p><strong>Reactive Streams (0..N com backpressure):</strong> use para <strong>streaming</strong> (resultados que chegam ao longo do tempo), pipelines de transformação ricos, e quando produtor e consumidor têm <strong>ritmos diferentes</strong> e você precisa de controle de fluxo de ponta a ponta (banco → servidor → cliente). <strong>Evite</strong> quando o caso é simplesmente 0..1 — a complexidade de operadores e o modelo mental reativo não se pagam; e <strong>evite</strong> misturar com chamadas bloqueantes no meio do pipeline.</p>
+<p><strong>Virtual threads / coroutines / goroutines:</strong> use como <strong>alternativa mais simples</strong> ao reactive para o caso 0..1 de alta concorrência IO-bound — código linear que escala. <strong>Evite</strong> assumir que resolvem o caso de <strong>streaming com backpressure</strong> (não substituem Reactive Streams nesse ponto) ou que ajudam em <strong>CPU-bound</strong> (o gargalo continua sendo os núcleos).</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Bloquear (<code>.get()</code>/<code>.block()</code>/<code>join</code>) dentro de um pipeline reactive ou no event loop.</strong> Anula todo o benefício: prende uma das poucas threads de I/O, e sob carga <strong>trava o loop</strong> e derruba a vazão de tudo. Nunca <code>.block()</code> no meio de um <code>Flux</code>/<code>Mono</code>; nunca chamada bloqueante num callback do event loop. Se precisa integrar código bloqueante, isole-o num pool dedicado (<code>subscribeOn(Schedulers.boundedElastic())</code>).</li>
+<li><strong>Callback hell.</strong> Aninhar callbacks em pirâmide com tratamento de erro manual em cada nível. Resolva subindo a escada: Promises com <code>then</code>/<code>catch</code>, ou async/await com <code>try/catch</code>.</li>
+<li><strong>Ignorar backpressure.</strong> Tratar um stream como push puro (emitir o mais rápido possível para um consumidor lento) faz buffers crescerem sem limite (OOM) ou descarta dados silenciosamente. Use <code>request(n)</code> / <code>Flowable</code> / estratégias <code>onBackpressure*</code> e pense no controle de fluxo de ponta a ponta (ver <code>../06-mensageria-e-streaming/03-backpressure.md</code>).</li>
+<li><strong>Assumir paralelismo onde só há concorrência.</strong> Um event loop de thread única dá <strong>concorrência</strong> (muitas operações em voo), <strong>não paralelismo de CPU</strong> (uma instrução por vez). <code>async/await</code> não acelera cálculo; só evita bloquear na espera de I/O (ver <code>01-concorrencia-vs-paralelismo-e-context-switching.md</code>).</li>
+<li><strong><code>await</code> em série quando poderia ser paralelo.</strong> <code>await a(); await b(); await c();</code> espera uma de cada vez (soma os tempos). Se são independentes, dispare em paralelo e junte: <code>Promise.all([a(), b(), c()])</code> / <code>thenCombine</code>. Tratar <code>await</code> como "bloqueio sequencial" desperdiça a oportunidade de paralelizar I/O.</li>
+<li><strong>CPU-bound no event loop.</strong> Um cálculo pesado (parse de payload gigante, criptografia, loop longo) num callback bloqueia o loop inteiro — todos os outros eventos esperam. Delegue a um worker/pool (Worker Threads no Node, <code>boundedElastic</code> no Reactor).</li>
+<li><strong>Confundir cold e hot stream.</strong> Esperar que um <code>Flux</code> cold "já esteja rodando" (não está — só ao assinar) ou que um hot stream "entregue o histórico" a um assinante tardio (não entrega — só o que vier depois). Saber qual é qual evita bugs de "não recebi nada" / "recebi duas vezes".</li>
+<li><strong>Vazar <code>Subscription</code> / não cancelar.</strong> Esquecer de <code>cancel()</code> (ou de gerenciar o ciclo de vida da assinatura) em streams hot/ilimitados causa vazamento de recursos e processamento desnecessário.</li>
+<li><strong>Engolir erros assíncronos.</strong> Promise sem <code>.catch</code> (unhandled rejection), <code>Flux</code> sem <code>onError</code>, <code>CompletableFuture</code> sem <code>exceptionally</code>/<code>handle</code> — o erro some silenciosamente. Sempre termine a cadeia com tratamento de erro.</li>
+<li><strong>Mexer em estado compartilhado mutável de vários callbacks.</strong> O event loop run-to-completion protege <em>dentro</em> de um callback, mas estado compartilhado entre callbacks/threads de I/O ainda exige cuidado de visibilidade/atomicidade (ver <code>05-atomic-cas-lock-free-wait-free.md</code>).</li>
+</ul>
+<h3 id="por-que-async-nao-e-paralelismo-e-por-que-isso-importa">Por que async não é paralelismo (e por que isso importa)<a class="headerlink" href="#por-que-async-nao-e-paralelismo-e-por-que-isso-importa" title="Permanent link">&para;</a></h3>
+<p>Vale fixar a confusão mais comum. <strong>Concorrência</strong> é <em>lidar com</em> muitas coisas ao mesmo tempo (estruturar o programa em tarefas independentes que progridem intercaladas); <strong>paralelismo</strong> é <em>executar</em> muitas coisas ao mesmo tempo (em múltiplos núcleos). O modelo async/await sobre event loop entrega <strong>concorrência massiva de I/O com uma única thread</strong> — milhares de operações <em>em voo</em>, mas o código JavaScript roda <strong>uma instrução por vez</strong>. Isso é perfeito para IO-bound (a thread só trabalha quando há resultado; o resto do tempo o I/O acontece no SO), mas <strong>não acelera computação</strong>: dois cálculos pesados num event loop de thread única rodam um após o outro, e o segundo <em>bloqueia o loop</em> enquanto o primeiro não termina. Para paralelismo de CPU é preciso múltiplas threads/processos (pool ≈ núcleos). A consequência arquitetural: escolha o modelo pela <strong>natureza da carga</strong> — assíncrono-não-bloqueante e poucas threads para IO-bound; pool dimensionado por núcleos para CPU-bound; e <strong>nunca</strong> misture trabalho CPU-bound longo dentro do event loop.</p>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Thread pools e tuning</strong> (ver <code>08-thread-pools-e-tuning.md</code>): async/reactive é a <strong>alternativa</strong> ao pool grande para IO-bound — em vez de muitas threads bloqueadas, poucas threads não-bloqueantes; o raciocínio "natureza da carga define a estratégia" (CPU vs IO) é o mesmo, e o <code>CompletableFuture</code> roda no <code>ForkJoinPool.commonPool</code> por default (não o bloqueie).</li>
+<li><strong>Concorrência vs paralelismo e context-switching</strong> (ver <code>01-concorrencia-vs-paralelismo-e-context-switching.md</code>): o event loop é o exemplo máximo de <strong>concorrência sem paralelismo</strong> (uma thread, muitas tarefas em voo); confundir os dois leva a esperar que async acelere CPU.</li>
+<li><strong>Backpressure</strong> (ver <code>../06-mensageria-e-streaming/03-backpressure.md</code>): <code>request(n)</code> é a materialização <em>in-process</em> do mesmo conceito que governa o controle de fluxo em mensageria/streaming — o consumidor regulando o produtor para não ser afogado.</li>
+<li><strong>Connection pooling, async I/O e reactive</strong> (ver <code>../07-performance-e-escalabilidade/05-connection-pooling-thread-pooling-async-io-reactive.md</code>): este conceito é o "como" do async I/O e do reactive ali apresentados como estratégias de escalabilidade; o pool de conexões também precisa ser reativo/não-bloqueante para o pipeline não bloquear nele.</li>
+<li><strong>Leis de Little, Amdahl e USL</strong> (ver <code>../07-performance-e-escalabilidade/06-leis-little-amdahl-universal-scalability-law.md</code>): a Lei de Little explica por que liberar a thread durante a espera (reduzir o tempo que cada thread fica "ocupada") aumenta a concorrência sustentável; Amdahl lembra que async não paraleliza a parte serial/CPU-bound.</li>
+</ul>
+<h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
+<p>Três ideias para carregar:</p>
+<ol>
+<li><strong>A natureza da carga escolhe a ferramenta.</strong> IO-bound de alta concorrência → assíncrono-não-bloqueante (libere a thread durante a espera). CPU-bound → pool ≈ núcleos; <strong>nunca</strong> ponha cálculo pesado no event loop, que o trava. Async dá <strong>concorrência</strong>, não <strong>paralelismo</strong> — não acelera computação.</li>
+<li><strong>Cardinalidade decide o modelo.</strong> <strong>Um</strong> valor futuro (ou um conjunto fixo a agregar) → Future/Promise + async/await, com <code>then</code>/<code>map</code>/<code>flatMap</code> e junção (<code>Promise.all</code>/<code>thenCombine</code>). <strong>0..N ao longo do tempo com controle de fluxo</strong> → Reactive Streams (<code>request(n)</code>, <code>Flux</code>/<code>Flowable</code>). Future é um <code>Optional</code> assíncrono; Reactive Stream é um <code>Stream</code> assíncrono com backpressure.</li>
+<li><strong>Não bloqueie o que foi feito para não bloquear.</strong> <code>.block()</code>/<code>.get()</code> num pipeline reactive ou uma chamada bloqueante no event loop anulam todo o benefício e podem derrubar a vazão. E pondere o contexto atual: <strong>virtual threads/coroutines</strong> trazem de volta o código linear que escala — para o caso 0..1, frequentemente a escolha mais simples; reactive permanece soberano para streaming com backpressure de ponta a ponta.</li>
+</ol>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Síncrono-bloqueante</strong> prende uma thread dormindo na espera de I/O (não escala sob alta concorrência); <strong>assíncrono-não-bloqueante</strong> libera a thread e a notifica depois — poucas threads sustentam enorme concorrência IO-bound.</li>
+<li>O <strong>event loop</strong> é run-to-completion (um callback por vez, nada o preempta); <strong>nunca o bloqueie</strong> com I/O bloqueante ou CPU-bound longo.</li>
+<li>Escada da abstração: <strong>callbacks</strong> (callback hell) → <strong>Futures/Promises</strong> (um valor futuro, componível por <code>then</code>/<code>map</code>/<code>flatMap</code>/junção) → <strong>async/await</strong> (açúcar sobre Promises/continuations; <code>await</code> suspende <strong>sem bloquear</strong> a thread).</li>
+<li><strong>Reactive Streams</strong> = <code>Publisher</code>/<code>Subscriber</code>/<code>Subscription</code>/<code>Processor</code> para <strong>0..N com backpressure</strong>; a chave é <strong><code>request(n)</code></strong> — o consumidor pede quanto aguenta, o produtor nunca envia mais (push-pull dinâmico).</li>
+<li><strong>Reactor:</strong> <code>Mono</code> (0..1) / <code>Flux</code> (0..N). <strong>RxJava:</strong> <code>Observable</code> (sem backpressure) / <code>Flowable</code> (com).</li>
+<li><strong>Cold</strong> = preguiçoso e por assinante (executa ao assinar, cada um recebe tudo); <strong>hot</strong> = emite independente de assinantes (assinante tardio perde o passado).</li>
+<li><strong>Future = um valor (0..1), sem backpressure</strong>; <strong>Reactive Stream = 0..N valores com backpressure</strong>. Future é um <code>Optional</code> assíncrono; stream reativo é um <code>Stream</code> assíncrono com controle de fluxo.</li>
+<li><strong>Async ≠ paralelismo:</strong> entrega concorrência de I/O numa thread, não acelera CPU; <strong>virtual threads/coroutines/goroutines</strong> dão o estilo bloqueante que escala (alternativa ao reactive para o caso 0..1).</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">async function — MDN Web Docs</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await">await — MDN Web Docs</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop">JavaScript execution model (event loop) — MDN Web Docs</a></li>
+<li><a href="https://github.com/reactive-streams/reactive-streams-jvm">Reactive Streams Specification for the JVM — GitHub</a></li>
+<li><a href="https://www.reactive-streams.org/reactive-streams-1.0.3-javadoc/org/reactivestreams/Publisher.html">Publisher (reactive-streams 1.0.3 API) — reactive-streams.org</a></li>
+<li><a href="https://www.reactive-streams.org/reactive-streams-1.0.4-javadoc/org/reactivestreams/Subscription.html">Subscription (reactive-streams 1.0.4 API) — reactive-streams.org</a></li>
+<li><a href="https://projectreactor.io/docs/core/release/reference/reactiveProgramming.html">Introduction to Reactive Programming — Reactor Core Reference Guide</a></li>
+<li><a href="https://github.com/ReactiveX/RxJava/blob/3.x/docs/Backpressure.md">Backpressure — RxJava (ReactiveX) docs</a></li>
+<li><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/CompletableFuture.html">CompletableFuture (Java SE 21 &amp; JDK 21) — Oracle</a></li>
+<li><a href="https://go.dev/doc/effective_go#concurrency">Effective Go — Concurrency (goroutines) — go.dev</a></li>
+<li><a href="https://www.reactivemanifesto.org/">The Reactive Manifesto — reactivemanifesto.org</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../08-thread-pools-e-tuning/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Thread pools e tuning">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Thread pools e tuning
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Níveis de isolamento e anomalias">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Níveis de isolamento e anomalias
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

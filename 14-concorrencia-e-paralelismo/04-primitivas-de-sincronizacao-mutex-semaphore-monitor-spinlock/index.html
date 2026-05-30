@@ -1,0 +1,2406 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/14-concorrencia-e-paralelismo/04-primitivas-de-sincronizacao-mutex-semaphore-monitor-spinlock/">
+      
+      
+        <link rel="prev" href="../03-deadlock-livelock-starvation/">
+      
+      
+        <link rel="next" href="../05-atomic-cas-lock-free-wait-free/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Primitivas (Mutex, Semaphore, Monitor, Spinlock) - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#primitivas-de-sincronizacao-mutex-semaphore-monitor-spinlock" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Primitivas (Mutex, Semaphore, Monitor, Spinlock)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_16" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_16" id="__nav_16_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_16_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_16">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    14 · Concorrência e paralelismo
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concorrência vs Paralelismo e context switching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-race-condition-e-critical-section/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Race Condition e Critical Section
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-deadlock-livelock-starvation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deadlock, Livelock, Starvation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Primitivas (Mutex, Semaphore, Monitor, Spinlock)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Primitivas (Mutex, Semaphore, Monitor, Spinlock)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mutex-mutual-exclusion-lock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mutex (Mutual Exclusion lock)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#semaphore-semaforo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Semaphore (semáforo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monitor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Monitor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spinlock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spinlock
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-comparativa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela comparativa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-atomic-cas-lock-free-wait-free/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Atomic, CAS, lock-free, wait-free
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-memory-model-happens-before-volatile-barriers-false-sharing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory model e false sharing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-problemas-classicos-producer-consumer-readers-writers-dining-philosophers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Problemas clássicos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-thread-pools-e-tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Thread pools e tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-async-await-futures-promises-reactive-streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Async/await, Futures, Reactive Streams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mutex-mutual-exclusion-lock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mutex (Mutual Exclusion lock)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#semaphore-semaforo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Semaphore (semáforo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monitor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Monitor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spinlock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spinlock
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-comparativa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela comparativa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="primitivas-de-sincronizacao-mutex-semaphore-monitor-spinlock">Primitivas de Sincronização: Mutex, Semaphore, Monitor, Spinlock<a class="headerlink" href="#primitivas-de-sincronizacao-mutex-semaphore-monitor-spinlock" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Concorrência e paralelismo · <strong>Nível:</strong> Avançado · <strong>Tempo de leitura:</strong> ~24 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>São as quatro primitivas fundamentais que coordenam o acesso de múltiplas threads a recursos compartilhados, e a entrevista cobra a diferença precisa entre elas. <strong>Mutex</strong> (mutual exclusion lock) garante <strong>exclusão mútua</strong> — só uma thread por vez na seção crítica — e tem <strong>posse (ownership)</strong>: só a thread que o adquiriu (lock) pode liberá-lo (unlock). É um "banheiro com uma chave única". <strong>Semaphore</strong> (semáforo) é um <strong>contador de permits</strong>: inicia com N permissões, <code>acquire()</code> decrementa (bloqueia se zero), <code>release()</code> incrementa; permite <strong>até N threads</strong> simultâneas e <strong>não tem posse</strong> (qualquer thread pode dar release) — serve para <strong>limitar/sinalizar</strong> (pool de N conexões, controle de fluxo entre produtor/consumidor). Um semáforo binário (N=1) parece um mutex, mas não é: falta-lhe a posse e a semântica de exclusão mútua estrita. <strong>Monitor</strong> é uma construção de <strong>alto nível</strong> que encapsula o estado compartilhado <em>junto</em> com o lock implícito e <strong>variáveis de condição</strong> (<code>wait</code>/<code>notify</code>), de modo que o lock é adquirido/liberado automaticamente ao entrar/sair de métodos sincronizados — é o <code>synchronized</code> do Java e o "objeto thread-safe" idiomático. <strong>Spinlock</strong> é um lock que, em vez de <strong>bloquear</strong> (ceder o núcleo e dormir) quando não consegue o lock, faz <strong>busy-wait</strong> (fica num laço apertado testando até conseguir — "spinning"), gastando CPU mas evitando o custo de um context switch; é eficiente <strong>só</strong> quando a seção crítica é curtíssima e a espera esperada é menor que o custo de dormir+acordar. Regra prática: mutex/monitor para exclusão mútua geral; semáforo para limitar concorrência ou sinalizar; spinlock só em seções ultracurtas (kernel, lock-free auxiliar) onde dormir custaria mais que girar.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>As seções anteriores estabeleceram <em>o quê</em> (race conditions na seção crítica) e <em>os riscos</em> (deadlock/livelock/starvation). Esta trata do <em>como</em>: as ferramentas concretas que o SO, a linguagem e as bibliotecas oferecem para <strong>coordenar</strong> threads. A pergunta: <strong>"Que mecanismo escolher para proteger esta seção crítica ou coordenar este acesso, dado o número de threads permitidas, a necessidade de posse, a presença de condições de espera e o custo de bloquear vs girar?"</strong></p>
+<p>Cada primitiva responde a um sub-problema diferente, e usá-las trocadas gera bugs ou ineficiência:</p>
+<ul>
+<li>Se preciso garantir que <strong>exatamente uma</strong> thread acesse um recurso por vez, com posse clara (quem trava, destrava) → <strong>mutex</strong> (ou monitor).</li>
+<li>Se preciso permitir <strong>até N</strong> acessos simultâneos (um pool de N recursos), ou <strong>sinalizar</strong> entre threads (produtor avisa consumidor) → <strong>semáforo</strong>.</li>
+<li>Se quero <strong>encapsular</strong> o estado compartilhado com sua sincronização de forma idiomática e de alto nível, incluindo <strong>esperar por condições</strong> ("espere até a fila não estar vazia") → <strong>monitor</strong> (<code>synchronized</code> + <code>wait/notify</code>, ou <code>ReentrantLock</code> + <code>Condition</code>).</li>
+<li>Se a seção crítica é <strong>curtíssima</strong> e a contenção é breve, e pagar um context switch (dormir+acordar) seria mais caro que ficar girando → <strong>spinlock</strong>.</li>
+</ul>
+<p>Subjacente a tudo está uma decisão de baixo nível com grande impacto: ao não conseguir o lock, a thread deve <strong>bloquear</strong> (ceder o núcleo, ser colocada para dormir pelo SO, e ser acordada depois — custa context switch, mas libera a CPU) ou <strong>girar</strong> (busy-wait, queimando CPU, mas pronta para entrar no instante em que o lock liberar — sem context switch)? Mutexes/monitores tipicamente bloqueiam; spinlocks giram. Híbridos (adaptive mutex) giram um pouquinho e então bloqueiam. Entender esse trade-off — context switch vs CPU desperdiçada — é o cerne da escolha.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="mutex-mutual-exclusion-lock">Mutex (Mutual Exclusion lock)<a class="headerlink" href="#mutex-mutual-exclusion-lock" title="Permanent link">&para;</a></h3>
+<p>Um <strong>mutex</strong> é um lock de <strong>exclusão mútua</strong> com <strong>posse</strong>. Tem dois estados (livre/travado) e duas operações: <code>lock()</code> (adquire; bloqueia se já travado) e <code>unlock()</code> (libera). A característica definidora, frequentemente cobrada: <strong>ownership</strong> — apenas a thread que travou o mutex pode destravá-lo. Isso permite recursos importantes:</p>
+<ul>
+<li><strong>Detecção de erro:</strong> destravar um mutex que você não possui é um erro (em muitas implementações, lançado/UB).</li>
+<li><strong>Reentrância (recursive/reentrant mutex):</strong> a thread dona pode re-adquirir o mutex que já segura sem se autobloquear (útil quando um método sincronizado chama outro). <code>ReentrantLock</code> e <code>synchronized</code> em Java são reentrantes.</li>
+<li><strong>Priority inheritance:</strong> porque o mutex sabe quem o detém, pode aplicar herança de prioridade contra priority inversion.</li>
+</ul>
+<p>O mutex tipicamente <strong>bloqueia</strong> (sleep) quando contestado: a thread que não consegue o lock é colocada na fila de espera do lock e o SO a tira da CPU, acordando-a quando o lock libera. Isso custa context switches, mas não desperdiça CPU durante a espera. Em Java, <code>ReentrantLock</code> é o mutex explícito; <code>synchronized</code> usa o lock intrínseco (monitor) implicitamente.</p>
+<h3 id="semaphore-semaforo">Semaphore (semáforo)<a class="headerlink" href="#semaphore-semaforo" title="Permanent link">&para;</a></h3>
+<p>Um <strong>semáforo</strong> é um <strong>contador inteiro não-negativo</strong> com duas operações atômicas (terminologia original de Dijkstra: P/V; moderna: <code>acquire</code>/<code>release</code> ou <code>wait</code>/<code>signal</code>):</p>
+<ul>
+<li><code>acquire()</code> / <code>P()</code> / <code>wait()</code>: se o contador &gt; 0, decrementa e prossegue; se for 0, <strong>bloqueia</strong> até alguém liberar.</li>
+<li><code>release()</code> / <code>V()</code> / <code>signal()</code>: incrementa o contador, potencialmente acordando uma thread bloqueada.</li>
+</ul>
+<p>O semáforo é inicializado com <strong>N permits</strong> (permissões), representando "N unidades do recurso disponíveis". Permite que <strong>até N threads</strong> prossigam simultaneamente. Dois usos canônicos:</p>
+<ul>
+<li><strong>Counting semaphore (N &gt; 1):</strong> limitar concorrência a N — exatamente o caso de um <strong>pool de N conexões/recursos</strong>: o semáforo inicia com N; cada thread que pega um recurso faz <code>acquire</code>; ao devolver, <code>release</code>. A (N+1)-ésima thread bloqueia até alguém devolver. (A doc da Oracle descreve precisamente isso: <em>"semáforos são frequentemente usados para restringir o número de threads que podem acessar algum recurso físico ou lógico"</em>.)</li>
+<li><strong>Binary semaphore (N = 1) / sinalização:</strong> com um permit, age como sinalizador entre threads — produtor faz <code>release</code> quando há item, consumidor faz <code>acquire</code> para consumir; ou coordenação de ordem entre threads.</li>
+</ul>
+<p>A diferença crucial para o mutex: o semáforo <strong>não tem posse</strong>. Qualquer thread pode chamar <code>release()</code>, não só a que fez <code>acquire()</code> — e isso é <em>intencional</em> (no padrão produtor/consumidor, o produtor sinaliza, o consumidor consome). Por isso um semáforo binário <strong>não é</strong> um mutex: falta-lhe a posse, a reentrância e a herança de prioridade. Usar semáforo binário onde se queria exclusão mútua com posse é uma armadilha (qualquer thread pode liberar, mascarando bugs).</p>
+<h3 id="monitor">Monitor<a class="headerlink" href="#monitor" title="Permanent link">&para;</a></h3>
+<p>Um <strong>monitor</strong> é uma construção de <strong>alto nível</strong> que combina, num único objeto, três coisas: (1) o <strong>estado compartilhado</strong> (campos), (2) um <strong>lock implícito</strong> (mutex) que protege esse estado, e (3) <strong>variáveis de condição</strong> para esperar/sinalizar condições. O lock é adquirido <strong>automaticamente</strong> ao entrar num método/bloco do monitor e liberado ao sair (inclusive em exceção) — o programador não chama lock/unlock manualmente. É o modelo idiomático de "objeto thread-safe".</p>
+<p>Em <strong>Java</strong>, todo objeto tem um <strong>monitor intrínseco</strong>: <code>synchronized(obj)</code> adquire o monitor de <code>obj</code> ao entrar e libera ao sair; os métodos <code>wait()</code>, <code>notify()</code> e <code>notifyAll()</code> (chamados <em>com</em> o monitor adquirido) implementam as variáveis de condição. O padrão clássico é o <strong>guarded block</strong>: uma thread espera (<code>wait()</code>) enquanto uma condição não é satisfeita (ex.: fila vazia), liberando o lock enquanto dorme; outra thread, ao mudar o estado, chama <code>notify()</code>/<code>notifyAll()</code> para acordá-la. A versão explícita e mais flexível usa <code>ReentrantLock</code> + objetos <code>Condition</code> (<code>await()</code>/<code>signal()</code>), permitindo múltiplas condições por lock.</p>
+<p>Há duas semânticas históricas de monitor (importante para entender <code>wait</code> em laço): <strong>Hoare</strong> (a thread sinalizada roda imediatamente) e <strong>Mesa</strong> (a thread sinalizada apenas vira "pronta" e compete pelo lock — usada por Java). Na semântica Mesa, entre o <code>notify</code> e o reagendamento, outra thread pode ter mudado o estado — por isso <code>wait()</code> <strong>deve sempre ser chamado num laço</strong> que reverifica a condição (<code>while(!condicao) wait();</code>, nunca <code>if</code>).</p>
+<h3 id="spinlock">Spinlock<a class="headerlink" href="#spinlock" title="Permanent link">&para;</a></h3>
+<p>Um <strong>spinlock</strong> é um lock que, ao encontrar a seção crítica ocupada, <strong>não bloqueia</strong> (não cede o núcleo nem dorme) — em vez disso, executa um <strong>laço apertado</strong> (busy-wait / spin) testando repetidamente se o lock liberou, até conseguir adquiri-lo. É tipicamente implementado com uma instrução atômica como <strong>test-and-set</strong> ou <strong>compare-and-swap</strong> sobre uma flag.</p>
+<p>O trade-off é puramente sobre o <strong>custo de esperar</strong>:</p>
+<ul>
+<li><strong>Spinlock (girar):</strong> gasta ciclos de CPU enquanto espera, mas <strong>evita o context switch</strong> (não entra no kernel, não perde a localidade de cache). Vantajoso quando a espera esperada é <strong>muito curta</strong> — menor que o custo combinado de dormir e acordar (que, com poluição de cache/TLB, pode ser milhares de ciclos). Ideal em ambientes multinúcleo onde a thread que segura o lock roda em <em>outro</em> núcleo e vai liberar logo.</li>
+<li><strong>Mutex bloqueante (dormir):</strong> paga o context switch (caro), mas <strong>libera a CPU</strong> para trabalho útil durante a espera. Vantajoso quando a espera pode ser <strong>longa</strong> ou indeterminada.</li>
+</ul>
+<p>Regra crítica: spinlock em <strong>um único núcleo</strong> é quase sempre um erro — a thread que gira está consumindo o único núcleo que a thread <em>dona do lock</em> precisaria para terminar a seção crítica e liberar; ela gira inutilmente até ser preemptada. Spinlocks fazem sentido principalmente em <strong>multinúcleo</strong> e para seções <strong>ultracurtas</strong> (código de kernel, estruturas de dados de baixo nível). Implementações maduras usam variantes: <strong>TTAS (test-and-test-and-set)</strong> para reduzir tráfego de coherence no barramento, <strong>backoff</strong> exponencial no spin, ou <strong>adaptive locks</strong> que giram por um tempo e então bloqueiam.</p>
+<h3 id="tabela-comparativa">Tabela comparativa<a class="headerlink" href="#tabela-comparativa" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Primitiva</th>
+<th>Threads simultâneas</th>
+<th>Posse (ownership)</th>
+<th>Espera ao contestar</th>
+<th>Nível</th>
+<th>Uso típico</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mutex</strong></td>
+<td>1</td>
+<td><strong>Sim</strong> (quem trava destrava)</td>
+<td>Bloqueia (dorme)</td>
+<td>Baixo/médio</td>
+<td>Exclusão mútua geral</td>
+</tr>
+<tr>
+<td><strong>Semaphore</strong></td>
+<td>até N</td>
+<td><strong>Não</strong> (qualquer um libera)</td>
+<td>Bloqueia (dorme)</td>
+<td>Baixo</td>
+<td>Limitar a N / sinalizar</td>
+</tr>
+<tr>
+<td><strong>Monitor</strong></td>
+<td>1 (lock implícito)</td>
+<td>Sim (lock implícito)</td>
+<td>Bloqueia + condições</td>
+<td>Alto</td>
+<td>Objeto thread-safe idiomático</td>
+</tr>
+<tr>
+<td><strong>Spinlock</strong></td>
+<td>1</td>
+<td>Geralmente sim</td>
+<td><strong>Gira</strong> (busy-wait)</td>
+<td>Muito baixo</td>
+<td>Seção ultracurta, multinúcleo</td>
+</tr>
+</tbody>
+</table>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p><strong>Mutex:</strong> internamente, <code>lock()</code> tenta uma operação atômica (CAS/test-and-set) para marcar o lock como tomado. Se conseguir, prossegue. Se não (já tomado), a thread é colocada na <strong>fila de espera</strong> do lock e o SO a <strong>bloqueia</strong> (futex no Linux: chamada que dorme a thread eficientemente). <code>unlock()</code> libera a flag e <strong>acorda</strong> uma thread da fila. A posse é rastreada (qual thread detém), permitindo reentrância (contador de aquisições) e checagem de unlock indevido.</p>
+<p><strong>Semáforo:</strong> mantém um contador e uma fila de espera. <code>acquire()</code> faz uma operação atômica: se contador &gt; 0, decrementa e prossegue; senão, enfileira a thread e bloqueia. <code>release()</code> incrementa atomicamente e, se houver threads na fila, acorda uma. A ausência de posse significa que não há rastreamento de "quem adquiriu" — release é só "incrementar o contador".</p>
+<p><strong>Monitor (Java):</strong> ao entrar num bloco <code>synchronized(obj)</code>, a thread adquire o lock intrínseco de <code>obj</code> (bloqueando se ocupado). <code>wait()</code> <strong>libera o lock</strong> e coloca a thread na <em>wait set</em> do monitor (dorme); ela só volta a competir pelo lock após um <code>notify()</code>/<code>notifyAll()</code> e deve <strong>rechecar a condição em laço</strong> (semântica Mesa). <code>notify()</code> move uma thread da wait set para a fila de entrada; ela readquire o lock quando a sinalizadora sair. Ao sair do bloco (normal ou por exceção), o lock é liberado automaticamente.</p>
+<p><strong>Spinlock:</strong> <code>lock()</code> é um laço: <code>while (!compareAndSet(flag, LIVRE, TOMADO)) { /* spin */ }</code>. A thread fica testando a flag atomicamente até conseguir trocá-la de LIVRE para TOMADO. <code>unlock()</code> só seta a flag de volta para LIVRE. Não há fila, não há sleep, não há kernel — por isso é rápido quando funciona, e desastroso quando a espera é longa (gira queimando CPU). O TTAS otimiza lendo a flag (cache local, sem coherence traffic) antes de tentar o CAS caro: <code>while (flag == TOMADO) {} ; if(!CAS(...)) retry;</code>.</p>
+<p>O fio comum: todas as primitivas se constroem sobre <strong>instruções atômicas de hardware</strong> (CAS, test-and-set, fetch-and-add) e <strong>barreiras de memória</strong> que garantem que as escritas dentro da seção crítica fiquem visíveis (a aquisição do lock tem <em>acquire semantics</em>, a liberação tem <em>release semantics</em> — estabelecendo o <em>happens-before</em> que dá visibilidade entre threads).</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama (stateDiagram) mostra a aquisição de um mutex bloqueante (dorme ao contestar) vs um spinlock (gira ao contestar). O segundo mostra o padrão monitor com variável de condição (guarded block produtor/consumidor).</p>
+<pre class="mermaid"><code>stateDiagram-v2
+    [*] --&gt; TentaAdquirir
+    TentaAdquirir --&gt; Critica: lock livre (CAS sucesso)
+    TentaAdquirir --&gt; Bloqueada: lock ocupado (MUTEX)&lt;br/&gt;cede núcleo, dorme
+    TentaAdquirir --&gt; Girando: lock ocupado (SPINLOCK)&lt;br/&gt;busy-wait, gasta CPU
+    Bloqueada --&gt; Critica: acordada no unlock&lt;br/&gt;(context switch)
+    Girando --&gt; Critica: detectou unlock&lt;br/&gt;(sem context switch)
+    Critica --&gt; [*]: unlock (libera)
+    note right of Bloqueada
+        libera CPU, custa context switch
+        bom p/ espera longa
+    end note
+    note right of Girando
+        sem context switch, queima CPU
+        bom p/ espera ultracurta, multinúcleo
+    end note</code></pre>
+<pre class="mermaid"><code>sequenceDiagram
+    participant P as Produtor
+    participant M as Monitor (fila + lock + condição)
+    participant C as Consumidor
+    C-&gt;&gt;M: synchronized { while(fila vazia) wait() }
+    Note over C: libera lock e dorme na wait set
+    P-&gt;&gt;M: synchronized { fila.add(item); notify() }
+    Note over P: insere e sinaliza
+    M--&gt;&gt;C: consumidor acordado, readquire lock
+    C-&gt;&gt;M: rechega condição (laço), consome item
+    Note over C: while garante recheck (semântica Mesa)</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p><strong>Semáforo limitando um pool de conexões (o uso de manual).</strong> Um serviço de e-commerce brasileiro acessa um sistema de pagamento legado que suporta <strong>no máximo 10 conexões simultâneas</strong> (limite do fornecedor). Sob a carga da Black Friday, centenas de threads de checkout querem chamar esse sistema ao mesmo tempo. Sem controle, abririam conexões além do limite e o fornecedor recusaria/derrubaria tudo. A solução é um <strong>counting semaphore</strong> com 10 permits:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>// Java — Semaphore limitando concorrência a 10
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Semaphore conexoes = new Semaphore(10);   // 10 permits = 10 slots
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>void chamarPagamento(Pedido p) {
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    conexoes.acquire();                   // bloqueia se 10 já em uso
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    try {
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        gatewayLegado.autorizar(p);       // no máximo 10 threads aqui ao mesmo tempo
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    } finally {
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        conexoes.release();               // devolve o permit (mesmo em erro)
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    }
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>}
+</code></pre></div>
+<p>A 11ª thread bloqueia em <code>acquire()</code> até alguma das 10 devolver com <code>release()</code>. O semáforo aplica <strong>back-pressure</strong> natural: a concorrência fica limitada à capacidade real do recurso. Note que aqui <strong>não há posse</strong>: a thread que pega o permit é a que o devolve por convenção (try/finally), mas o semáforo não impõe isso — é o programador que garante o pareamento. Usar mutex aqui estaria errado (mutex permite só 1, não 10).</p>
+<p><strong>Mutex/monitor protegendo o saldo (exclusão mútua com posse).</strong> Para o débito de saldo (do capítulo de race condition), o que se quer é <strong>exatamente uma</strong> thread por conta na seção crítica, com posse clara:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>// Java — monitor (synchronized) garantindo exclusão mútua
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>synchronized (conta) {                    // adquire o lock intrínseco da conta
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    if (conta.saldo &gt;= valor)             // seção crítica: 1 thread por vez
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        conta.saldo -= valor;
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>}                                         // lock liberado automaticamente ao sair
+</code></pre></div>
+<p>Aqui o monitor é a escolha idiomática: lock implícito, liberação automática (mesmo em exceção), posse (só quem entrou sai). Um semáforo binário "funcionaria" mas seria semanticamente errado (sem posse — qualquer thread poderia dar release, escondendo bugs).</p>
+<p><strong>Variável de condição: fila produtor/consumidor.</strong> Um buffer compartilhado entre threads que produzem pedidos e threads que os processam usa o padrão monitor + condição: o consumidor <code>wait()</code> enquanto a fila está vazia (liberando o lock e dormindo, sem busy-wait); o produtor, ao inserir, faz <code>notify()</code>. O <code>wait()</code> fica num <strong>laço</strong> (<code>while (fila.isEmpty()) wait();</code>) por causa da semântica Mesa do Java — entre o notify e o reagendamento, outro consumidor pode ter esvaziado a fila.</p>
+<p><strong>Spinlock onde dormir custaria mais.</strong> No <em>kernel</em> do SO (ou numa estrutura lock-free de altíssima performance), uma seção crítica que atualiza um contador interno leva poucos nanossegundos. Bloquear (dormir+acordar) custaria milhares de ciclos de context switch — muito mais que a própria seção. Aqui um <strong>spinlock</strong> numa máquina multinúcleo é a escolha certa: a thread gira pouquíssimos ciclos até a dona (rodando em outro núcleo) liberar. Em <strong>espaço de usuário de aplicação típica</strong>, porém, spinlock raramente se justifica — as seções são maiores e o risco de girar inutilmente (especialmente se a dona for preemptada) é alto; prefira mutex/monitor.</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Mutex / Monitor:</strong> use para <strong>exclusão mútua</strong> geral — proteger qualquer seção crítica onde só uma thread pode entrar por vez. Prefira o <strong>monitor</strong> (<code>synchronized</code>) pela simplicidade e liberação automática; use <strong><code>ReentrantLock</code></strong> quando precisar de recursos extras (tryLock com timeout, fairness, múltiplas condições, lock interrompível, lock não-bloqueante). <strong>Evite</strong> segurar o lock durante I/O/chamadas lentas (prolonga contenção); evite locks de granularidade grossa que serializam demais.</p>
+<p><strong>Semaphore:</strong> use para <strong>limitar a concorrência a N</strong> (pools de recursos, rate limiting in-process, bulkhead semafórico) ou para <strong>sinalização/coordenação</strong> entre threads (produtor/consumidor sem buffer, ordenação). <strong>Evite</strong> usar semáforo binário onde você quer exclusão mútua com posse — use mutex/monitor (a falta de posse esconde bugs de "release sem acquire").</p>
+<p><strong>Variáveis de condição (wait/notify, Condition):</strong> use para <strong>esperar por condições</strong> ("espere até a fila ter espaço", "até o recurso ficar pronto") sem busy-wait. <strong>Sempre em laço</strong> (<code>while</code>, não <code>if</code>). <strong>Evite</strong> <code>notify()</code> quando há múltiplas condições distintas esperando no mesmo monitor (pode acordar a thread errada) — use <code>notifyAll()</code> ou <code>ReentrantLock</code> com múltiplos <code>Condition</code>.</p>
+<p><strong>Spinlock:</strong> use <strong>apenas</strong> quando a seção crítica é <strong>ultracurta</strong>, a contenção é <strong>breve</strong>, você está em <strong>multinúcleo</strong>, e o custo de um context switch superaria a espera (kernel, lock-free de baixo nível, hot paths medidos). <strong>Evite</strong> em espaço de usuário de aplicação comum, em sistemas de único núcleo, e para qualquer seção que faça I/O, alocação ou trabalho não-trivial. Quando em dúvida, use mutex (ou adaptive mutex, que gira-então-dorme).</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Confundir semáforo binário com mutex (pegadinha clássica).</strong> Parecem iguais (1 thread por vez), mas o semáforo <strong>não tem posse</strong>: qualquer thread pode dar <code>release</code>, e não há reentrância nem priority inheritance. Para exclusão mútua, use mutex/monitor; semáforo é para contagem/sinalização.</li>
+<li><strong><code>wait()</code> com <code>if</code> em vez de <code>while</code>.</strong> Na semântica Mesa (Java), a thread acordada deve <strong>rechecar</strong> a condição num laço — entre o <code>notify</code> e o reagendamento o estado pode ter mudado (ou houve <em>spurious wakeup</em>). <code>if (vazia) wait();</code> é um bug; <code>while (vazia) wait();</code> é correto.</li>
+<li><strong>Esquecer <code>try/finally</code> ao liberar lock/permit.</strong> Se a seção crítica lança exceção e o <code>unlock()</code>/<code>release()</code> não está num <code>finally</code>, o lock/permit <strong>vaza</strong> — fica preso para sempre, causando deadlock ou esgotamento do pool. <code>synchronized</code> libera automaticamente; <code>ReentrantLock</code>/<code>Semaphore</code> exigem <code>finally</code> explícito.</li>
+<li><strong>Spinlock em único núcleo.</strong> A thread que gira monopoliza o único núcleo que a dona do lock precisa para terminar e liberar — gira inutilmente até ser preemptada. Spinlock só faz sentido em multinúcleo.</li>
+<li><strong>Spinlock em seção longa.</strong> Se a seção crítica (ou a espera) é longa, o spinlock queima CPU sem fazer nada por todo esse tempo — pior que bloquear. Spinlock é só para esperas ultracurtas.</li>
+<li><strong>Busy-wait manual em vez de variável de condição.</strong> Fazer <code>while (!condicao) {}</code> (polling) para esperar um evento queima CPU; use <code>wait()</code>/<code>await()</code> (a thread dorme e é acordada por <code>notify</code>/<code>signal</code>), que não desperdiça ciclos.</li>
+<li><strong><code>notify()</code> quando deveria ser <code>notifyAll()</code>.</strong> Com múltiplas threads esperando condições diferentes no mesmo monitor, <code>notify()</code> pode acordar a "errada" (que rechega, vê a condição falsa e volta a dormir), deixando a certa presa. Use <code>notifyAll()</code> ou múltiplos <code>Condition</code>.</li>
+<li><strong>Lock não reentrante chamado recursivamente.</strong> Um mutex não-reentrante re-adquirido pela própria thread dona causa <strong>auto-deadlock</strong>. Use locks reentrantes (<code>ReentrantLock</code>, <code>synchronized</code> são reentrantes) quando há chamadas aninhadas.</li>
+<li><strong>Aquisição de múltiplos locks em ordens inconsistentes.</strong> Vale para todas as primitivas: pegar dois mutexes/semáforos em ordens opostas em caminhos diferentes → deadlock. Imponha ordem global (ver capítulo de deadlock).</li>
+<li><strong>Granularidade grossa demais.</strong> Um único lock global protegendo tudo serializa o programa inteiro (mata a escalabilidade — Lei de Amdahl). Prefira locks de granularidade fina (por bucket, por conta), com cuidado para não introduzir deadlock.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Race Condition e Critical Section:</strong> estas primitivas são as ferramentas que impõem exclusão mútua na seção crítica, eliminando a race; a escolha depende da semântica (posse, contagem, condição).</li>
+<li><strong>Deadlock/Livelock/Starvation:</strong> o uso de locks introduz esses riscos; fair locks (<code>ReentrantLock(true)</code>) combatem starvation; ordem de aquisição evita deadlock; o monitor encapsula a disciplina de lock.</li>
+<li><strong>Atomic / CAS / lock-free:</strong> todas as primitivas bloqueantes se constroem <em>sobre</em> instruções atômicas; algoritmos lock-free usam CAS diretamente para evitar os locks (e seus deadlocks/context switches) por completo.</li>
+<li><strong>Memory model:</strong> a aquisição de lock tem <em>acquire semantics</em> e a liberação tem <em>release semantics</em>, estabelecendo o <em>happens-before</em> que garante visibilidade — sem as primitivas (ou <code>volatile</code>/atômicos), não há garantia de visibilidade entre threads.</li>
+<li><strong>Concorrência vs paralelismo / context switching:</strong> o trade-off mutex-bloqueia vs spinlock-gira é exatamente sobre o custo do context switch; em alta concorrência, evitar bloqueios pesados é o que motiva corrotinas e lock-free.</li>
+<li><strong>Bulkhead / pools (resiliência):</strong> um semáforo é o mecanismo por trás do <em>semaphore bulkhead</em> (limitar chamadas concorrentes a uma dependência) e dos pools de recursos.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://jenkov.com/tutorials/java-concurrency/locks.html">Locks in Java — Jenkov</a></li>
+<li><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/Semaphore.html">Semaphore (Java SE 21) — Oracle</a></li>
+<li><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/locks/ReentrantLock.html">ReentrantLock (Java SE 21) — Oracle</a></li>
+<li><a href="https://docs.oracle.com/javase/tutorial/essential/concurrency/locksync.html">Intrinsic Locks and Synchronization (monitor, wait/notify) — Oracle</a></li>
+<li><a href="https://docs.oracle.com/javase/tutorial/essential/concurrency/guardmeth.html">Guarded Blocks (wait/notify) — Oracle Java Tutorials</a></li>
+<li><a href="https://www.geeksforgeeks.org/operating-systems/mutex-vs-semaphore/">Mutex vs Semaphore — GeeksforGeeks</a></li>
+<li><a href="https://pages.cs.wisc.edu/~remzi/OSTEP/">Operating Systems: Three Easy Pieces — Locks / Condition Variables / Semaphores, Arpaci-Dusseau</a></li>
+<li><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/locks/package-summary.html">java.util.concurrent.locks (package summary) — Oracle</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../03-deadlock-livelock-starvation/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Deadlock, Livelock, Starvation">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Deadlock, Livelock, Starvation
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../05-atomic-cas-lock-free-wait-free/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Atomic, CAS, lock-free, wait-free">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Atomic, CAS, lock-free, wait-free
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

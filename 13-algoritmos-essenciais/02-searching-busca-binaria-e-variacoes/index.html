@@ -1,0 +1,2491 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/13-algoritmos-essenciais/02-searching-busca-binaria-e-variacoes/">
+      
+      
+        <link rel="prev" href="../01-sorting-quicksort-mergesort-heapsort-radix-counting/">
+      
+      
+        <link rel="next" href="../03-two-pointers-sliding-window-fast-slow/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Searching (busca binária e variações) - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#searching-busca-binaria-e-variacoes-rotated-array-firstlast-occurrence-binary-search-on-answer" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Searching (busca binária e variações)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_15" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_15" id="__nav_15_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_15_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_15">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    13 · Algoritmos essenciais
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sorting (quick, merge, heap, radix, counting)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Searching (busca binária e variações)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Searching (busca binária e variações)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#busca-binaria-canonica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Busca binária canônica
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lower-bound-e-upper-bound-fronteiras" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lower bound e upper bound (fronteiras)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-in-rotated-sorted-array" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search in rotated sorted array
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#binary-search-on-the-answer-busca-binaria-na-resposta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Binary search on the answer (busca binária na resposta)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-metodo-do-invariante-a-cura-do-off-by-one" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O método do invariante (a cura do off-by-one)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-two-pointers-sliding-window-fast-slow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Two Pointers, Sliding Window, Fast & Slow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-recursao-e-backtracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recursão e Backtracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-divide-and-conquer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Divide and Conquer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-greedy-algorithms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Greedy Algorithms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-dynamic-programming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic Programming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-graph-algorithms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Graph Algorithms (BFS, DFS, Dijkstra…)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-string-algorithms-kmp-rabin-karp-z/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    String Algorithms (KMP, Rabin-Karp, Z)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#busca-binaria-canonica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Busca binária canônica
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lower-bound-e-upper-bound-fronteiras" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lower bound e upper bound (fronteiras)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-in-rotated-sorted-array" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search in rotated sorted array
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#binary-search-on-the-answer-busca-binaria-na-resposta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Binary search on the answer (busca binária na resposta)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-metodo-do-invariante-a-cura-do-off-by-one" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O método do invariante (a cura do off-by-one)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="searching-busca-binaria-e-variacoes-rotated-array-firstlast-occurrence-binary-search-on-answer">Searching: Busca Binária e Variações (Rotated Array, First/Last Occurrence, Binary Search on Answer)<a class="headerlink" href="#searching-busca-binaria-e-variacoes-rotated-array-firstlast-occurrence-binary-search-on-answer" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Algoritmos essenciais · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~28 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>Busca binária é o algoritmo que reduz uma busca de <strong>O(n) para O(log n)</strong> explorando uma propriedade essencial: <strong>monotonicidade</strong>. A versão "de livro" — achar um valor exato num array ordenado — é a ponta do iceberg; o que cai em entrevista de arquiteto e em código de produção são as <strong>variações</strong>, todas variações do mesmo esqueleto <code>lo/hi/mid</code>. A primeira família busca <strong>fronteiras</strong>, não valores exatos: <strong>lower_bound</strong> (primeiro elemento ≥ x) e <strong>upper_bound</strong> (primeiro &gt; x) resolvem "first/last occurrence" (primeira e última posição de um valor com duplicatas) e "quantos elementos são &lt; x" sem casos especiais. A segunda família, <strong>search in rotated sorted array</strong>, busca num array ordenado que foi "girado" num pivô desconhecido — a cada passo, uma das metades está garantidamente ordenada, e você decide para qual lado ir. A família mais poderosa e contra-intuitiva é <strong>binary search on the answer (busca binária na resposta)</strong>: quando o <em>espaço de respostas</em> é monotônico (se a resposta <code>x</code> funciona, toda resposta maior também funciona — uma função de viabilidade booleana monotônica), você binariza sobre o intervalo de respostas possíveis em vez de sobre um array, transformando "encontre o menor/maior valor que satisfaz a condição" num problema log-linear. Exemplos canônicos: <em>Koko comendo bananas</em> (menor velocidade que cabe no prazo), capacidade mínima de navio, alocação de páginas. A armadilha universal de todas as variações é o <strong>off-by-one</strong>: a definição do intervalo (<code>[lo, hi]</code> fechado vs <code>[lo, hi)</code> semi-aberto), a condição do loop (<code>&lt;</code> vs <code>&lt;=</code>) e a atualização dos ponteiros (<code>mid</code> vs <code>mid ± 1</code>) precisam ser <strong>mutuamente consistentes</strong>, ou o código entra em loop infinito ou pula a resposta. A disciplina mental que evita isso: pensar em termos do <strong>invariante</strong> ("o que sei sobre <code>[lo, hi]</code> em todo momento") em vez de tentar "sentir" os índices.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>Buscar um elemento numa coleção é a operação mais fundamental da computação depois de ler/escrever. Numa coleção <strong>não-ordenada</strong> de <code>n</code> elementos, não há atalho: a busca linear precisa, no pior caso, olhar todos os <code>n</code> elementos — O(n). Mas se a coleção tem <strong>estrutura explorável</strong> — especificamente, se está <strong>ordenada</strong> ou se a propriedade buscada é <strong>monotônica</strong> —, você pode descartar metade do espaço de busca a cada comparação, chegando a <strong>O(log n)</strong>. Para 1 bilhão de elementos, isso é a diferença entre ~1 bilhão de passos e ~30 passos.</p>
+<p>O ganho parece óbvio para o caso ingênuo (achar <code>x</code> num array ordenado), mas o problema real, e a razão de busca binária ser tema de arquiteto, é mais amplo:</p>
+<ul>
+<li><strong>Buscar fronteiras, não valores.</strong> Raramente você quer só "o <code>x</code> existe?". Quer "qual a <strong>primeira</strong> posição onde aparece <code>x</code>?" (para deduplicar), "<strong>quantos</strong> elementos são menores que <code>x</code>?" (para percentis, ranking), "qual o <strong>menor</strong> elemento ≥ <code>x</code>?" (para encontrar o próximo timestamp, o próximo nível de preço). Essas são consultas de fronteira, e fazê-las com busca binária ingênua + varredura linear destrói o O(log n).</li>
+<li><strong>Buscar em estrutura parcialmente ordenada.</strong> Arrays rotacionados (ex.: um log circular, um array ordenado cujo início "deu a volta") ainda têm estrutura suficiente para busca binária — mas exigem raciocínio sobre qual metade está ordenada.</li>
+<li><strong>Buscar a resposta de um problema de otimização.</strong> Este é o salto conceitual. Muitos problemas têm a forma "encontre o <strong>menor</strong> valor <code>x</code> tal que <code>condição(x)</code> é verdadeira", onde <code>condição</code> é <strong>monotônica</strong> (falsa até certo ponto, verdadeira a partir dele). Em vez de testar todos os candidatos linearmente, você binariza sobre o <strong>intervalo de respostas</strong>, testando a viabilidade de cada candidato. Isso transforma busca exaustiva O(N · custo) em O(log(intervalo) · custo).</li>
+</ul>
+<p>A pergunta central que organiza tudo: <strong>"existe uma propriedade monotônica que me permite descartar metade do espaço de busca a cada passo?"</strong>. Se sim — array ordenado, predicado booleano monotônico, função monotônica — a busca binária se aplica. O espaço "buscado" pode ser um array de dados ou um <strong>intervalo abstrato de respostas candidatas</strong>. Reconhecer a monotonicidade escondida num problema de otimização é a habilidade que separa o engenheiro júnior do sênior em entrevistas.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="busca-binaria-canonica">Busca binária canônica<a class="headerlink" href="#busca-binaria-canonica" title="Permanent link">&para;</a></h3>
+<p><strong>Busca binária</strong> opera sobre uma sequência <strong>ordenada</strong>. Mantém um intervalo de busca <code>[lo, hi]</code> e, a cada passo, examina o elemento do meio <code>mid</code>:</p>
+<ul>
+<li>se <code>A[mid] == alvo</code>: encontrou;</li>
+<li>se <code>A[mid] &lt; alvo</code>: o alvo só pode estar à direita → <code>lo = mid + 1</code>;</li>
+<li>se <code>A[mid] &gt; alvo</code>: o alvo só pode estar à esquerda → <code>hi = mid - 1</code>.</li>
+</ul>
+<p>A cada passo o intervalo cai pela metade → <strong>O(log n)</strong> comparações. Espaço <strong>O(1)</strong> (versão iterativa) ou O(log n) (recursiva, pela pilha).</p>
+<ul>
+<li><strong>Tempo:</strong> O(log n). <strong>Espaço:</strong> O(1) iterativa.</li>
+<li><strong>Pré-requisito absoluto:</strong> a sequência deve estar <strong>ordenada</strong> (ou exibir a monotonicidade que justifica o descarte de metade).</li>
+</ul>
+<p>A sutileza mortal é o cálculo de <code>mid</code>. <code>mid = (lo + hi) / 2</code> pode causar <strong>overflow de inteiro</strong> quando <code>lo + hi</code> excede o máximo do tipo — um bug famoso que existiu por anos no <code>binarySearch</code> da biblioteca padrão do Java e no JDK. A forma correta é <strong><code>mid = lo + (hi - lo) / 2</code></strong>, que nunca estoura.</p>
+<h3 id="lower-bound-e-upper-bound-fronteiras">Lower bound e upper bound (fronteiras)<a class="headerlink" href="#lower-bound-e-upper-bound-fronteiras" title="Permanent link">&para;</a></h3>
+<p>A generalização poderosa não busca um valor exato, mas uma <strong>fronteira</strong> num array ordenado (possivelmente com duplicatas):</p>
+<ul>
+<li><strong>lower_bound(x):</strong> posição do <strong>primeiro</strong> elemento <strong>≥ x</strong>. Se <code>x</code> existe, é a sua <strong>primeira ocorrência</strong>; se não, é onde <code>x</code> seria inserido.</li>
+<li><strong>upper_bound(x):</strong> posição do <strong>primeiro</strong> elemento <strong>&gt; x</strong>. A <strong>última ocorrência</strong> de <code>x</code> é <code>upper_bound(x) - 1</code>.</li>
+</ul>
+<p>Com esses dois, você resolve diretamente:</p>
+<ul>
+<li><strong>First/last occurrence:</strong> <code>first = lower_bound(x)</code>, <code>last = upper_bound(x) - 1</code>.</li>
+<li><strong>Contagem de <code>x</code>:</strong> <code>upper_bound(x) - lower_bound(x)</code>.</li>
+<li><strong>Quantos elementos &lt; x:</strong> <code>lower_bound(x)</code>.</li>
+<li><strong>Próximo elemento ≥ x / &gt; x:</strong> as próprias fronteiras.</li>
+</ul>
+<p>A elegância: ambas são busca binária com uma condição de predicado, sem casos especiais para "achou/não achou". Você binariza o predicado "<code>A[mid] &gt;= x</code>" (para lower_bound) e converge para a fronteira onde ele vira verdadeiro. C++ tem <code>std::lower_bound</code>/<code>std::upper_bound</code> nativos; em outras linguagens, implementa-se com o mesmo esqueleto.</p>
+<h3 id="search-in-rotated-sorted-array">Search in rotated sorted array<a class="headerlink" href="#search-in-rotated-sorted-array" title="Permanent link">&para;</a></h3>
+<p>Um <strong>array ordenado rotacionado</strong> é um array que estava ordenado e foi "girado" num pivô desconhecido: <code>[4,5,6,7,0,1,2]</code> (originalmente <code>[0..7]</code>, girado em 4 posições). Buscar <code>x</code> aqui em O(log n) parece impossível (não é globalmente monotônico), mas há um invariante salvador: <strong>a cada passo, ao olhar <code>mid</code>, pelo menos uma das metades <code>[lo, mid]</code> ou <code>[mid, hi]</code> está totalmente ordenada</strong>. O algoritmo:</p>
+<ol>
+<li>compute <code>mid</code>;</li>
+<li>determine qual metade está ordenada (compare <code>A[lo]</code> com <code>A[mid]</code>: se <code>A[lo] &lt;= A[mid]</code>, a metade esquerda está ordenada);</li>
+<li>verifique se o alvo cai no intervalo da metade ordenada (onde você consegue decidir com segurança); se sim, busque nela; senão, busque na outra.</li>
+</ol>
+<p>Continua <strong>O(log n)</strong>. A versão com <strong>duplicatas</strong> (<code>Search in Rotated Sorted Array II</code>) tem um caso degenerado (<code>A[lo] == A[mid] == A[hi]</code>, ex.: <code>[1,1,1,0,1]</code>) onde não dá para saber qual metade está ordenada — aí encolhe <code>lo</code>/<code>hi</code> em um e o pior caso vira O(n). Problemas correlatos: <strong>encontrar o mínimo</strong> num array rotacionado (achar o pivô), e <strong>encontrar o pivô</strong> de rotação.</p>
+<h3 id="binary-search-on-the-answer-busca-binaria-na-resposta">Binary search on the answer (busca binária na resposta)<a class="headerlink" href="#binary-search-on-the-answer-busca-binaria-na-resposta" title="Permanent link">&para;</a></h3>
+<p>Aqui está o pulo conceitual. Considere problemas da forma: <strong>"encontre o menor (ou maior) valor <code>x</code> num intervalo <code>[baixo, alto]</code> tal que <code>viável(x)</code> é verdadeiro"</strong>, onde <code>viável</code> é uma <strong>função booleana monotônica</strong>: existe um ponto de corte tal que <code>viável</code> é falso de um lado e verdadeiro do outro (ex.: <code>F F F F T T T T</code>). Você não tem um array — tem um <strong>intervalo de respostas candidatas</strong> e uma <strong>função de viabilidade</strong> que você sabe calcular.</p>
+<p>A monotonicidade da viabilidade é o que habilita a busca binária: se a resposta <code>x</code> é viável, e o problema é "achar o menor viável", então testar <code>mid</code>: se <code>viável(mid)</code>, a resposta está em <code>[baixo, mid]</code> (pode ser o próprio <code>mid</code>); senão, em <code>[mid+1, alto]</code>. Cada teste descarta metade do intervalo de respostas. Complexidade: <strong>O(log(alto - baixo) · C)</strong>, onde <code>C</code> é o custo de avaliar <code>viável</code> uma vez.</p>
+<ul>
+<li><strong>Tempo:</strong> O(log(R) · C), <code>R</code> = tamanho do intervalo de respostas.</li>
+<li><strong>Chave de reconhecimento:</strong> o problema pede o "mínimo/máximo valor que satisfaz uma condição" e a condição é <strong>monotônica</strong> no valor.</li>
+</ul>
+<p>Exemplos canônicos:</p>
+<ul>
+<li><strong>Koko comendo bananas (LeetCode 875):</strong> dadas pilhas de bananas e <code>h</code> horas, achar a <strong>menor velocidade</strong> <code>k</code> (bananas/hora) com que Koko termina em <code>h</code> horas. <code>viável(k)</code> = "consegue comer tudo em <code>h</code> horas na velocidade <code>k</code>" é monotônica (velocidade maior só ajuda). Binariza <code>k</code> em <code>[1, max(pilha)]</code>. O(n log(max)).</li>
+<li><strong>Capacity to ship packages within D days:</strong> menor capacidade de navio para entregar tudo em <code>D</code> dias.</li>
+<li><strong>Split array largest sum / book allocation:</strong> minimizar o máximo de uma partição.</li>
+<li><strong>Achar a raiz quadrada inteira, valores reais com precisão ε</strong> (busca binária contínua).</li>
+</ul>
+<h3 id="glossario-rapido">Glossário rápido<a class="headerlink" href="#glossario-rapido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Monotonicidade:</strong> propriedade de mudar de estado uma única vez (ordenado, ou predicado F...FT...T) que habilita o descarte de metade.</li>
+<li><strong>lower_bound:</strong> primeiro índice com elemento ≥ x.</li>
+<li><strong>upper_bound:</strong> primeiro índice com elemento &gt; x.</li>
+<li><strong>Invariante de loop:</strong> a propriedade verdadeira sobre <code>[lo, hi]</code> em todo passo (a chave para acertar os índices).</li>
+<li><strong>Predicado de viabilidade:</strong> função booleana monotônica <code>viável(x)</code> na busca binária na resposta.</li>
+<li><strong>Espaço de respostas (search space on answer):</strong> o intervalo <code>[baixo, alto]</code> de candidatos, não um array de dados.</li>
+<li><strong>Off-by-one:</strong> erro de fronteira por inconsistência entre tipo de intervalo, condição do loop e atualização de ponteiros.</li>
+</ul>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p><strong>Busca binária canônica (intervalo fechado <code>[lo, hi]</code>):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>busca(A, alvo):
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  lo = 0; hi = n - 1                  // intervalo fechado [lo, hi]
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  enquanto lo &lt;= hi:                  // &lt;= porque o intervalo é fechado
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    mid = lo + (hi - lo) / 2          // evita overflow
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    se A[mid] == alvo: retorna mid
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    senão se A[mid] &lt; alvo: lo = mid + 1
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    senão: hi = mid - 1
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  retorna NÃO_ENCONTRADO
+</code></pre></div>
+<p>A consistência é tudo: intervalo <strong>fechado</strong> <code>[lo, hi]</code> ⟹ condição <code>lo &lt;= hi</code> ⟹ atualizações <code>mid ± 1</code> (porque <code>mid</code> já foi examinado). Se você usar intervalo semi-aberto <code>[lo, hi)</code>, então <code>hi = n</code>, condição <code>lo &lt; hi</code>, e <code>hi = mid</code> (não <code>mid - 1</code>). Misturar as duas convenções é a fonte número um de bugs.</p>
+<p><strong>Lower bound (primeira posição com <code>A[mid] &gt;= x</code>):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>lower_bound(A, x):
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  lo = 0; hi = n                      // semi-aberto: resposta pode ser n (não existe)
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  enquanto lo &lt; hi:
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    mid = lo + (hi - lo) / 2
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    se A[mid] &lt; x: lo = mid + 1       // mid certamente NÃO é resposta
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    senão: hi = mid                   // mid PODE ser resposta, mantém em [lo, hi)
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  retorna lo                          // lo == hi == primeira posição com A[.] &gt;= x
+</code></pre></div>
+<p>A invariante: tudo em <code>[0, lo)</code> é <code>&lt; x</code>, tudo em <code>[hi, n)</code> é <code>&gt;= x</code>; o loop estreita até <code>lo == hi</code>. <code>upper_bound</code> é idêntico trocando a condição para <code>A[mid] &lt;= x</code>.</p>
+<p><strong>Rotated sorted array:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>busca_rotacionada(A, alvo):
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  lo = 0; hi = n - 1
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  enquanto lo &lt;= hi:
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    mid = lo + (hi - lo) / 2
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    se A[mid] == alvo: retorna mid
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    se A[lo] &lt;= A[mid]:               // metade esquerda ordenada
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>      se A[lo] &lt;= alvo &lt; A[mid]: hi = mid - 1   // alvo na esquerda
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>      senão: lo = mid + 1
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    senão:                            // metade direita ordenada
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>      se A[mid] &lt; alvo &lt;= A[hi]: lo = mid + 1   // alvo na direita
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>      senão: hi = mid - 1
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>  retorna NÃO_ENCONTRADO
+</code></pre></div>
+<p><strong>Binary search on the answer (menor <code>x</code> viável):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>menor_viavel(baixo, alto):
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  enquanto baixo &lt; alto:
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    mid = baixo + (alto - baixo) / 2
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    se viavel(mid): alto = mid        // mid serve; tenta menor
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    senão: baixo = mid + 1            // mid não serve; precisa maior
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>  retorna baixo
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>// &#39;viavel&#39; deve ser monotônica: F F F T T T
+</code></pre></div>
+<h3 id="o-metodo-do-invariante-a-cura-do-off-by-one">O método do invariante (a cura do off-by-one)<a class="headerlink" href="#o-metodo-do-invariante-a-cura-do-off-by-one" title="Permanent link">&para;</a></h3>
+<p>A forma confiável de escrever qualquer busca binária sem cair em loop infinito ou pular a resposta não é "lembrar a fórmula", é <strong>definir o invariante e derivar tudo dele</strong>:</p>
+<ol>
+<li><strong>Escolha a convenção do intervalo</strong> e fixe-a: fechado <code>[lo, hi]</code> ou semi-aberto <code>[lo, hi)</code>. Não misture no mesmo código.</li>
+<li><strong>Declare o invariante:</strong> o que você sabe sobre os elementos fora de <code>[lo, hi]</code> em todo passo (ex.: "tudo à esquerda de <code>lo</code> falha o predicado, tudo à direita de <code>hi</code> passa").</li>
+<li><strong>Derive a condição do loop</strong> do intervalo: fechado → <code>lo &lt;= hi</code>; semi-aberto → <code>lo &lt; hi</code>.</li>
+<li><strong>Derive a atualização:</strong> se <code>mid</code> já foi <em>decidido</em> (não pode ser resposta), mova <code>mid ± 1</code>; se <code>mid</code> ainda <em>pode ser</em> resposta, mantenha-o (<code>hi = mid</code>).</li>
+<li><strong>Garanta progresso:</strong> o intervalo deve encolher a cada iteração, senão loop infinito. Com <code>lo &lt; hi</code> e <code>mid = lo + (hi-lo)/2</code> (arredonda para baixo), <code>alto = mid</code> faz progresso porque <code>mid &lt; hi</code>; mas <code>baixo = mid</code> <em>não</em> faria progresso quando <code>lo == mid</code> — por isso <code>baixo = mid + 1</code>.</li>
+</ol>
+<p>Esse raciocínio é o que <code>cp-algorithms</code> formaliza ao tratar lower/upper bound como buscas de fronteira, e é o que evita o loop infinito clássico de quem escreve <code>lo = mid</code> num ramo sem garantir o encolhimento.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama mostra o fluxo de decisão da busca binária canônica; o segundo, a decisão "qual metade está ordenada" no array rotacionado; o terceiro, o padrão monotônico da busca binária na resposta.</p>
+<pre class="mermaid"><code>flowchart TD
+    A["lo=0, hi=n-1"] --&gt; B{"lo &lt;= hi?"}
+    B --&gt;|"não"| NF["não encontrado"]
+    B --&gt;|"sim"| C["mid = lo + (hi-lo)/2"]
+    C --&gt; D{"A[mid] vs alvo"}
+    D --&gt;|"igual"| FOUND["retorna mid"]
+    D --&gt;|"A[mid] &lt; alvo"| E["lo = mid + 1"]
+    D --&gt;|"A[mid] &gt; alvo"| F["hi = mid - 1"]
+    E --&gt; B
+    F --&gt; B</code></pre>
+<pre class="mermaid"><code>flowchart TD
+    M["calcula mid"] --&gt; Q{"A[lo] &lt;= A[mid]?&lt;br/&gt;(esquerda ordenada?)"}
+    Q --&gt;|"sim"| L{"alvo em&lt;br/&gt;[A[lo], A[mid])?"}
+    Q --&gt;|"não&lt;br/&gt;(direita ordenada)"| R{"alvo em&lt;br/&gt;(A[mid], A[hi]]?"}
+    L --&gt;|"sim"| LE["busca à esquerda&lt;br/&gt;hi = mid-1"]
+    L --&gt;|"não"| LD["busca à direita&lt;br/&gt;lo = mid+1"]
+    R --&gt;|"sim"| RD["busca à direita&lt;br/&gt;lo = mid+1"]
+    R --&gt;|"não"| RE["busca à esquerda&lt;br/&gt;hi = mid-1"]</code></pre>
+<pre class="mermaid"><code>flowchart LR
+    subgraph Espaco["Espaço de respostas (monotônico)"]
+        F1["F"] --&gt; F2["F"] --&gt; F3["F"] --&gt; T1["T (resposta!)"] --&gt; T2["T"] --&gt; T3["T"]
+    end
+    Q["testa viavel(mid)"] --&gt; DEC{"viavel?"}
+    DEC --&gt;|"T → tenta menor"| LEFT["alto = mid"]
+    DEC --&gt;|"F → precisa maior"| RIGHT["baixo = mid+1"]</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p><strong>Caso 1 — paginação e ranking num catálogo (lower/upper bound).</strong> Um marketplace brasileiro armazena os preços dos produtos de uma categoria num array ordenado em memória (atualizado periodicamente) para responder rápido a filtros. Um usuário filtra "produtos entre R$ 50 e R$ 200". Em vez de varrer o catálogo (O(n) por consulta, inviável sob carga), o serviço faz <code>i = lower_bound(50)</code> e <code>j = upper_bound(200)</code>; os produtos no intervalo <code>[i, j)</code> são exatamente os filtrados, e <code>j - i</code> é a contagem para a paginação — tudo em O(log n). A mesma técnica responde "qual a posição (ranking) deste preço na distribuição?" com <code>lower_bound</code>. É o padrão que motores de busca e bancos colunar usam internamente.</p>
+<p><strong>Caso 2 — busca num log rotacionado (rotated array).</strong> Um buffer circular de eventos (ring buffer) por timestamp acaba sendo um array ordenado "girado" no ponto onde o buffer deu a volta: <code>[t5, t6, t7, t0, t1, t2, t3, t4]</code>. Para localizar o evento de um timestamp específico em O(log n) sem reordenar o buffer, aplica-se a busca binária em array rotacionado, decidindo a cada passo qual metade está cronologicamente ordenada. Reordenar o buffer a cada consulta seria O(n log n) — a busca rotacionada preserva o O(log n).</p>
+<p><strong>Caso 3 — dimensionar capacidade com binary search on the answer.</strong> Este é o caso que mais impressiona em entrevista de arquitetura. Imagine planejar a <strong>vazão de um worker</strong> que processa lotes de mensagens de uma fila durante uma janela de manutenção de <code>H</code> horas. Cada "pilha" é um backlog que precisa ser drenado, e a "velocidade" é quantas mensagens/hora o worker processa (custa $ proporcional). Pergunta: <strong>qual a menor velocidade que drena tudo dentro de <code>H</code> horas?</strong> (minimizar custo respeitando o SLA). Modelando como <em>Koko comendo bananas</em>: <code>viável(v)</code> = "na velocidade <code>v</code>, o tempo total para drenar todos os backlogs ≤ H" é <strong>monotônica</strong> (mais velocidade nunca piora). Binariza <code>v</code> em <code>[1, maior_backlog]</code>; cada teste soma <code>ceil(backlog_i / v)</code> para todos os backlogs e compara com <code>H</code>. Complexidade O(n log(maior_backlog)), contra um O(maior_backlog · n) de testar cada velocidade. O insight de arquiteto: muitos problemas de <strong>dimensionamento/alocação</strong> ("menor capacidade", "menor número de máquinas", "menor latência alvo viável") escondem essa estrutura monotônica e cedem à busca binária na resposta.</p>
+<p>Pseudocódigo do caso 3 (estilo Koko):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>viavel(v):                            // v = mensagens/hora
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  horas = 0
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  para cada backlog b: horas += ceil(b / v)
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  retorna horas &lt;= H
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>menor_velocidade():
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>  baixo = 1; alto = max(backlogs)
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>  enquanto baixo &lt; alto:
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    v = baixo + (alto - baixo)/2
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    se viavel(v): alto = v
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    senão: baixo = v + 1
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>  retorna baixo
+</code></pre></div>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Busca binária canônica:</strong> use sempre que os dados estão <strong>ordenados</strong> e você precisa de lookups repetidos — o sort O(n log n) inicial se amortiza em muitas consultas O(log n). <strong>Evite</strong> se a coleção muda a cada consulta (manter ordenado a cada inserção pode custar mais que buscar linearmente; aí prefira hash table O(1) ou árvore balanceada) ou se há poucos elementos (busca linear tem menos overhead e melhor cache).</p>
+<p><strong>Lower/upper bound:</strong> use para <strong>consultas de fronteira/ranking/contagem</strong> em dados ordenados (percentis, "próximo maior", contagem por faixa, first/last occurrence). É a forma idiomática e sem casos especiais. <strong>Evite</strong> reimplementar manualmente se a linguagem oferece nativo (<code>std::lower_bound</code>, <code>bisect</code> em Python).</p>
+<p><strong>Rotated array search:</strong> use quando o array é ordenado-mas-rotacionado e você não pode/quer reordenar (ring buffers, dados cíclicos). <strong>Evite</strong> quando há muitas duplicatas (degenera para O(n) no pior caso) ou quando reordenar uma vez e fazer muitas buscas canônicas é mais simples.</p>
+<p><strong>Binary search on the answer:</strong> use quando o problema pede "<strong>menor/maior valor que satisfaz</strong> uma condição <strong>monotônica</strong>" e avaliar a condição para um candidato é eficiente. Domina problemas de minimização de máximo / dimensionamento / alocação. <strong>Evite</strong> se a viabilidade <strong>não é monotônica</strong> (a busca binária dá resposta errada silenciosamente — pré-requisito inviolável) ou se o intervalo de respostas é minúsculo (varredura linear basta).</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Overflow no cálculo de <code>mid</code>.</strong> <code>mid = (lo + hi) / 2</code> estoura quando <code>lo + hi</code> excede o máximo do inteiro — o bug histórico do <code>Arrays.binarySearch</code> do Java. <strong>Sempre</strong> <code>mid = lo + (hi - lo) / 2</code>.</li>
+<li><strong>Off-by-one por convenções misturadas.</strong> Usar intervalo fechado <code>[lo, hi]</code> mas condição <code>lo &lt; hi</code>, ou atualizar <code>hi = mid</code> num intervalo fechado. Escolha <strong>uma</strong> convenção e derive condição e atualizações dela de forma consistente.</li>
+<li><strong>Loop infinito por falta de progresso.</strong> <code>lo = mid</code> (em vez de <code>mid + 1</code>) num ramo onde <code>mid == lo</code> nunca encolhe o intervalo → loop infinito. Garanta que cada iteração estreita <code>[lo, hi]</code>.</li>
+<li><strong>Aplicar busca binária em dados não-ordenados.</strong> O pré-requisito é monotonicidade. Buscar binariamente um array não-ordenado retorna lixo — e às vezes "funciona" em testes pequenos, escondendo o bug.</li>
+<li><strong>First/last occurrence com varredura linear após achar.</strong> Achar uma ocorrência com busca binária e depois varrer linearmente para esquerda/direita até a fronteira é O(n) no pior caso (array todo de duplicatas) — anula o O(log n). Use lower/upper bound.</li>
+<li><strong>Binary search on the answer sem verificar monotonicidade.</strong> Aplicar a técnica a uma viabilidade não-monotônica dá resposta errada <strong>sem erro visível</strong>. Prove (ou argumente) a monotonicidade antes — é a pegadinha mais perigosa porque o código "roda".</li>
+<li><strong>Intervalo de respostas mal definido.</strong> Em binary search on the answer, errar os limites (<code>baixo</code>/<code>alto</code>) — começar <code>baixo = 0</code> quando a velocidade mínima é 1, ou <code>alto</code> curto demais que exclui a resposta — produz resposta errada. O intervalo deve cobrir <em>todas</em> as respostas possíveis.</li>
+<li><strong>Rotated array com duplicatas tratado como sem duplicatas.</strong> O caso <code>A[lo] == A[mid] == A[hi]</code> impede decidir qual metade está ordenada; ignorá-lo dá resposta errada. Trate encolhendo as bordas (aceitando O(n) no pior caso).</li>
+<li><strong>Recursão profunda desnecessária.</strong> A versão recursiva consome O(log n) de pilha; a iterativa é O(1) e em hot paths evita overhead de chamada. Prefira iterativa em código de produção.</li>
+<li><strong>Confiar que <code>floor((lo+hi)/2)</code> sempre serve.</strong> Para buscar o <strong>maior</strong> viável (não o menor), o arredondamento precisa ser <strong>para cima</strong> (<code>mid = lo + (hi - lo + 1)/2</code>), senão loop infinito quando <code>hi - lo == 1</code>. A direção da busca dita o arredondamento.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Sorting:</strong> busca binária exige dados ordenados — sort (O(n log n)) + busca binária (O(log n)) é o combo "pré-processa uma vez, consulta muitas". Ver o estudo de sorting.</li>
+<li><strong>Complexidade algorítmica:</strong> O(log n) é a assinatura do "descarte de metade a cada passo"; a recorrência <code>T(n) = T(n/2) + O(1)</code> resolve em O(log n) pelo Master Theorem (caso de <code>f(n)</code> constante).</li>
+<li><strong>Divide and Conquer:</strong> busca binária é o D&amp;C mais simples — divide em duas metades, mas <strong>conquista só uma</strong> (não combina), o que a torna O(log n) em vez de O(n log n). Ver o estudo de Divide and Conquer.</li>
+<li><strong>Estruturas de dados (BST, árvores balanceadas):</strong> árvores de busca binária balanceadas (AVL, Red-Black, B-Tree) são a generalização "viva" da busca binária para coleções dinâmicas (inserção/remoção O(log n) + busca O(log n)); índices de banco de dados são B-Trees.</li>
+<li><strong>Two pointers:</strong> busca binária e two pointers são as duas técnicas-base de redução de espaço de busca em arrays ordenados; muitos problemas admitem ambas (ex.: two-sum em array ordenado).</li>
+<li><strong>System Design (rate limiting / autoscaling):</strong> "binary search on the answer" é o motor conceitual de dimensionamento — achar a menor capacidade/velocidade que respeita um SLA é exatamente o padrão Koko, conectando com planejamento de capacidade.</li>
+</ul>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Busca binária é O(log n) e exige <strong>monotonicidade</strong> (array ordenado ou predicado F...FT...T) — o pré-requisito inviolável.</li>
+<li><code>mid = lo + (hi - lo)/2</code> <strong>sempre</strong> (evita overflow); nunca <code>(lo + hi)/2</code>.</li>
+<li><strong>lower_bound</strong> (primeiro ≥ x) e <strong>upper_bound</strong> (primeiro &gt; x) resolvem first/last occurrence, contagem e ranking <strong>sem casos especiais</strong> — não varra linearmente após achar.</li>
+<li><strong>Rotated array:</strong> a cada passo uma metade está ordenada; decida onde o alvo cai. Com duplicatas, pior caso O(n).</li>
+<li><strong>Binary search on the answer:</strong> binarize o <em>intervalo de respostas</em> quando a <strong>viabilidade é monotônica</strong> (Koko, capacidade de navio, alocação) — O(log(intervalo) · custo).</li>
+<li>A cura do off-by-one é o <strong>método do invariante</strong>: fixe a convenção do intervalo, derive condição do loop e atualizações dela, garanta progresso.</li>
+<li>A armadilha mais perigosa em binary search on the answer é aplicar sem provar a monotonicidade — o código "roda" e responde errado.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://cp-algorithms.com/num_methods/binary_search.html">Binary Search — Algorithms for Competitive Programming (cp-algorithms)</a></li>
+<li><a href="https://algomaster.io/learn/dsa/find-first-and-last-position-of-element-in-sorted-array">Find First and Last Position of Element in Sorted Array — AlgoMaster.io</a></li>
+<li><a href="https://www.geeksforgeeks.org/dsa/find-first-and-last-positions-of-an-element-in-a-sorted-array/">First and Last Occurrences in Sorted Array — GeeksforGeeks</a></li>
+<li><a href="https://leetcode.com/problems/koko-eating-bananas/">Koko Eating Bananas — LeetCode</a></li>
+<li><a href="https://www.geeksforgeeks.org/dsa/koko-eating-bananas/">Koko Eating Bananas — GeeksforGeeks</a></li>
+<li><a href="https://algomaster.io/learn/dsa/koko-eating-bananas">Koko Eating Bananas (Binary Search on Answer) — AlgoMaster.io</a></li>
+<li><a href="https://www.geeksforgeeks.org/dsa/quicksort-better-mergesort/">Why quicksort is better than mergesort? (sobre garantias e estrutura) — GeeksforGeeks</a></li>
+<li><a href="https://visualgo.net/en/heap">Binary Heap (Priority Queue) — VisuAlgo (estruturas ordenadas relacionadas)</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Sorting (quick, merge, heap, radix, counting)">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Sorting (quick, merge, heap, radix, counting)
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../03-two-pointers-sliding-window-fast-slow/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Two Pointers, Sliding Window, Fast &amp; Slow">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Two Pointers, Sliding Window, Fast & Slow
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

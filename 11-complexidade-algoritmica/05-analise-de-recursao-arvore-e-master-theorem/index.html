@@ -1,0 +1,2534 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/11-complexidade-algoritmica/05-analise-de-recursao-arvore-e-master-theorem/">
+      
+      
+        <link rel="prev" href="../04-time-vs-space-complexity-tradeoffs/">
+      
+      
+        <link rel="next" href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Análise de recursão e Master Theorem - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#analise-de-recursao-arvore-de-recursao-e-master-theorem" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Análise de recursão e Master Theorem
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    11 · Complexidade algorítmica
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notação assintótica (Big O, Θ, Ω)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-pior-melhor-e-caso-medio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pior, melhor e caso médio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-complexidade-amortizada/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Complexidade amortizada
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-time-vs-space-complexity-tradeoffs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time vs space complexity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Análise de recursão e Master Theorem
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Análise de recursão e Master Theorem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recorrencia-recurrence-relation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recorrência (recurrence relation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arvore-de-recursao-recursion-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Árvore de recursão (recursion tree)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#master-theorem-teorema-mestre" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Master Theorem (teorema mestre)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aplicando-o-master-theorem-aos-exemplos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aplicando o Master Theorem aos exemplos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quando-o-master-theorem-nao-se-aplica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando o Master Theorem NÃO se aplica
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-intuicao-central-folhas-vs-raiz" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A intuição central: folhas vs raiz
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#por-que-a-altura-e-log_b-n" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que a altura é log_b n
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recorrencia-recurrence-relation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recorrência (recurrence relation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arvore-de-recursao-recursion-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Árvore de recursão (recursion tree)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#master-theorem-teorema-mestre" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Master Theorem (teorema mestre)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aplicando-o-master-theorem-aos-exemplos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aplicando o Master Theorem aos exemplos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quando-o-master-theorem-nao-se-aplica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando o Master Theorem NÃO se aplica
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-intuicao-central-folhas-vs-raiz" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A intuição central: folhas vs raiz
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#por-que-a-altura-e-log_b-n" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que a altura é log_b n
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="analise-de-recursao-arvore-de-recursao-e-master-theorem">Análise de Recursão: Árvore de Recursão e Master Theorem<a class="headerlink" href="#analise-de-recursao-arvore-de-recursao-e-master-theorem" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Complexidade e análise algorítmica · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~32 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>Algoritmos recursivos têm seu custo descrito por uma <strong>recorrência</strong> (recurrence relation): uma equação que expressa <code>T(n)</code> (o custo de uma entrada de tamanho <code>n</code>) em termos de <code>T</code> de entradas menores. Para algoritmos de <strong>dividir e conquistar</strong> (divide and conquer) — que quebram o problema em <code>a</code> subproblemas de tamanho <code>n/b</code> e gastam <code>f(n)</code> para dividir e combinar — a recorrência tem a forma canônica <strong><code>T(n) = a·T(n/b) + f(n)</code></strong>. Duas ferramentas resolvem essas recorrências. A <strong>árvore de recursão</strong> (recursion tree) é o método visual: desenha-se a árvore de chamadas, soma-se o trabalho por nível, e soma-se os níveis — revelando a estrutura do custo (e dando intuição). O <strong>Master Theorem</strong> (teorema mestre) é o atalho fechado: comparando <code>f(n)</code> com <code>n^(log_b a)</code> (o custo das folhas), ele entrega a resposta em três casos. <strong>Caso 1</strong>: as folhas dominam → <code>T(n) = Θ(n^(log_b a))</code>. <strong>Caso 2</strong>: trabalho equilibrado entre os níveis → <code>T(n) = Θ(n^(log_b a) · log n)</code>. <strong>Caso 3</strong>: a raiz domina → <code>T(n) = Θ(f(n))</code>. Exemplos: merge sort (<code>T(n)=2T(n/2)+Θ(n)</code>) cai no caso 2 → Θ(n log n); busca binária (<code>T(n)=T(n/2)+Θ(1)</code>) → Θ(log n). O Master Theorem não cobre tudo (subproblemas de tamanhos diferentes, gaps entre os casos) — aí entram árvore de recursão, substituição, ou Akra–Bazzi.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>Analisar a complexidade de um loop é direto: conte as iterações. Mas e um algoritmo que <strong>se chama recursivamente</strong>? Considere o merge sort: ele divide o array em duas metades, ordena cada metade <em>chamando a si mesmo</em>, e depois mescla os resultados em tempo linear. Quanto custa isso, no total?</p>
+<p>A dificuldade é que o custo de <code>mergesort(n)</code> depende do custo de <code>mergesort(n/2)</code>, que depende de <code>mergesort(n/4)</code>, e assim por diante, até os casos-base. Não há um loop simples para contar — o trabalho está espalhado por uma <strong>árvore de chamadas</strong> que se ramifica. Tentar somar isso "na mão" é confuso e propenso a erro. Você precisa de uma forma sistemática de capturar e resolver essa estrutura recursiva.</p>
+<p>A solução tem duas partes. Primeiro, <strong>expressar o custo como uma recorrência</strong> — uma equação que diz "o custo de tamanho <code>n</code> é o custo dos subproblemas mais o trabalho de dividir/combinar". Para o merge sort: <code>T(n) = 2·T(n/2) + Θ(n)</code> — dois subproblemas de metade do tamanho, mais Θ(n) para mesclar. A recorrência captura <em>exatamente</em> a estrutura do algoritmo numa equação.</p>
+<p>Segundo, <strong>resolver a recorrência</strong> — transformá-la de uma definição auto-referente numa fórmula fechada (<code>Θ(n log n)</code>). É aqui que entram a árvore de recursão (visual, dá intuição) e o Master Theorem (fórmula pronta para o caso comum).</p>
+<p>A pergunta central que este tema responde: <strong>"Dado um algoritmo recursivo de dividir e conquistar, qual a sua complexidade — e como derivo isso sem desenhar a árvore inteira toda vez?"</strong> Dominar isso é essencial porque a maioria dos algoritmos eficientes e elegantes (merge sort, quicksort, busca binária, FFT, multiplicação de Strassen, muitos algoritmos de geometria computacional) é recursiva, e suas complexidades famosas (Θ(n log n), Θ(log n)) <em>vêm</em> dessa análise. Em entrevistas, "analise a complexidade desta função recursiva" é uma pergunta clássica, e o Master Theorem é a ferramenta que dá a resposta em segundos para o caso padrão.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="recorrencia-recurrence-relation">Recorrência (recurrence relation)<a class="headerlink" href="#recorrencia-recurrence-relation" title="Permanent link">&para;</a></h3>
+<p>Uma <strong>recorrência</strong> é uma equação que define <code>T(n)</code> em termos dos seus próprios valores para entradas menores, mais um caso-base. Ela traduz a estrutura recursiva do algoritmo numa equação matemática. A forma geral de dividir e conquistar:</p>
+<blockquote>
+<p><code>T(n) = a·T(n/b) + f(n)</code>, com caso-base <code>T(1) = Θ(1)</code></p>
+</blockquote>
+<p>Os parâmetros têm significado concreto no algoritmo:</p>
+<ul>
+<li><strong><code>a</code></strong> = número de subproblemas (quantas chamadas recursivas cada nível faz). <code>a ≥ 1</code>.</li>
+<li><strong><code>b</code></strong> = fator de redução do tamanho (cada subproblema tem tamanho <code>n/b</code>). <code>b &gt; 1</code>.</li>
+<li><strong><code>f(n)</code></strong> = custo do trabalho <strong>fora</strong> da recursão: dividir o problema e combinar as soluções dos subproblemas.</li>
+</ul>
+<p>Exemplos de tradução algoritmo → recorrência:</p>
+<table>
+<thead>
+<tr>
+<th>Algoritmo</th>
+<th><code>a</code></th>
+<th><code>b</code></th>
+<th><code>f(n)</code></th>
+<th>Recorrência</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Merge sort</strong></td>
+<td>2</td>
+<td>2</td>
+<td>Θ(n) (merge)</td>
+<td><code>T(n) = 2T(n/2) + Θ(n)</code></td>
+</tr>
+<tr>
+<td><strong>Busca binária</strong></td>
+<td>1</td>
+<td>2</td>
+<td>Θ(1) (comparação)</td>
+<td><code>T(n) = T(n/2) + Θ(1)</code></td>
+</tr>
+<tr>
+<td><strong>Quicksort (balanceado)</strong></td>
+<td>2</td>
+<td>2</td>
+<td>Θ(n) (partição)</td>
+<td><code>T(n) = 2T(n/2) + Θ(n)</code></td>
+</tr>
+<tr>
+<td><strong>Multiplicação Strassen</strong></td>
+<td>7</td>
+<td>2</td>
+<td>Θ(n²)</td>
+<td><code>T(n) = 7T(n/2) + Θ(n²)</code></td>
+</tr>
+<tr>
+<td><strong>Travessia de árvore binária</strong></td>
+<td>2</td>
+<td>2</td>
+<td>Θ(1)</td>
+<td><code>T(n) = 2T(n/2) + Θ(1)</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="arvore-de-recursao-recursion-tree">Árvore de recursão (recursion tree)<a class="headerlink" href="#arvore-de-recursao-recursion-tree" title="Permanent link">&para;</a></h3>
+<p>A <strong>árvore de recursão</strong> é um método <strong>visual e intuitivo</strong> para resolver recorrências. Você expande a recorrência num diagrama de árvore:</p>
+<ul>
+<li>A <strong>raiz</strong> representa a chamada inicial, com custo <code>f(n)</code> (o trabalho não-recursivo daquele nível).</li>
+<li>Cada nó com problema de tamanho <code>m</code> tem <strong><code>a</code> filhos</strong>, cada um com problema de tamanho <code>m/b</code>, e custo <code>f(m/b)</code>.</li>
+<li>A árvore continua até as <strong>folhas</strong>, que são os casos-base (tamanho 1).</li>
+</ul>
+<p>Para resolver, você:</p>
+<ol>
+<li><strong>Soma o custo de cada nível</strong> (todos os nós naquele nível).</li>
+<li><strong>Conta o número de níveis</strong> (a altura da árvore = <code>log_b n</code>, porque o tamanho cai por fator <code>b</code> a cada nível até chegar a 1).</li>
+<li><strong>Soma os custos de todos os níveis.</strong></li>
+</ol>
+<p>Para o merge sort (<code>T(n) = 2T(n/2) + Θ(n)</code>):</p>
+<ul>
+<li><strong>Nível 0 (raiz):</strong> 1 nó, custo <code>n</code>. Total do nível: <code>n</code>.</li>
+<li><strong>Nível 1:</strong> 2 nós, cada um custo <code>n/2</code>. Total: <code>2 · (n/2) = n</code>.</li>
+<li><strong>Nível 2:</strong> 4 nós, cada um custo <code>n/4</code>. Total: <code>4 · (n/4) = n</code>.</li>
+<li>...</li>
+<li><strong>Nível <code>k</code>:</strong> <code>2^k</code> nós, cada custo <code>n/2^k</code>. Total: <code>n</code>.</li>
+</ul>
+<p><strong>Cada nível custa <code>n</code></strong>. E há <code>log₂ n</code> níveis (até os subproblemas virarem tamanho 1). Logo <code>T(n) = n · log₂ n = Θ(n log n)</code>. A árvore <em>mostra</em> por que o merge sort é n log n: trabalho linear repetido a cada um dos log n níveis.</p>
+<p>O número de <strong>folhas</strong> é <code>a^(altura) = a^(log_b n) = n^(log_b a)</code>. Para merge sort, <code>2^(log₂ n) = n</code> folhas — cada folha é um elemento individual. Esse <code>n^(log_b a)</code> é a grandeza-chave que o Master Theorem usa.</p>
+<p>A árvore de recursão é insubstituível para <strong>construir intuição</strong> e para recorrências que o Master Theorem não cobre (tamanhos de subproblema diferentes). Sua desvantagem é ser trabalhosa e propensa a erro se feita sem cuidado — daí o Master Theorem como atalho.</p>
+<h3 id="master-theorem-teorema-mestre">Master Theorem (teorema mestre)<a class="headerlink" href="#master-theorem-teorema-mestre" title="Permanent link">&para;</a></h3>
+<p>O <strong>Master Theorem</strong> dá a solução fechada de <code>T(n) = a·T(n/b) + f(n)</code> comparando <code>f(n)</code> com <strong><code>n^(log_b a)</code></strong> (o custo total das folhas, a "força" da recursão). A intuição: há uma competição entre o trabalho das <strong>folhas</strong> (que cresce com <code>a</code>, o número de subproblemas) e o trabalho da <strong>raiz/níveis altos</strong> (que é <code>f(n)</code>). Quem domina determina o resultado.</p>
+<p>Seja <code>c_crit = log_b a</code> o <strong>expoente crítico</strong>. Os três casos:</p>
+<p><strong>Caso 1 — as folhas dominam.</strong> Se <code>f(n) = O(n^(c_crit − ε))</code> para algum <code>ε &gt; 0</code> (ou seja, <code>f(n)</code> cresce <strong>polinomialmente mais devagar</strong> que <code>n^(log_b a)</code>), então o trabalho aumenta a cada nível descendo a árvore, e as folhas dominam:</p>
+<blockquote>
+<p><code>T(n) = Θ(n^(log_b a))</code></p>
+</blockquote>
+<p><strong>Caso 2 — trabalho equilibrado.</strong> Se <code>f(n) = Θ(n^(c_crit))</code> (ou seja, <code>f(n)</code> cresce <strong>na mesma taxa</strong> que <code>n^(log_b a)</code>), então cada nível custa aproximadamente o mesmo, e há <code>log n</code> níveis:</p>
+<blockquote>
+<p><code>T(n) = Θ(n^(log_b a) · log n)</code></p>
+</blockquote>
+<p>(Forma generalizada: se <code>f(n) = Θ(n^(c_crit) · log^k n)</code>, então <code>T(n) = Θ(n^(c_crit) · log^(k+1) n)</code>.)</p>
+<p><strong>Caso 3 — a raiz domina.</strong> Se <code>f(n) = Ω(n^(c_crit + ε))</code> para algum <code>ε &gt; 0</code> (<code>f(n)</code> cresce <strong>polinomialmente mais rápido</strong> que <code>n^(log_b a)</code>) <strong>e</strong> satisfaz a <strong>condição de regularidade</strong> (<code>a·f(n/b) ≤ c·f(n)</code> para algum <code>c &lt; 1</code> e <code>n</code> grande), então o trabalho diminui descendo a árvore e a raiz domina:</p>
+<blockquote>
+<p><code>T(n) = Θ(f(n))</code></p>
+</blockquote>
+<h3 id="aplicando-o-master-theorem-aos-exemplos">Aplicando o Master Theorem aos exemplos<a class="headerlink" href="#aplicando-o-master-theorem-aos-exemplos" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Recorrência</th>
+<th><code>log_b a</code></th>
+<th><code>f(n)</code> vs <code>n^(log_b a)</code></th>
+<th>Caso</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>T(n)=2T(n/2)+Θ(n)</code> (merge sort)</td>
+<td><code>log₂2 = 1</code></td>
+<td><code>n</code> vs <code>n¹</code> → iguais</td>
+<td><strong>2</strong></td>
+<td><code>Θ(n log n)</code></td>
+</tr>
+<tr>
+<td><code>T(n)=T(n/2)+Θ(1)</code> (busca binária)</td>
+<td><code>log₂1 = 0</code></td>
+<td><code>1</code> vs <code>n⁰=1</code> → iguais</td>
+<td><strong>2</strong></td>
+<td><code>Θ(log n)</code></td>
+</tr>
+<tr>
+<td><code>T(n)=2T(n/2)+Θ(1)</code> (travessia árvore)</td>
+<td><code>log₂2 = 1</code></td>
+<td><code>1</code> vs <code>n¹</code> → folhas maiores</td>
+<td><strong>1</strong></td>
+<td><code>Θ(n)</code></td>
+</tr>
+<tr>
+<td><code>T(n)=7T(n/2)+Θ(n²)</code> (Strassen)</td>
+<td><code>log₂7 ≈ 2.807</code></td>
+<td><code>n²</code> vs <code>n^2.807</code> → folhas maiores</td>
+<td><strong>1</strong></td>
+<td><code>Θ(n^2.807)</code></td>
+</tr>
+<tr>
+<td><code>T(n)=2T(n/2)+Θ(n²)</code></td>
+<td><code>log₂2 = 1</code></td>
+<td><code>n²</code> vs <code>n¹</code> → raiz maior</td>
+<td><strong>3</strong></td>
+<td><code>Θ(n²)</code></td>
+</tr>
+<tr>
+<td><code>T(n)=4T(n/2)+Θ(n)</code></td>
+<td><code>log₂4 = 2</code></td>
+<td><code>n</code> vs <code>n²</code> → folhas maiores</td>
+<td><strong>1</strong></td>
+<td><code>Θ(n²)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Repare na mecânica: calcule <code>log_b a</code>, compare com o expoente de <code>f(n)</code>, e o caso decorre. Merge sort e busca binária são ambos caso 2 (equilíbrio), o que explica por que ambos têm um fator <code>log n</code> no resultado.</p>
+<h3 id="quando-o-master-theorem-nao-se-aplica">Quando o Master Theorem NÃO se aplica<a class="headerlink" href="#quando-o-master-theorem-nao-se-aplica" title="Permanent link">&para;</a></h3>
+<p>O Master Theorem é poderoso mas não universal. Ele <strong>não resolve</strong>:</p>
+<ul>
+<li><strong>Subproblemas de tamanhos diferentes:</strong> <code>T(n) = T(n/3) + T(2n/3) + Θ(n)</code> (não tem um único <code>b</code>). Use árvore de recursão ou <strong>Akra–Bazzi</strong> (generalização do Master Theorem para essas formas).</li>
+<li><strong><code>a</code> ou <code>b</code> não constantes</strong>, ou <code>a &lt; 1</code>.</li>
+<li><strong>Gaps entre os casos:</strong> se <code>f(n)</code> cresce mais devagar que <code>n^(log_b a)</code> mas <strong>não polinomialmente</strong> (ex.: por um fator <code>log n</code> só), nenhum dos três casos clássicos se aplica diretamente (há uma extensão para o caso 2, mas o gap entre caso 1 e 2, ou 2 e 3, pode escapar).</li>
+<li><strong>Recorrências de subtração</strong> como <code>T(n) = T(n-1) + Θ(n)</code> (não é divisão por <code>b</code>). Essa, por exemplo, resolve por árvore/substituição para <code>Θ(n²)</code> — é a recorrência do quicksort no pior caso.</li>
+</ul>
+<p>Para esses, use <strong>árvore de recursão</strong>, o <strong>método de substituição</strong> (chutar a resposta e provar por indução), ou <strong>Akra–Bazzi</strong>.</p>
+<h3 id="glossario-rapido">Glossário rápido<a class="headerlink" href="#glossario-rapido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Recorrência:</strong> equação que define <code>T(n)</code> em termos de <code>T</code> de entradas menores.</li>
+<li><strong>Dividir e conquistar:</strong> estratégia de quebrar em <code>a</code> subproblemas de tamanho <code>n/b</code>, resolver e combinar.</li>
+<li><strong><code>a</code>:</strong> número de subproblemas (ramificação da árvore).</li>
+<li><strong><code>b</code>:</strong> fator de redução do tamanho do subproblema.</li>
+<li><strong><code>f(n)</code>:</strong> custo de dividir e combinar (trabalho não-recursivo por nível).</li>
+<li><strong>Árvore de recursão:</strong> método visual; soma trabalho por nível × número de níveis.</li>
+<li><strong><code>n^(log_b a)</code>:</strong> custo total das folhas; a grandeza com que <code>f(n)</code> é comparada.</li>
+<li><strong>Expoente crítico:</strong> <code>log_b a</code>.</li>
+<li><strong>Master Theorem:</strong> solução fechada de <code>T(n)=aT(n/b)+f(n)</code> em três casos.</li>
+<li><strong>Condição de regularidade:</strong> <code>a·f(n/b) ≤ c·f(n)</code>, <code>c &lt; 1</code>; exigida no caso 3.</li>
+<li><strong>Método de substituição:</strong> chutar a solução e provar por indução.</li>
+<li><strong>Akra–Bazzi:</strong> generalização do Master Theorem para subproblemas de tamanhos diferentes.</li>
+</ul>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>A receita prática para analisar um algoritmo recursivo:</p>
+<p><strong>Passo 1 — escrever a recorrência.</strong> Identifique <code>a</code> (quantas chamadas recursivas), <code>b</code> (por quanto o tamanho é dividido) e <code>f(n)</code> (o trabalho fora das chamadas). Olhe o código: o número de chamadas recursivas é <code>a</code>; o argumento dessas chamadas (<code>n/2</code>, <code>n/3</code>) dá <code>b</code>; e todo o resto (loops, particionamento, merge) é <code>f(n)</code>.</p>
+<p><strong>Passo 2 — tentar o Master Theorem.</strong> Se a forma é <code>a·T(n/b) + f(n)</code> com <code>a, b</code> constantes e <code>f(n)</code> polinomial:</p>
+<ol>
+<li>Calcule <code>c_crit = log_b a</code>.</li>
+<li>Compare <code>f(n)</code> com <code>n^(c_crit)</code>:</li>
+<li><code>f</code> polinomialmente menor → <strong>caso 1</strong> → <code>Θ(n^(c_crit))</code>.</li>
+<li><code>f</code> da mesma ordem → <strong>caso 2</strong> → <code>Θ(n^(c_crit) log n)</code>.</li>
+<li><code>f</code> polinomialmente maior (e regularidade) → <strong>caso 3</strong> → <code>Θ(f(n))</code>.</li>
+</ol>
+<p><strong>Passo 3 — se o Master Theorem não se aplica, usar árvore de recursão ou substituição.</strong> Para subproblemas de tamanhos diferentes ou recorrências de subtração, desenhe a árvore (some por nível × níveis) ou chute a resposta e prove por indução.</p>
+<h3 id="a-intuicao-central-folhas-vs-raiz">A intuição central: folhas vs raiz<a class="headerlink" href="#a-intuicao-central-folhas-vs-raiz" title="Permanent link">&para;</a></h3>
+<p>O insight que unifica os três casos: a árvore de recursão tem trabalho concentrado em algum lugar.</p>
+<ul>
+<li>Se o trabalho <strong>cresce descendo</strong> a árvore (cada nível custa mais que o anterior), as <strong>folhas dominam</strong> → caso 1, resultado <code>n^(log_b a)</code>. Acontece quando há muitos subproblemas (<code>a</code> grande) e <code>f</code> pequeno.</li>
+<li>Se o trabalho é <strong>constante por nível</strong> (cada nível custa o mesmo), o resultado é <code>(custo por nível) × (número de níveis)</code> = <code>n^(log_b a) × log n</code> → caso 2. É o equilíbrio do merge sort.</li>
+<li>Se o trabalho <strong>diminui descendo</strong> (a raiz é o nível mais caro), a <strong>raiz domina</strong> → caso 3, resultado <code>f(n)</code>. Acontece quando <code>f</code> é grande e a recursão é "fraca".</li>
+</ul>
+<p>Conhecer essa intuição permite <em>prever</em> o caso antes de calcular: "merge sort tem trabalho linear repetido em cada um dos log n níveis → n log n" sem nem invocar a fórmula.</p>
+<h3 id="por-que-a-altura-e-log_b-n">Por que a altura é log_b n<a class="headerlink" href="#por-que-a-altura-e-log_b-n" title="Permanent link">&para;</a></h3>
+<p>Cada nível reduz o tamanho do subproblema por fator <code>b</code>. Partindo de <code>n</code> e dividindo por <code>b</code> repetidamente até chegar a 1: <code>n → n/b → n/b² → ... → 1</code>. O número de divisões necessárias é <code>log_b n</code>. Por isso a árvore tem <code>log_b n</code> níveis — e por isso recorrências de dividir e conquistar quase sempre têm um <code>log n</code> em algum lugar (é a altura da árvore). A base <code>b</code> do log não importa na notação (muda só por constante).</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama é a árvore de recursão do merge sort (mostrando que cada nível custa <code>n</code>); o segundo é o fluxo de decisão do Master Theorem.</p>
+<pre class="mermaid"><code>flowchart TB
+    N0["T(n): merge custa n"] --&gt; N1A["T(n/2): custo n/2"]
+    N0 --&gt; N1B["T(n/2): custo n/2"]
+    N1A --&gt; N2A["T(n/4): n/4"]
+    N1A --&gt; N2B["T(n/4): n/4"]
+    N1B --&gt; N2C["T(n/4): n/4"]
+    N1B --&gt; N2D["T(n/4): n/4"]
+    N2A --&gt; L["... folhas: n nos de tamanho 1 ..."]
+    N2B --&gt; L
+    N2C --&gt; L
+    N2D --&gt; L
+    L --&gt; SUM["Cada nivel custa n; ha log n niveis =&gt; Theta(n log n)"]</code></pre>
+<pre class="mermaid"><code>flowchart TB
+    REC["T(n) = a T(n/b) + f(n)"] --&gt; CRIT["Calcula expoente critico log_b a"]
+    CRIT --&gt; CMP{"Compara f(n) com n^(log_b a)"}
+    CMP --&gt;|"f menor (polinomial)"| C1["CASO 1: folhas dominam&lt;br/&gt;T(n) = Theta(n^log_b a)"]
+    CMP --&gt;|"f igual"| C2["CASO 2: equilibrio&lt;br/&gt;T(n) = Theta(n^log_b a · log n)"]
+    CMP --&gt;|"f maior (polinomial) + regularidade"| C3["CASO 3: raiz domina&lt;br/&gt;T(n) = Theta(f(n))"]
+    CMP --&gt;|"forma nao coberta"| ALT["Arvore de recursao,&lt;br/&gt;substituicao ou Akra-Bazzi"]</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p>Considere o time de <strong>dados de uma plataforma de pagamentos brasileira</strong> que precisa ordenar e buscar em grandes volumes de transações, e usa a análise de recorrências para escolher e justificar algoritmos.</p>
+<p><strong>Merge sort: por que é Θ(n log n) e por que isso importa.</strong> O relatório diário precisa ordenar ~100 milhões de transações por valor. A equipe escolheu merge sort (estável e previsível). A recorrência é <code>T(n) = 2T(n/2) + Θ(n)</code>: divide em duas metades (2 subproblemas), cada uma de tamanho <code>n/2</code>, e mescla em tempo linear. Pelo Master Theorem, <code>log₂2 = 1</code>, <code>f(n) = n = n¹</code> → caso 2 → <strong>Θ(n log n)</strong>. Concretamente: <code>100M × log₂(100M) ≈ 100M × 27 ≈ 2,7 bilhões</code> de operações. Comparado a um insertion sort O(n²) — <code>100M² = 10¹⁶</code> operações, completamente inviável (anos de processamento) — a diferença entre n log n e n² é o que torna o relatório possível. A árvore de recursão <em>mostra</em> o porquê: trabalho linear (a mesclagem) repetido em cada um dos 27 níveis.</p>
+<p><strong>Busca binária: por que é Θ(log n).</strong> Para localizar uma transação por ID num array ordenado de 100 milhões, a busca binária tem recorrência <code>T(n) = T(n/2) + Θ(1)</code>: uma chamada recursiva (descarta metade), sobre metade do tamanho, com trabalho constante (uma comparação). Master Theorem: <code>log₂1 = 0</code>, <code>f(n) = 1 = n⁰</code> → caso 2 → <strong>Θ(log n)</strong> = <code>log₂(100M) ≈ 27</code> comparações. A árvore aqui é degenerada (um filho por nó), com 27 níveis de trabalho constante → 27 operações. É a justificativa formal de por que índices de banco (B-trees) dão busca logarítmica.</p>
+<p><strong>A recorrência que revelou um bug de performance.</strong> Um engenheiro escreveu uma função recursiva para processar uma árvore de categorias que, a cada nó, <strong>reprocessava toda a subárvore</strong> em vez de só o nó. A recorrência virou algo como <code>T(n) = 2T(n/2) + Θ(n)</code> na intenção, mas o código real fazia <code>T(n) = 2T(n/2) + Θ(n²)</code> (o trabalho por nó era quadrático, não linear). Pelo Master Theorem, <code>log₂2 = 1</code>, <code>f(n) = n²</code> é polinomialmente maior que <code>n¹</code> → caso 3 → <strong>Θ(n²)</strong> em vez do Θ(n log n) esperado. A análise de recorrência <em>quantificou</em> a regressão (de n log n para n²) e apontou exatamente onde estava: no <code>f(n)</code> quadrático. A correção tornou o trabalho por nó linear, devolvendo o Θ(n log n).</p>
+<p><strong>Strassen: quando otimizar o <code>a</code> vale a pena.</strong> A multiplicação de matrizes ingênua é Θ(n³). O algoritmo de Strassen reduz o número de multiplicações recursivas de 8 para <strong>7</strong>: <code>T(n) = 7T(n/2) + Θ(n²)</code>. Master Theorem: <code>log₂7 ≈ 2,807</code>, comparado a <code>f(n) = n²</code> → folhas dominam (caso 1) → <strong>Θ(n^2,807)</strong>, assintoticamente melhor que n³. O exemplo mostra como reduzir <code>a</code> (o número de subproblemas) muda a classe de complexidade — embora, na prática, a constante grande de Strassen só compense para matrizes enormes (mais um caso de a teoria informar e a medição decidir).</p>
+<p>Pseudocódigo do merge sort, anotado com a recorrência:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mergesort(arr):                          # T(n)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    se tamanho(arr) &lt;= 1:                # caso-base T(1) = Theta(1)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        retorna arr
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    meio = tamanho(arr) / 2
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    esq = mergesort(arr[0:meio])         # T(n/2)  &lt;- subproblema 1 (a=2)
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    dir = mergesort(arr[meio:])          # T(n/2)  &lt;- subproblema 2
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    retorna merge(esq, dir)              # Theta(n) &lt;- f(n): combinar
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a># Recorrencia: T(n) = 2 T(n/2) + Theta(n)  =&gt;  caso 2  =&gt;  Theta(n log n)
+</code></pre></div>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Use o Master Theorem</strong> quando a recorrência tem a forma canônica <code>a·T(n/b) + f(n)</code> com <code>a ≥ 1</code>, <code>b &gt; 1</code> constantes e <code>f(n)</code> polinomial (ou polinomial × log^k). É o atalho para a vasta maioria dos algoritmos de dividir e conquistar — merge sort, busca binária, multiplicação rápida, FFT, muitos algoritmos de geometria. Em entrevista, é a forma mais rápida de cravar a complexidade de uma função recursiva padrão.</p>
+<p><strong>Use a árvore de recursão</strong> quando: você quer <strong>intuição</strong> (entender <em>por que</em> o resultado é aquele, não só <em>qual</em>); o Master Theorem não se aplica (subproblemas de tamanhos diferentes, recorrências de subtração); ou você precisa verificar/derivar manualmente. É o método mais geral e didático, ao custo de ser mais trabalhoso.</p>
+<p><strong>Use o método de substituição</strong> quando você já tem um palpite da resposta e quer prová-lo rigorosamente por indução (comum em provas formais).</p>
+<p><strong>Use Akra–Bazzi</strong> para recorrências com subproblemas de tamanhos diferentes (<code>T(n) = T(n/3) + T(2n/3) + n</code>) que o Master Theorem não cobre.</p>
+<p><strong>Evite</strong> aplicar o Master Theorem fora de sua forma (subtração em vez de divisão, <code>b</code> variável, gap não-polinomial entre <code>f</code> e <code>n^(log_b a)</code>) — ele dá resultado errado ou simplesmente não se aplica. <strong>Evite</strong> desenhar a árvore inteira para uma recorrência padrão quando o Master Theorem responde em segundos — reserve a árvore para os casos que precisam dela.</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Aplicar o Master Theorem a recorrências de subtração.</strong> <code>T(n) = T(n-1) + Θ(n)</code> <strong>não</strong> é da forma <code>aT(n/b)+f(n)</code> (não há divisão por <code>b</code>). Tentar usar o Master Theorem aqui é erro; resolva por árvore/substituição (essa dá Θ(n²) — pior caso do quicksort).</li>
+<li><strong>Esquecer a condição de regularidade no caso 3.</strong> O caso 3 exige <code>a·f(n/b) ≤ c·f(n)</code> com <code>c &lt; 1</code>. Funções "bem comportadas" (polinômios) satisfazem, mas é parte da hipótese — omiti-la torna a aplicação incorreta.</li>
+<li><strong>Ignorar o gap entre os casos.</strong> Se <code>f(n)</code> é menor que <code>n^(log_b a)</code> mas <strong>não polinomialmente</strong> (só por um fator <code>log n</code>), nenhum caso clássico se aplica. Há extensões, mas assumir cegamente o caso 1 ou 2 erra. Reconheça quando o Master Theorem é silencioso.</li>
+<li><strong>Confundir <code>a</code> com <code>b</code>.</strong> <code>a</code> é quantos subproblemas; <code>b</code> é por quanto o tamanho diminui. Para merge sort ambos são 2, o que mascara o erro — mas para busca binária <code>a=1, b=2</code> (uma chamada, metade do tamanho); trocá-los dá resposta errada.</li>
+<li><strong>Contar <code>f(n)</code> errado.</strong> <code>f(n)</code> é o trabalho <strong>fora</strong> da recursão (dividir + combinar). Incluir o trabalho dos subproblemas em <code>f(n)</code> é dupla contagem; esquecer o merge (achar que <code>f(n)=O(1)</code> no merge sort) muda o caso e a resposta.</li>
+<li><strong>Achar que toda recursão dividir-e-conquistar é Θ(n log n).</strong> Só o caso 2 dá n log n. Caso 1 dá <code>n^(log_b a)</code> (pode ser linear, quadrático...); caso 3 dá <code>f(n)</code>. Merge sort é n log n; travessia de árvore (<code>2T(n/2)+Θ(1)</code>) é Θ(n), não n log n.</li>
+<li><strong>Esquecer o espaço de pilha da recursão.</strong> A análise de recorrência foca no tempo, mas a recursão também consome O(profundidade) de memória de pilha (ver <code>04-time-vs-space-complexity-tradeoffs.md</code>). Profundidade = altura da árvore = <code>log_b n</code> para dividir-e-conquistar balanceado; O(n) para recursão linear.</li>
+<li><strong>Confundir o pior caso com o caso balanceado.</strong> A recorrência do quicksort é <code>2T(n/2)+Θ(n)</code> (Θ(n log n)) <strong>só quando o pivô divide ao meio</strong>. No pior caso (pivô péssimo), vira <code>T(n-1)+Θ(n)</code> = Θ(n²) — uma recorrência de subtração diferente. A forma da recorrência <em>depende do caso</em> (ver <code>02-pior-melhor-e-caso-medio.md</code>).</li>
+<li><strong>Memorizar os casos sem a intuição folhas-vs-raiz.</strong> Decorar "caso 1, 2, 3" sem entender que é uma competição entre o trabalho das folhas (<code>n^(log_b a)</code>) e da raiz (<code>f(n)</code>) leva a erros quando a forma varia. A intuição da árvore é o que torna o teorema robusto.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Notação assintótica</strong> (<code>01-notacao-assintotica-big-o-theta-omega.md</code>): o resultado da recorrência é expresso em Θ; o Master Theorem compara ordens de crescimento de <code>f(n)</code> e <code>n^(log_b a)</code>.</li>
+<li><strong>Pior, melhor e caso médio</strong> (<code>02-pior-melhor-e-caso-medio.md</code>): a forma da recorrência depende do caso — quicksort é <code>2T(n/2)+Θ(n)</code> (médio/melhor, n log n) mas <code>T(n-1)+Θ(n)</code> (pior, n²).</li>
+<li><strong>Time vs space tradeoffs</strong> (<code>04-time-vs-space-complexity-tradeoffs.md</code>): a altura da árvore (<code>log_b n</code>) é a profundidade da recursão e o espaço de pilha; recursão linear (O(n) de pilha) vs balanceada (O(log n)).</li>
+<li><strong>Sorting</strong> (bloco 13): merge sort (<code>2T(n/2)+Θ(n)</code> → n log n) e quicksort (médio n log n, pior n²) são os exemplos canônicos de análise de recorrência; o limite inferior Ω(n log n) por comparação contextualiza por que n log n é ótimo.</li>
+<li><strong>Busca binária</strong> (bloco 13): <code>T(n)=T(n/2)+Θ(1)</code> → Θ(log n); a justificativa formal da busca logarítmica.</li>
+<li><strong>Árvores e estruturas hierárquicas</strong> (bloco 12): travessias e operações em árvores balanceadas têm recorrências de dividir e conquistar; a altura <code>log n</code> da árvore balanceada é a mesma <code>log_b n</code> da recursão.</li>
+<li><strong>Programação dinâmica</strong> (bloco 13): DP frequentemente "desenrola" recursões com subproblemas sobrepostos (memoization), trocando a árvore exponencial de recursão ingênua por uma tabela polinomial.</li>
+</ul>
+<h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
+<p>Três ideias para carregar:</p>
+<ol>
+<li><strong>Toda recursão de dividir e conquistar vira uma recorrência <code>aT(n/b)+f(n)</code>.</strong> Identifique <code>a</code> (quantos subproblemas), <code>b</code> (redução do tamanho) e <code>f(n)</code> (dividir + combinar) lendo o código. A recorrência é a tradução exata da estrutura recursiva numa equação resolvível.</li>
+<li><strong>O Master Theorem é uma competição entre folhas e raiz.</strong> Compare <code>f(n)</code> com <code>n^(log_b a)</code> (custo das folhas): folhas dominam (caso 1, <code>n^(log_b a)</code>), empate (caso 2, com <code>log n</code> extra), raiz domina (caso 3, <code>f(n)</code>). A intuição folhas-vs-raiz é mais robusta que decorar os três casos.</li>
+<li><strong>A árvore de recursão dá intuição; o teorema dá velocidade; nem tudo se encaixa.</strong> Use o Master Theorem para o caso padrão (segundos), a árvore para entender o porquê e para formas não cobertas, e Akra–Bazzi/substituição para subproblemas desiguais ou recorrências de subtração. Saber qual ferramenta usar é o domínio.</li>
+</ol>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Algoritmos recursivos têm o custo descrito por uma <strong>recorrência</strong>; dividir e conquistar tem a forma <strong><code>T(n) = aT(n/b) + f(n)</code></strong> (<code>a</code> subproblemas, tamanho <code>n/b</code>, <code>f(n)</code> para dividir/combinar).</li>
+<li><strong>Árvore de recursão:</strong> soma o trabalho por nível × número de níveis (<code>log_b n</code>); o número de folhas é <code>n^(log_b a)</code>. Dá intuição.</li>
+<li><strong>Master Theorem</strong> compara <code>f(n)</code> com <code>n^(log_b a)</code> (expoente crítico <code>log_b a</code>):</li>
+<li><strong>Caso 1</strong> (<code>f</code> menor): folhas dominam → <code>Θ(n^(log_b a))</code>.</li>
+<li><strong>Caso 2</strong> (<code>f</code> igual): equilíbrio → <code>Θ(n^(log_b a) · log n)</code>.</li>
+<li><strong>Caso 3</strong> (<code>f</code> maior + regularidade): raiz domina → <code>Θ(f(n))</code>.</li>
+<li><strong>Merge sort</strong> <code>2T(n/2)+Θ(n)</code> → caso 2 → <strong>Θ(n log n)</strong>; <strong>busca binária</strong> <code>T(n/2)+Θ(1)</code> → caso 2 → <strong>Θ(log n)</strong>.</li>
+<li>A intuição central é <strong>folhas vs raiz</strong>: quem concentra o trabalho na árvore determina o caso.</li>
+<li>O Master Theorem <strong>não cobre</strong> subproblemas de tamanhos diferentes (use Akra–Bazzi), recorrências de subtração (<code>T(n-1)+...</code>, use árvore/substituição), nem gaps não-polinomiais.</li>
+<li>A forma da recorrência <strong>depende do caso</strong>: quicksort é <code>2T(n/2)+Θ(n)</code> (médio) vs <code>T(n-1)+Θ(n)</code> (pior, Θ(n²)).</li>
+<li>Nem toda recursão dividir-e-conquistar é n log n — só o caso 2; travessia de árvore (<code>2T(n/2)+Θ(1)</code>) é Θ(n).</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Master_theorem_(analysis_of_algorithms)">Master theorem (analysis of algorithms) — Wikipedia</a></li>
+<li><a href="https://www.cs.cornell.edu/courses/cs3110/2012fa/recitations/rec18.html">Recitation 18: Recursion Trees and the Master Method — Cornell CS3110</a></li>
+<li><a href="https://www.cs.cornell.edu/courses/cs3110/2012sp/lectures/lec20-master/lec20.html">Lecture 20: Recursion Trees and the Master Method — Cornell CS3110</a></li>
+<li><a href="https://web.engr.oregonstate.edu/~huanlian/algorithms_course/1-datastructures/master.html">Master Theorem and Summary of Common Recurrences — Oregon State University</a></li>
+<li><a href="https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/">Introduction to Algorithms (6.006), Spring 2020 — MIT OpenCourseWare</a></li>
+<li><a href="https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/">Introduction to Algorithms (CLRS), MIT Press — capítulos 2 e 4 (Recurrences, Master Theorem)</a></li>
+<li><a href="https://visualgo.net/en">VisuAlgo — Visualizing Data Structures and Algorithms</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../04-time-vs-space-complexity-tradeoffs/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Time vs space complexity">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Time vs space complexity
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Arrays e Linked Lists">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Arrays e Linked Lists
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2729 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/16-redes-e-protocolos/07-semantica-http-idempotencia-e-status-codes/">
+      
+      
+        <link rel="prev" href="../06-rest-graphql-grpc-websockets/">
+      
+      
+        <link rel="next" href="../08-cors-csrf-xss/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Semântica HTTP (idempotência, status codes) - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#semantica-http-idempotencia-dos-metodos-safe-methods-e-status-codes" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Semântica HTTP (idempotência, status codes)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_18" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_18" id="__nav_18_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_18_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_18">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    16 · Redes e protocolos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelo OSI e TCP/IP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-tcp-vs-udp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TCP vs UDP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-http1-http2-http3-quic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP/1.1, HTTP/2, HTTP/3 (QUIC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-https-tls-handshake-e-certificados/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTPS, TLS handshake e certificados
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-dns-resolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DNS resolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-rest-graphql-grpc-websockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST, GraphQL, gRPC, WebSockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semântica HTTP (idempotência, status codes)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semântica HTTP (idempotência, status codes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#safe-metodos-seguros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Safe (métodos seguros)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#idempotente-metodos-idempotentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Idempotente (métodos idempotentes)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#por-que-idempotencia-e-a-base-do-retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que idempotência é a base do retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-de-propriedades-dos-metodos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela de propriedades dos métodos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status-codes-classes-e-semantica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status codes: classes e semântica
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-linha-divisoria-4xx-vs-5xx-o-conceito-mais-cobrado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A linha divisória 4xx vs 5xx (o conceito mais cobrado)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#matriz-dos-status-codes-que-mais-importam-em-apis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Matriz dos status codes que mais importam em APIs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-fluxo-de-retry-guiado-por-semantica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O fluxo de retry guiado por semântica
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#idempotencia-pratica-chave-de-idempotencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Idempotência prática: chave de idempotência
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#200-com-erro-o-anti-padrao-de-semantica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        200-com-erro: o anti-padrão de semântica
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-cors-csrf-xss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS, CSRF, XSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-long-polling-sse-websockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long polling, SSE, WebSockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#safe-metodos-seguros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Safe (métodos seguros)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#idempotente-metodos-idempotentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Idempotente (métodos idempotentes)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#por-que-idempotencia-e-a-base-do-retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que idempotência é a base do retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-de-propriedades-dos-metodos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela de propriedades dos métodos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status-codes-classes-e-semantica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status codes: classes e semântica
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-linha-divisoria-4xx-vs-5xx-o-conceito-mais-cobrado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A linha divisória 4xx vs 5xx (o conceito mais cobrado)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#matriz-dos-status-codes-que-mais-importam-em-apis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Matriz dos status codes que mais importam em APIs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o-fluxo-de-retry-guiado-por-semantica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O fluxo de retry guiado por semântica
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#idempotencia-pratica-chave-de-idempotencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Idempotência prática: chave de idempotência
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#200-com-erro-o-anti-padrao-de-semantica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        200-com-erro: o anti-padrão de semântica
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="semantica-http-idempotencia-dos-metodos-safe-methods-e-status-codes">Semântica HTTP: idempotência dos métodos, safe methods e status codes<a class="headerlink" href="#semantica-http-idempotencia-dos-metodos-safe-methods-e-status-codes" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Redes e protocolos · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~28 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>HTTP não é só "transporte de bytes" — é um <strong>protocolo com semântica definida</strong> (RFC 9110), e usar essa semântica corretamente é o que separa uma API robusta de uma frágil. Dois conceitos governam os métodos. <strong>Safe (seguro):</strong> o método é <em>read-only</em>, não muda estado observável no servidor — <code>GET</code>, <code>HEAD</code>, <code>OPTIONS</code>, <code>TRACE</code>. <strong>Idempotente:</strong> repetir a mesma requisição <strong>N vezes tem o mesmo efeito que uma vez</strong> — <code>GET</code>, <code>HEAD</code>, <code>OPTIONS</code>, <code>PUT</code>, <code>DELETE</code> são idempotentes; <strong><code>POST</code> e <code>PATCH</code> não são</strong> (garantidos). Todo método safe é idempotente, mas nem todo idempotente é safe (<code>PUT</code>/<code>DELETE</code> mudam estado, mas repetir não piora). Essa distinção é <strong>a base do retry seguro</strong>: o cliente/proxy pode reexecutar <code>GET</code>/<code>PUT</code>/<code>DELETE</code> após falha de rede sem medo de duplicidade, mas reexecutar um <code>POST</code> pode criar dois pedidos ou cobrar duas vezes — daí a necessidade de <strong>chaves de idempotência</strong>. Do lado das respostas, os <strong>status codes</strong> comunicam o resultado por classes: <strong>2xx</strong> sucesso, <strong>3xx</strong> redirecionamento, <strong>4xx</strong> erro do <strong>cliente</strong> (a culpa é da requisição: <code>400</code>, <code>401</code>, <code>403</code>, <code>404</code>, <code>409</code>, <code>422</code>, <code>429</code>), <strong>5xx</strong> erro do <strong>servidor</strong> (a culpa é do servidor: <code>500</code>, <code>502</code>, <code>503</code>, <code>504</code>). A regra de ouro do retry: <strong>4xx não retentar</strong> (determinístico, vai falhar igual), <strong>5xx pode retentar</strong> (frequentemente transitório) — com backoff. Usar o status code certo (não "200 com erro no corpo") é o que permite que clientes, proxies e infraestrutura tomem decisões corretas automaticamente.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>Imagine um app de pagamentos que envia <code>POST /charges</code> para cobrar R$ 200. A requisição sai, o servidor processa e cobra — mas a <strong>resposta se perde na rede</strong> (timeout, conexão caiu). O cliente não sabe se a cobrança aconteceu. O que ele faz? Se <strong>retentar</strong>, e a primeira cobrança <em>tinha</em> funcionado, o cliente é <strong>cobrado duas vezes</strong>. Se <em>não</em> retentar, e a primeira <em>tinha</em> falhado, a cobrança nunca acontece. Esse dilema — "é seguro repetir esta operação?" — é exatamente o que a <strong>semântica de idempotência</strong> do HTTP existe para responder.</p>
+<p>O problema mais amplo: num sistema distribuído, <strong>falhas de rede são inevitáveis</strong> e o retry é a defesa padrão (ver padrões de resiliência). Mas retry cego é perigoso. O cliente, o proxy, a CDN, o navegador — todos precisam saber, <strong>só olhando o método HTTP</strong>, se podem reexecutar uma requisição com segurança. É por isso que o HTTP define propriedades <strong>uniformes</strong> por método: qualquer intermediário sabe que <code>GET</code> é safe (pode até pré-buscar), que <code>PUT</code> é idempotente (pode retentar), e que <code>POST</code> não é (não deve retentar automaticamente). Sem essa semântica padronizada, cada API seria uma caixa-preta e nenhuma automação de retry/cache seria segura.</p>
+<p>Do lado das <strong>respostas</strong>, há um problema gêmeo: como o cliente sabe <em>o que aconteceu</em> e <em>o que fazer a seguir</em>? Uma API que responde <strong>sempre 200</strong> e enfia o erro real no corpo JSON (<code>{"status":"error"}</code>) quebra toda a automação: o monitoramento acha que está tudo bem (2xx), o load balancer não tira a instância do ar (não vê 5xx), a CDN cacheia um erro, e o cliente precisa parsear o corpo para saber se houve falha. Os <strong>status codes</strong> existem para que a categoria do resultado seja legível por máquina, de forma uniforme, <strong>antes</strong> de olhar o corpo.</p>
+<p>A pergunta central: <strong>"Como projetar uma API para que clientes, proxies e infraestrutura saibam, de forma padronizada e sem ambiguidade, (a) se podem repetir uma requisição com segurança e (b) o que significou a resposta e o que fazer a seguir?"</strong> A resposta está na semântica HTTP — métodos com propriedades safe/idempotente bem definidas, e status codes usados pela classe correta.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="safe-metodos-seguros">Safe (métodos seguros)<a class="headerlink" href="#safe-metodos-seguros" title="Permanent link">&para;</a></h3>
+<p>Um método é <strong>safe</strong> quando sua semântica é <strong>essencialmente read-only</strong>: o cliente não solicita nem espera nenhuma mudança de estado no servidor ao aplicá-lo. Os métodos safe definidos: <strong><code>GET</code>, <code>HEAD</code>, <code>OPTIONS</code>, <code>TRACE</code></strong>. "Safe" não significa que o servidor <em>tecnicamente</em> não faça nada (ele pode logar, incrementar um contador de acessos) — significa que o cliente não é <strong>responsável</strong> por nenhum efeito colateral. Consequência prática: métodos safe podem ser <strong>pré-buscados</strong> (prefetch), <strong>cacheados</strong> e <strong>retentados livremente</strong> por navegadores, crawlers e proxies, porque "ler de novo" nunca causa dano. Violar isso — usar <code>GET /deleteAccount?id=5</code> para apagar algo — é um erro grave: um crawler ou prefetch do navegador pode disparar a ação sem intenção do usuário.</p>
+<h3 id="idempotente-metodos-idempotentes">Idempotente (métodos idempotentes)<a class="headerlink" href="#idempotente-metodos-idempotentes" title="Permanent link">&para;</a></h3>
+<p>Um método é <strong>idempotente</strong> quando o <strong>efeito pretendido no servidor de N requisições idênticas é o mesmo que o de uma única requisição</strong>. Repetir não acumula efeito. Os métodos idempotentes: <strong><code>GET</code>, <code>HEAD</code>, <code>OPTIONS</code>, <code>TRACE</code></strong> (que também são safe) <strong>mais <code>PUT</code> e <code>DELETE</code></strong>. </p>
+<ul>
+<li><code>PUT /users/42</code> com um corpo que <strong>substitui</strong> o recurso é idempotente: aplicá-lo 3 vezes deixa o recurso no mesmo estado final que aplicá-lo 1 vez. (Note: idempotência é sobre o <em>estado resultante</em>, não sobre a resposta — o segundo <code>DELETE</code> pode retornar <code>404</code> em vez de <code>204</code>, mas o <strong>estado</strong> "recurso ausente" é o mesmo.)</li>
+<li><code>DELETE /users/42</code> é idempotente: deletar um recurso já deletado mantém o estado "ausente".</li>
+</ul>
+<p><strong><code>POST</code> e <code>PATCH</code> NÃO são garantidamente idempotentes.</strong> <code>POST /orders</code> tipicamente <strong>cria um novo recurso a cada chamada</strong> — repetir cria N pedidos. <code>PATCH</code> aplica uma modificação parcial que pode não ser idempotente (ex.: <code>PATCH {"saldo": "+10"}</code> soma 10 a cada chamada). </p>
+<p><strong>Relação:</strong> todo método safe é idempotente (se não muda nada, repetir obviamente não muda nada), mas a recíproca é falsa — <code>PUT</code>/<code>DELETE</code> são idempotentes <strong>e unsafe</strong> (mudam estado, mas repetir não piora). É essa categoria — idempotente-mas-unsafe — que torna o retry de escrita seguro sem chave especial.</p>
+<h3 id="por-que-idempotencia-e-a-base-do-retry">Por que idempotência é a base do retry<a class="headerlink" href="#por-que-idempotencia-e-a-base-do-retry" title="Permanent link">&para;</a></h3>
+<p>Quando uma requisição falha por timeout ou erro de rede, o cliente <strong>não sabe</strong> se o servidor processou ou não. A idempotência resolve a ambiguidade: se o método é idempotente, <strong>retentar é seguro</strong> — se a primeira chegou, a segunda não causa dano; se não chegou, a segunda executa. Por isso clientes HTTP, proxies e service meshes podem retentar <code>GET</code>/<code>PUT</code>/<code>DELETE</code> automaticamente, mas <strong>não</strong> <code>POST</code>. Para tornar <code>POST</code> retentável com segurança, usa-se uma <strong>chave de idempotência</strong> (Idempotency-Key): o cliente gera um identificador único por operação lógica e o envia no header; o servidor registra a chave na primeira execução e, em retentativas com a mesma chave, <strong>retorna o resultado anterior sem reexecutar</strong> — transformando um <code>POST</code> não-idempotente numa operação efetivamente idempotente do ponto de vista do efeito.</p>
+<h3 id="tabela-de-propriedades-dos-metodos">Tabela de propriedades dos métodos<a class="headerlink" href="#tabela-de-propriedades-dos-metodos" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Método</th>
+<th>Safe</th>
+<th>Idempotente</th>
+<th>Tem corpo de request</th>
+<th>Cacheável</th>
+<th>Uso típico</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GET</strong></td>
+<td>Sim</td>
+<td>Sim</td>
+<td>Não (geralmente)</td>
+<td>Sim</td>
+<td>Ler recurso</td>
+</tr>
+<tr>
+<td><strong>HEAD</strong></td>
+<td>Sim</td>
+<td>Sim</td>
+<td>Não</td>
+<td>Sim</td>
+<td>Cabeçalhos sem corpo</td>
+</tr>
+<tr>
+<td><strong>OPTIONS</strong></td>
+<td>Sim</td>
+<td>Sim</td>
+<td>Não</td>
+<td>Não</td>
+<td>Descobrir capacidades / preflight CORS</td>
+</tr>
+<tr>
+<td><strong>PUT</strong></td>
+<td>Não</td>
+<td><strong>Sim</strong></td>
+<td>Sim</td>
+<td>Não</td>
+<td>Substituir recurso inteiro</td>
+</tr>
+<tr>
+<td><strong>DELETE</strong></td>
+<td>Não</td>
+<td><strong>Sim</strong></td>
+<td>Geralmente não</td>
+<td>Não</td>
+<td>Remover recurso</td>
+</tr>
+<tr>
+<td><strong>POST</strong></td>
+<td>Não</td>
+<td><strong>Não</strong></td>
+<td>Sim</td>
+<td>Raramente</td>
+<td>Criar recurso / ação não-idempotente</td>
+</tr>
+<tr>
+<td><strong>PATCH</strong></td>
+<td>Não</td>
+<td><strong>Não</strong> (em geral)</td>
+<td>Sim</td>
+<td>Não</td>
+<td>Modificação parcial</td>
+</tr>
+</tbody>
+</table>
+<h3 id="status-codes-classes-e-semantica">Status codes: classes e semântica<a class="headerlink" href="#status-codes-classes-e-semantica" title="Permanent link">&para;</a></h3>
+<p>Os status codes são números de três dígitos cuja <strong>primeira dígito define a classe</strong>:</p>
+<ul>
+<li><strong>1xx Informational:</strong> respostas provisórias (<code>100 Continue</code>, <code>101 Switching Protocols</code> — usado no handshake WebSocket). Raras no dia a dia de API.</li>
+<li><strong>2xx Success:</strong> a requisição foi recebida, entendida e processada com sucesso. <code>200 OK</code>, <code>201 Created</code> (recurso criado — use em <code>POST</code> que cria), <code>202 Accepted</code> (aceito para processamento assíncrono), <code>204 No Content</code> (sucesso sem corpo — típico de <code>DELETE</code>/<code>PUT</code>).</li>
+<li><strong>3xx Redirection:</strong> ação adicional necessária. <code>301 Moved Permanently</code>, <code>302 Found</code>, <code>304 Not Modified</code> (cache: o recurso não mudou, use a cópia local — central para <code>GET</code> condicional/ETag).</li>
+<li><strong>4xx Client Error:</strong> <strong>a culpa é do cliente</strong> — a requisição está malformada, não autorizada, ou conflita com o estado. <strong>Não adianta retentar igual</strong> (vai falhar do mesmo jeito) sem corrigir a requisição.</li>
+<li><strong>5xx Server Error:</strong> <strong>a culpa é do servidor</strong> — ele recebeu uma requisição válida mas falhou em processá-la. Frequentemente <strong>transitório</strong> — retentar (com backoff) pode funcionar.</li>
+</ul>
+<h3 id="a-linha-divisoria-4xx-vs-5xx-o-conceito-mais-cobrado">A linha divisória 4xx vs 5xx (o conceito mais cobrado)<a class="headerlink" href="#a-linha-divisoria-4xx-vs-5xx-o-conceito-mais-cobrado" title="Permanent link">&para;</a></h3>
+<p>A distinção <strong>4xx vs 5xx</strong> é a mais importante operacionalmente porque governa <strong>três decisões automáticas</strong>:</p>
+<ol>
+<li><strong>Retry:</strong> <code>4xx</code> → não retentar (determinístico; corrija a requisição). <code>5xx</code> → pode retentar com backoff (pode ser transitório). Exceção notável: <code>429 Too Many Requests</code> é 4xx mas <em>pede</em> retry — respeitando o header <code>Retry-After</code>.</li>
+<li><strong>Alerta/monitoramento:</strong> uma onda de <code>5xx</code> indica <strong>problema no seu serviço</strong> (deve disparar alerta/página). Uma onda de <code>4xx</code> indica <strong>clientes mandando requisições erradas</strong> (bug no cliente, ataque, contrato mal entendido) — outra investigação, raramente "acorde o on-call".</li>
+<li><strong>Atribuição de culpa em SLO:</strong> <code>5xx</code> conta contra a disponibilidade do <em>seu</em> serviço; <code>4xx</code> (geralmente) não, pois o cliente errou. Retornar <code>500</code> para um input inválido do cliente <strong>polui seu SLO</strong> com falhas que não são suas.</li>
+</ol>
+<h3 id="matriz-dos-status-codes-que-mais-importam-em-apis">Matriz dos status codes que mais importam em APIs<a class="headerlink" href="#matriz-dos-status-codes-que-mais-importam-em-apis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Código</th>
+<th>Classe</th>
+<th>Significado</th>
+<th>Retry?</th>
+<th>Quando usar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>200 OK</strong></td>
+<td>2xx</td>
+<td>Sucesso com corpo</td>
+<td>—</td>
+<td>Leitura/operação bem-sucedida</td>
+</tr>
+<tr>
+<td><strong>201 Created</strong></td>
+<td>2xx</td>
+<td>Recurso criado</td>
+<td>—</td>
+<td><code>POST</code> que cria recurso (com <code>Location</code>)</td>
+</tr>
+<tr>
+<td><strong>202 Accepted</strong></td>
+<td>2xx</td>
+<td>Aceito, processamento assíncrono</td>
+<td>—</td>
+<td>Operação enfileirada</td>
+</tr>
+<tr>
+<td><strong>204 No Content</strong></td>
+<td>2xx</td>
+<td>Sucesso sem corpo</td>
+<td>—</td>
+<td><code>DELETE</code>/<code>PUT</code> sem retorno</td>
+</tr>
+<tr>
+<td><strong>304 Not Modified</strong></td>
+<td>3xx</td>
+<td>Recurso não mudou (cache)</td>
+<td>—</td>
+<td><code>GET</code> condicional com ETag/If-None-Match</td>
+</tr>
+<tr>
+<td><strong>400 Bad Request</strong></td>
+<td>4xx</td>
+<td>Requisição malformada/sintaxe inválida</td>
+<td><strong>Não</strong></td>
+<td>JSON inválido, parâmetro faltando</td>
+</tr>
+<tr>
+<td><strong>401 Unauthorized</strong></td>
+<td>4xx</td>
+<td>Não autenticado (faltou/inválido credencial)</td>
+<td>Não (autentique)</td>
+<td>Token ausente/expirado</td>
+</tr>
+<tr>
+<td><strong>403 Forbidden</strong></td>
+<td>4xx</td>
+<td>Autenticado mas sem permissão</td>
+<td><strong>Não</strong></td>
+<td>Usuário sem acesso ao recurso</td>
+</tr>
+<tr>
+<td><strong>404 Not Found</strong></td>
+<td>4xx</td>
+<td>Recurso não existe</td>
+<td><strong>Não</strong></td>
+<td>ID inexistente</td>
+</tr>
+<tr>
+<td><strong>405 Method Not Allowed</strong></td>
+<td>4xx</td>
+<td>Método não suportado no recurso</td>
+<td>Não</td>
+<td><code>DELETE</code> num recurso read-only</td>
+</tr>
+<tr>
+<td><strong>409 Conflict</strong></td>
+<td>4xx</td>
+<td>Conflito com o estado atual</td>
+<td>Não (resolva)</td>
+<td>Versão desatualizada, duplicata, edição concorrente</td>
+</tr>
+<tr>
+<td><strong>422 Unprocessable Content</strong></td>
+<td>4xx</td>
+<td>Sintaxe OK mas semântica inválida</td>
+<td><strong>Não</strong></td>
+<td>Validação de negócio falhou</td>
+</tr>
+<tr>
+<td><strong>429 Too Many Requests</strong></td>
+<td>4xx</td>
+<td>Rate limit excedido</td>
+<td><strong>Sim</strong> (após <code>Retry-After</code>)</td>
+<td>Cliente excedeu a cota</td>
+</tr>
+<tr>
+<td><strong>500 Internal Server Error</strong></td>
+<td>5xx</td>
+<td>Erro genérico no servidor</td>
+<td><strong>Sim</strong> (backoff)</td>
+<td>Exceção não tratada</td>
+</tr>
+<tr>
+<td><strong>502 Bad Gateway</strong></td>
+<td>5xx</td>
+<td>Gateway recebeu resposta inválida do upstream</td>
+<td><strong>Sim</strong></td>
+<td>Proxy/LB e backend desalinhados</td>
+</tr>
+<tr>
+<td><strong>503 Service Unavailable</strong></td>
+<td>5xx</td>
+<td>Serviço indisponível/sobrecarregado</td>
+<td><strong>Sim</strong> (respeite <code>Retry-After</code>)</td>
+<td>Manutenção, sobrecarga, load shedding</td>
+</tr>
+<tr>
+<td><strong>504 Gateway Timeout</strong></td>
+<td>5xx</td>
+<td>Gateway esperou demais pelo upstream</td>
+<td><strong>Sim</strong></td>
+<td>Timeout entre proxy e backend</td>
+</tr>
+</tbody>
+</table>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>A semântica é declarativa: o <strong>método</strong> carrega as propriedades safe/idempotente (válidas em qualquer API que respeite o HTTP), e o <strong>status code</strong> classifica o resultado. Clientes e intermediários combinam os dois para automatizar decisões: um proxy pode cachear <code>GET 200</code>, retentar <code>GET</code>/<code>PUT</code> em <code>503</code>, e nunca retentar <code>POST</code> automaticamente. A robustez vem de todos seguirem o mesmo contrato.</p>
+<h3 id="o-fluxo-de-retry-guiado-por-semantica">O fluxo de retry guiado por semântica<a class="headerlink" href="#o-fluxo-de-retry-guiado-por-semantica" title="Permanent link">&para;</a></h3>
+<p>Um cliente resiliente decide retentar combinando <strong>método</strong> (idempotente?) e <strong>resposta</strong> (qual classe?):</p>
+<ol>
+<li>Resposta <strong>2xx</strong> → sucesso, segue em frente.</li>
+<li>Resposta <strong>4xx</strong> (exceto 429) → erro do cliente, <strong>falha rápido</strong> sem retry (corrigir a requisição é responsabilidade do dev/cliente).</li>
+<li>Resposta <strong>429</strong> → respeitar <code>Retry-After</code>, retentar depois.</li>
+<li>Resposta <strong>5xx</strong> ou <strong>timeout/erro de rede</strong> → potencialmente transitório:</li>
+<li>Se o método é <strong>idempotente</strong> (<code>GET</code>/<code>PUT</code>/<code>DELETE</code>) → retentar com backoff é seguro.</li>
+<li>Se é <strong><code>POST</code>/<code>PATCH</code></strong> → só retentar se houver <strong>chave de idempotência</strong>; senão, não retentar (risco de duplicidade).</li>
+</ol>
+<p>Essa árvore de decisão é exatamente o que conecta semântica HTTP com os padrões de resiliência: <em>retry só para falhas transitórias (5xx, timeout) e operações idempotentes</em>.</p>
+<h3 id="idempotencia-pratica-chave-de-idempotencia">Idempotência prática: chave de idempotência<a class="headerlink" href="#idempotencia-pratica-chave-de-idempotencia" title="Permanent link">&para;</a></h3>
+<p>O mecanismo que torna <code>POST</code> retentável:</p>
+<ol>
+<li>Cliente gera um UUID único por operação lógica e envia em <code>Idempotency-Key: &lt;uuid&gt;</code>.</li>
+<li>Servidor, ao receber, verifica se já viu essa chave:</li>
+<li><strong>Primeira vez:</strong> processa, persiste a chave + o resultado, retorna a resposta.</li>
+<li><strong>Repetida (retry):</strong> <strong>não reexecuta</strong> — retorna a resposta armazenada da primeira vez.</li>
+<li>Resultado: mesmo que o cliente retente várias vezes (porque a resposta se perdeu), o efeito no servidor acontece <strong>exatamente uma vez</strong>.</li>
+</ol>
+<p>Isso é como Stripe e gateways de pagamento garantem que um retry de rede não cobra o cliente duas vezes. A chave deve ter TTL e ser escopada por endpoint/usuário.</p>
+<h3 id="200-com-erro-o-anti-padrao-de-semantica">200-com-erro: o anti-padrão de semântica<a class="headerlink" href="#200-com-erro-o-anti-padrao-de-semantica" title="Permanent link">&para;</a></h3>
+<p>Uma fonte recorrente de bugs é responder <strong><code>200 OK</code> com o erro no corpo</strong> (<code>{"success": false, "error": "..."}</code>). Isso quebra a cadeia de automação:</p>
+<ul>
+<li>O <strong>load balancer/health check</strong> vê 2xx e mantém a instância recebendo tráfego (mesmo quebrada).</li>
+<li>O <strong>monitoramento</strong> não detecta a taxa de erro (tudo parece 2xx).</li>
+<li>A <strong>CDN/proxy</strong> pode cachear o "erro" como se fosse resposta válida.</li>
+<li>O <strong>cliente</strong> é obrigado a parsear o corpo para saber se falhou, em vez de checar o status.</li>
+</ul>
+<p>A semântica correta usa o <strong>status code da classe certa</strong> (400/422 para erro de validação do cliente, 500 para falha do servidor), e o corpo serve para <em>detalhes</em> do erro — não para <em>sinalizar</em> que houve erro. Padrões como <strong>RFC 9457 Problem Details</strong> estruturam o corpo de erro mantendo o status code correto.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama mostra a árvore de decisão de retry guiada pela semântica (método idempotente? classe da resposta?); o segundo mostra a sequência de uma chave de idempotência tornando um <code>POST</code> seguro contra retry.</p>
+<pre class="mermaid"><code>flowchart TB
+    R["Resposta / falha de rede"] --&gt; C{"Qual classe?"}
+    C --&gt;|"2xx"| OK["sucesso"]
+    C --&gt;|"4xx (exceto 429)"| FF["falha rápido&lt;br/&gt;NÃO retentar (erro do cliente)"]
+    C --&gt;|"429"| RA["espera Retry-After&lt;br/&gt;e retenta"]
+    C --&gt;|"5xx / timeout"| M{"método é idempotente?&lt;br/&gt;(GET/PUT/DELETE)"}
+    M --&gt;|"sim"| RT["retenta com backoff"]
+    M --&gt;|"não (POST/PATCH)"| IK{"tem chave de&lt;br/&gt;idempotência?"}
+    IK --&gt;|"sim"| RT
+    IK --&gt;|"não"| NR["NÃO retentar&lt;br/&gt;(risco de duplicidade)"]</code></pre>
+<pre class="mermaid"><code>sequenceDiagram
+    participant C as Cliente
+    participant S as Servidor
+    C-&gt;&gt;S: "POST /charges (Idempotency-Key: abc)"
+    S-&gt;&gt;S: "registra chave abc + processa cobrança"
+    S--xC: "resposta 201 PERDIDA na rede"
+    Note over C: "timeout — cliente não sabe se cobrou"
+    C-&gt;&gt;S: "POST /charges (Idempotency-Key: abc) [retry]"
+    S-&gt;&gt;S: "chave abc já existe — NÃO reexecuta"
+    S--&gt;&gt;C: "201 (resultado armazenado da 1a vez)"
+    Note over C,S: "efeito ocorreu exatamente uma vez"</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p>Considere a <strong>API de pedidos e pagamentos de um e-commerce brasileiro</strong>, e como a semântica HTTP correta evita bugs caros.</p>
+<p><strong>Retry seguro de PUT (idempotente por design).</strong> O app atualiza o endereço de entrega via <code>PUT /orders/789/shipping-address</code> com o endereço completo no corpo. Na Black Friday, com rede móvel instável, a resposta às vezes se perde. Como <code>PUT</code> <strong>substitui</strong> o recurso, ele é <strong>idempotente</strong>: o cliente retenta sem medo — aplicar o mesmo endereço duas vezes resulta no mesmo estado. Nenhuma chave especial é necessária. Esse é o caso ideal: a semântica do método já garante segurança.</p>
+<p><strong>POST de cobrança com chave de idempotência.</strong> A finalização do pedido faz <code>POST /charges</code> para autorizar R$ 350 no cartão. <code>POST</code> <strong>não</strong> é idempotente — retentar cegamente cobraria duas vezes. A solução: o cliente gera um <code>Idempotency-Key</code> único por tentativa de checkout e o envia. Quando a resposta da primeira cobrança se perde por timeout, o cliente retenta com a <strong>mesma chave</strong>; o gateway reconhece a chave, <strong>não reexecuta</strong>, e devolve o resultado original. O cliente é cobrado uma vez só. Esse padrão é exatamente o que conecta semântica HTTP com retry seguro dos padrões de resiliência.</p>
+<p><strong>Status codes corretos guiando o comportamento.</strong> Vários cenários, cada um com o código certo:</p>
+<ul>
+<li>Cartão recusado pelo banco → <strong><code>402</code>/<code>422</code></strong> (ou <code>409</code> conforme o desenho) — erro de <strong>negócio do cliente</strong>, classe 4xx, <strong>não retentar</strong> (retentar dá o mesmo "recusado"). Crucialmente, <strong>não</strong> é <code>500</code>: o servidor funcionou perfeitamente, foi o cartão que falhou.</li>
+<li>Estoque acabou entre adicionar ao carrinho e finalizar → <strong><code>409 Conflict</code></strong> — conflito com o estado atual; o cliente precisa <strong>resolver</strong> (escolher outro produto), não retentar.</li>
+<li>Cliente excedeu o rate limit de criação de pedidos (suspeita de bot) → <strong><code>429 Too Many Requests</code></strong> com <code>Retry-After: 30</code> — o cliente legítimo espera e retenta.</li>
+<li>O gateway de pagamento externo deu timeout → <strong><code>504 Gateway Timeout</code></strong> ou <strong><code>503</code></strong> — erro de servidor (5xx), <strong>transitório</strong>, o cliente <strong>pode retentar com backoff</strong>.</li>
+<li>Uma exceção não tratada no serviço de pricing → <strong><code>500</code></strong> — dispara alerta para o on-call, conta contra o SLO.</li>
+</ul>
+<p><strong>O bug que a semântica evitou.</strong> Antes de padronizarem os status codes, o serviço respondia <code>200 OK</code> com <code>{"error": "cartão recusado"}</code>. Resultado: o dashboard de disponibilidade mostrava 100% de sucesso enquanto milhares de checkouts falhavam; o alerta nunca disparava; e o time de dados contava "cartão recusado" como venda concretizada. Ao migrar para <strong>4xx com Problem Details no corpo</strong>, o monitoramento passou a enxergar a taxa de erro real, os clientes passaram a tratar erros pela classe do status, e a distinção 4xx (erro do comprador) vs 5xx (erro nosso) limpou o SLO — só os 5xx contam contra a disponibilidade do serviço.</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Métodos por semântica:</strong></p>
+<ul>
+<li>Use <strong><code>GET</code></strong> apenas para leitura (safe) — <strong>nunca</strong> para ações que mudam estado (<code>GET /delete?id=5</code> é um bug: crawlers e prefetch disparam a ação).</li>
+<li>Use <strong><code>PUT</code></strong> para substituir um recurso inteiro de forma idempotente; <strong><code>PATCH</code></strong> para modificação parcial (lembrando que <code>PATCH</code> pode não ser idempotente).</li>
+<li>Use <strong><code>POST</code></strong> para criação e ações não-idempotentes; se precisar retentá-lo com segurança, <strong>adicione chave de idempotência</strong>.</li>
+<li>Use <strong><code>DELETE</code></strong> para remoção (idempotente — o segundo delete pode dar 404, mas o estado é o mesmo).</li>
+</ul>
+<p><strong>Status codes:</strong></p>
+<ul>
+<li>Use <strong>2xx</strong> só para sucesso real; <strong><code>201</code></strong> ao criar, <strong><code>204</code></strong> quando não há corpo.</li>
+<li>Use <strong>4xx</strong> quando a culpa é da requisição do cliente, escolhendo o específico (<code>400</code> sintaxe, <code>401</code>/<code>403</code> auth, <code>404</code> inexistente, <code>409</code> conflito de estado, <code>422</code> validação semântica, <code>429</code> rate limit).</li>
+<li>Use <strong>5xx</strong> quando a culpa é do servidor — e <strong>evite</strong> usar 5xx para erros de input do cliente (polui o SLO e dispara alertas indevidos).</li>
+<li><strong>Evite</strong> o anti-padrão "200 com erro no corpo" — quebra automação de retry, cache, health check e monitoramento.</li>
+</ul>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><code>GET</code> que muda estado.</strong> Usar <code>GET</code> para deletar/atualizar viola "safe": prefetch do navegador, crawlers e proxies podem disparar a ação sem intenção. Mutação sempre por <code>POST</code>/<code>PUT</code>/<code>PATCH</code>/<code>DELETE</code>.</li>
+<li><strong>Retentar <code>POST</code> sem chave de idempotência.</strong> Duplica pedidos/cobranças. Ou torne a operação idempotente (chave), ou não retente automaticamente.</li>
+<li><strong>Tratar todo erro como <code>500</code>.</strong> Responder 500 para input inválido do cliente polui o SLO de disponibilidade (parece falha sua), dispara alertas indevidos e leva clientes a retentar algo que sempre vai falhar. Erro do cliente é 4xx.</li>
+<li><strong>"200 OK" com erro no corpo.</strong> Quebra health checks (LB mantém instância quebrada), monitoramento (taxa de erro invisível), cache (cacheia erro) e força o cliente a parsear corpo. Use o status code da classe certa.</li>
+<li><strong>Confundir <code>401</code> e <code>403</code>.</strong> <code>401</code> = não autenticado (faltou/inválido credencial — refaça login). <code>403</code> = autenticado mas sem permissão (não adianta reautenticar). Trocar os dois confunde o cliente.</li>
+<li><strong>Ignorar <code>Retry-After</code> em <code>429</code>/<code>503</code>.</strong> Retentar imediatamente após um rate limit/sobrecarga agrava o problema (retry storm). Respeite o header.</li>
+<li><strong>Achar que idempotência é sobre a resposta.</strong> Idempotência é sobre o <strong>estado do servidor</strong>, não sobre o status retornado. <code>DELETE</code> repetido pode dar <code>404</code> na segunda vez — ainda é idempotente, pois o estado ("ausente") é o mesmo.</li>
+<li><strong><code>PATCH</code> assumido idempotente.</strong> <code>PATCH</code> com operação incremental (<code>saldo += 10</code>) <strong>não</strong> é idempotente; retentar soma de novo. Avalie caso a caso; se precisar de retry, garanta idempotência.</li>
+<li><strong>Usar <code>200</code> em vez de <code>201</code>/<code>204</code>.</strong> Perde semântica útil: <code>201</code> sinaliza criação (com <code>Location</code>), <code>204</code> sinaliza sucesso sem corpo. Não é fatal, mas degrada a clareza do contrato.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Idempotência (04/04):</strong> a idempotência dos métodos HTTP é a manifestação, no protocolo, do conceito geral de idempotência; chaves de idempotência são a ponte para operações não-naturalmente-idempotentes.</li>
+<li><strong>Padrões de resiliência — Retry (04/10):</strong> a regra "retry só para falhas transitórias (5xx/timeout) e operações idempotentes" depende diretamente da semântica safe/idempotente e da classe 4xx vs 5xx.</li>
+<li><strong>REST vs GraphQL vs gRPC (16/06):</strong> REST depende de usar verbos e status codes corretamente (Richardson nível 2); GraphQL frequentemente responde 200 mesmo em erro (erros no corpo), uma escolha que muda o tratamento de falhas.</li>
+<li><strong>HTTP/2 e HTTP/3 (16/03):</strong> a semântica (métodos, status, idempotência) é a <strong>mesma</strong> em HTTP/1.1, /2 e /3 — RFC 9110 separou deliberadamente a semântica do transporte. O que muda é a sintaxe de fio, não o significado.</li>
+<li><strong>Cache e CDN:</strong> safe + cacheável (<code>GET</code>) é o que permite cache em CDN/proxy; <code>304 Not Modified</code> com ETag é o mecanismo de revalidação. Semântica errada (GET que muda estado) corrompe cache.</li>
+<li><strong>API Gateway / rate limiting (04/08, 04/10):</strong> <code>429 Too Many Requests</code> com <code>Retry-After</code> é a interface HTTP do rate limiting; <code>503</code> é a do load shedding.</li>
+<li><strong>Observabilidade (09):</strong> a taxa de 5xx é métrica central de disponibilidade (SLO); separar 4xx (cliente) de 5xx (servidor) é essencial para alertas corretos.</li>
+</ul>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Safe</strong> = read-only (<code>GET</code>/<code>HEAD</code>/<code>OPTIONS</code>/<code>TRACE</code>); pode prefetch/cachear/retentar livremente.</li>
+<li><strong>Idempotente</strong> = repetir N vezes = efeito de 1 vez. Idempotentes: safe + <strong><code>PUT</code></strong> + <strong><code>DELETE</code></strong>. <strong><code>POST</code> e <code>PATCH</code> não</strong> (garantidos).</li>
+<li>Todo safe é idempotente; nem todo idempotente é safe (<code>PUT</code>/<code>DELETE</code> mudam estado mas repetir não piora).</li>
+<li>Idempotência é sobre o <strong>estado do servidor</strong>, não sobre a resposta (2º <code>DELETE</code> pode dar 404 e ainda ser idempotente).</li>
+<li>Para retentar <strong><code>POST</code></strong> com segurança, use <strong>chave de idempotência</strong> (<code>Idempotency-Key</code>).</li>
+<li><strong>4xx = culpa do cliente</strong> (não retentar, corrigir a requisição). <strong>5xx = culpa do servidor</strong> (pode retentar com backoff, frequentemente transitório).</li>
+<li>Exceção: <strong><code>429</code></strong> é 4xx mas pede retry após <code>Retry-After</code>.</li>
+<li>Status codes a dominar: <code>200/201/204</code>, <code>304</code>, <code>400/401/403/404/409/422/429</code>, <code>500/502/503/504</code>.</li>
+<li><strong>Nunca</strong> responda "200 com erro no corpo" — quebra retry, cache, health check e monitoramento.</li>
+<li>A semântica é <strong>idêntica</strong> em HTTP/1.1, /2 e /3 (RFC 9110 separou semântica de transporte).</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://www.rfc-editor.org/rfc/rfc9110.html">RFC 9110 — HTTP Semantics</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods">HTTP request methods — MDN Web Docs</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Glossary/Idempotent">Idempotent — Glossary — MDN Web Docs</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Glossary/Safe/HTTP">Safe (HTTP Methods) — Glossary — MDN Web Docs</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status">HTTP response status codes — MDN Web Docs</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/409">409 Conflict — MDN Web Docs</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/429">429 Too Many Requests — MDN Web Docs</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/400">400 Bad Request — MDN Web Docs</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../06-rest-graphql-grpc-websockets/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: REST, GraphQL, gRPC, WebSockets">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                REST, GraphQL, gRPC, WebSockets
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../08-cors-csrf-xss/" class="md-footer__link md-footer__link--next" aria-label="Próximo: CORS, CSRF, XSS">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                CORS, CSRF, XSS
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

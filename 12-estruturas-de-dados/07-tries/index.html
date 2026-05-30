@@ -1,0 +1,2467 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/12-estruturas-de-dados/07-tries/">
+      
+      
+        <link rel="prev" href="../06-heaps/">
+      
+      
+        <link rel="next" href="../08-graphs-representacao/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Tries - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tries-prefix-tree-autocomplete-e-busca-por-prefixo" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tries
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_14" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_14">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    12 · Estruturas de dados
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-arrays-e-linked-lists/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arrays e Linked Lists
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-stacks-queues-deque-priority-queue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stacks, Queues, Deque, Priority Queue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-hash-tables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hash Tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-arvores-de-busca-bst-avl-red-black/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Árvores de busca (BST, AVL, Red-Black)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-b-tree-e-b-plus-tree/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    B-Tree e B+Tree
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-heaps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Heaps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tries
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#variantes-importantes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variantes importantes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-que-a-trie-oferece-que-a-hash-nao-oferece" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que a trie oferece que a hash não oferece
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#custo-de-memoria-o-calcanhar-de-aquiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custo de memória: o calcanhar de Aquiles
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-graphs-representacao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Graphs (representação)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-skip-list-bloom-filter-lru-lfu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skip List, Bloom Filter, LRU/LFU
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-union-find-disjoint-set/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Union-Find (Disjoint Set)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-segment-tree-e-fenwick-tree/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Segment Tree e Fenwick Tree
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#variantes-importantes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variantes importantes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-que-a-trie-oferece-que-a-hash-nao-oferece" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que a trie oferece que a hash não oferece
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Como funciona">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#custo-de-memoria-o-calcanhar-de-aquiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custo de memória: o calcanhar de Aquiles
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="tries-prefix-tree-autocomplete-e-busca-por-prefixo">Tries (Prefix Tree): Autocomplete e Busca por Prefixo<a class="headerlink" href="#tries-prefix-tree-autocomplete-e-busca-por-prefixo" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Estruturas de dados · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~22 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>A <strong>trie</strong> (também chamada <strong>prefix tree</strong> ou <strong>árvore digital</strong>) é uma árvore de busca especializada em armazenar um conjunto de <strong>strings</strong>, onde cada nó representa um <strong>caractere</strong> e o caminho da raiz até um nó forma um <strong>prefixo</strong>. A ideia central é que strings com prefixos em comum <strong>compartilham o mesmo caminho</strong> na árvore (todas as palavras que começam com <code>ca</code> passam pelos mesmos dois primeiros nós), o que torna a estrutura naturalmente eficiente para <strong>busca por prefixo</strong> e <strong>autocomplete</strong>. As operações de inserção, busca e remoção custam <strong>O(L)</strong>, onde <code>L</code> é o comprimento da string — crucialmente, esse custo <strong>não depende de quantas palavras</strong> já estão armazenadas (<code>n</code>), ao contrário de uma árvore balanceada que custa <code>O(L · log n)</code> por exigir comparações de string em cada nível. A grande vantagem da trie sobre uma <strong>hash table</strong> não é o lookup exato (a hash é <code>O(1)</code> amortizado e geralmente vence aí), mas três capacidades que a hash não tem: enumerar todas as chaves com um dado <strong>prefixo</strong>, percorrer as chaves em <strong>ordem lexicográfica</strong>, e não sofrer <strong>colisões de hash</strong>. O preço é o <strong>consumo de memória</strong>: cada nó tem um array/mapa de filhos (até 26 ponteiros para letras minúsculas, ou 256 para bytes), o que pode desperdiçar espaço em tries esparsas. Variantes como a <strong>trie comprimida (radix tree / Patricia trie)</strong> mesclam cadeias de nós de único filho para reduzir memória, e o <strong>DAWG/FST</strong> (usado pelo Elasticsearch) compartilha também sufixos. Use trie quando a operação dominante é "todas as strings que começam com X" — autocomplete de busca, dicionários de spell-check, roteamento de IP (longest-prefix match), filtros de palavras.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>Imagine que você precisa implementar o <strong>autocomplete de uma caixa de busca</strong>: o usuário digita <code>note</code> e você precisa devolver, instantaneamente, todas as palavras do dicionário que começam com <code>note</code> — <code>notebook</code>, <code>notepad</code>, <code>notebook gamer</code>, <code>notebook usado</code> — ordenadas por relevância ou alfabeticamente. Quantas vezes por segundo isso acontece num site de e-commerce grande? Milhares. Cada tecla digitada dispara uma consulta.</p>
+<p>A pergunta central é: <strong>"como encontrar, em tempo proporcional ao tamanho do prefixo digitado (e não ao tamanho do dicionário inteiro), todas as palavras que começam com aquele prefixo?"</strong></p>
+<p>Vamos avaliar as alternativas ingênuas:</p>
+<ul>
+<li><strong>Lista/array de strings + varredura linear:</strong> para cada tecla, percorrer todas as <code>n</code> palavras checando se começam com o prefixo. Custo <code>O(n · L)</code> por consulta. Com um dicionário de milhões de termos, isso é inviável em tempo de digitação.</li>
+<li><strong>Hash table (<code>Set&lt;String&gt;</code>):</strong> ótima para perguntar "a palavra <code>notebook</code> existe?" em <code>O(L)</code>. Mas a hash <strong>destrói a estrutura de prefixo</strong>: as chaves ficam espalhadas por buckets em ordem arbitrária. Não há como perguntar "quais chaves começam com <code>note</code>?" sem varrer <strong>todas</strong> as chaves. A hash resolve o lookup <em>exato</em>, não o lookup <em>por prefixo</em>.</li>
+<li><strong>Árvore balanceada ordenada (<code>TreeMap</code>, B-Tree):</strong> mantém as chaves ordenadas, então um prefixo corresponde a um intervalo contíguo (<code>note</code> ≤ chave &lt; <code>notf</code>), localizável por busca binária. Funciona! Mas cada passo da busca compara <strong>strings inteiras</strong> (<code>O(L)</code> por comparação), totalizando <code>O(L · log n)</code>, e cada chave é armazenada por completo (sem compartilhar prefixos).</li>
+</ul>
+<p>A trie ataca exatamente o ponto cego da hash e o overhead da árvore: ela <strong>organiza as strings pela sua estrutura de prefixos</strong>. Navegar até o nó que representa o prefixo <code>note</code> custa apenas <code>O(4)</code> (quatro caracteres), independentemente de o dicionário ter mil ou um bilhão de palavras. A partir desse nó, toda a subárvore <em>é</em> o conjunto de palavras com aquele prefixo — basta enumerá-la. Esse é o ganho qualitativo: a busca por prefixo vira uma <strong>descida direta</strong> seguida de uma <strong>travessia de subárvore</strong>, ambas com custo desacoplado de <code>n</code>.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<p>Uma <strong>trie</strong> é uma árvore enraizada onde:</p>
+<ul>
+<li>A <strong>raiz</strong> representa a string vazia (não armazena caractere).</li>
+<li>Cada <strong>aresta</strong> é rotulada por um caractere (na implementação clássica) ou cada <strong>nó</strong> carrega um caractere; o caminho da raiz até um nó deletreia um prefixo.</li>
+<li>Cada nó mantém uma coleção de <strong>filhos</strong> indexada por caractere — tipicamente um array de tamanho fixo (ex.: 26 para <code>a–z</code>, 256 para bytes) ou um <code>HashMap&lt;Char, Node&gt;</code> quando o alfabeto é grande/esparso.</li>
+<li>Cada nó tem uma flag booleana <strong><code>isEndOfWord</code></strong> (ou <code>isTerminal</code>) que marca se o prefixo acumulado até ali é, ele próprio, uma palavra completa inserida. Isso distingue <code>note</code> (palavra) de <code>note</code> (mero prefixo de <code>notebook</code>) quando ambos coexistem.</li>
+</ul>
+<p>O nome "trie" vem de re<strong>trie</strong>val (recuperação); por coincidência soa como "tree", e por isso muitos pronunciam "try" para desambiguar. O ponto conceitual essencial: <strong>a posição de uma chave na trie é determinada inteiramente pela sequência de seus caracteres</strong>, não por um valor de hash nem por comparações relativas. Duas chaves com o mesmo prefixo de <code>k</code> caracteres compartilham, obrigatoriamente, os primeiros <code>k</code> nós do caminho.</p>
+<h3 id="variantes-importantes">Variantes importantes<a class="headerlink" href="#variantes-importantes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Trie padrão (standard / uncompressed):</strong> um nó por caractere. Simples, mas pode ter longas cadeias de nós com um único filho (a palavra <code>internationalization</code> cria ~20 nós em fila se for única), desperdiçando memória.</li>
+<li><strong>Radix tree / Patricia trie (trie comprimida):</strong> mescla cada cadeia de nós de único filho num só nó que armazena a substring inteira. Reduz drasticamente o número de nós em dicionários esparsos. É a base de roteamento IP no kernel Linux e do índice de chaves no <code>etcd</code>.</li>
+<li><strong>DAWG (Directed Acyclic Word Graph) / FST (Finite State Transducer):</strong> compartilha não só prefixos, mas também <strong>sufixos</strong> comuns, transformando a árvore num grafo acíclico. O <strong>Elasticsearch</strong> usa um FST no seu <em>completion suggester</em> — é "como uma trie", porém muito mais compacto e mantido em memória para autocomplete relâmpago.</li>
+<li><strong>Ternary Search Tree (TST):</strong> híbrido entre trie e BST; cada nó tem três filhos (menor/igual/maior). Usa menos memória que a trie de array quando o alfabeto é grande, ao custo de busca um pouco mais lenta.</li>
+</ul>
+<h3 id="o-que-a-trie-oferece-que-a-hash-nao-oferece">O que a trie oferece que a hash não oferece<a class="headerlink" href="#o-que-a-trie-oferece-que-a-hash-nao-oferece" title="Permanent link">&para;</a></h3>
+<p>Vale fixar a distinção que aparece em entrevista: a trie <strong>não substitui</strong> a hash table para lookup exato (a hash costuma ser mais rápida e mais enxuta nesse caso). A trie ganha quando você precisa de pelo menos uma destas três propriedades, que a hash não tem:</p>
+<ol>
+<li><strong>Busca por prefixo / enumeração de prefixo</strong> (autocomplete): "todas as chaves começando com X".</li>
+<li><strong>Ordem lexicográfica</strong>: percorrer as chaves em ordem alfabética é uma DFS in-order trivial; a hash não preserva ordem nenhuma.</li>
+<li><strong>Ausência de colisões e de hashing</strong>: o tempo de pior caso é <code>O(L)</code> determinístico, sem o risco de degradação por colisões adversariais que uma hash mal projetada sofre.</li>
+</ol>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p><strong>Inserção de uma palavra <code>w</code> (comprimento <code>L</code>):</strong> parte da raiz; para cada caractere <code>c</code> de <code>w</code>, verifica se o nó atual tem um filho rotulado <code>c</code>; se não tiver, cria-o; desce para esse filho. Ao consumir o último caractere, marca o nó final como <code>isEndOfWord = true</code>. Custo <code>O(L)</code>.</p>
+<p><strong>Busca exata de <code>w</code>:</strong> mesma descida; se em algum ponto falta o filho do caractere, a palavra não existe. Se chegou ao fim de <code>w</code>, ela existe <strong>somente se</strong> o nó final tiver <code>isEndOfWord = true</code> (caso contrário <code>w</code> é apenas prefixo de outra palavra). Custo <code>O(L)</code>.</p>
+<p><strong>Busca por prefixo <code>p</code> (<code>startsWith</code>):</strong> desce de acordo com <code>p</code>; se completou a descida sem falhar, existe pelo menos uma palavra com esse prefixo (basta o nó existir, não precisa ser terminal). Custo <code>O(L_p)</code>.</p>
+<p><strong>Autocomplete (todas as palavras com prefixo <code>p</code>):</strong> desce até o nó do prefixo <code>p</code> (<code>O(L_p)</code>); a partir dele, faz uma <strong>DFS/BFS na subárvore</strong> coletando todo caminho que termine num nó <code>isEndOfWord</code>. Custo <code>O(L_p + tamanho da subárvore)</code> ≈ <code>O(L_p + k·L_média)</code> para <code>k</code> resultados. Como a DFS in-order visita os filhos em ordem de caractere, os resultados saem em <strong>ordem lexicográfica</strong> de graça.</p>
+<p><strong>Remoção de <code>w</code>:</strong> desce até o nó final, desmarca <code>isEndOfWord</code>; opcionalmente, sobe removendo nós que ficaram sem filhos e não são terminais (poda). Cuidado para não remover nós que ainda são prefixo de outra palavra.</p>
+<table>
+<thead>
+<tr>
+<th>Operação</th>
+<th>Trie</th>
+<th>Hash Table</th>
+<th>Árvore balanceada (BST/B-Tree)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Inserir</td>
+<td><code>O(L)</code></td>
+<td><code>O(L)</code> amortizado</td>
+<td><code>O(L · log n)</code></td>
+</tr>
+<tr>
+<td>Buscar exato</td>
+<td><code>O(L)</code></td>
+<td><code>O(L)</code> amortizado</td>
+<td><code>O(L · log n)</code></td>
+</tr>
+<tr>
+<td>Buscar prefixo <code>startsWith</code></td>
+<td><code>O(L_p)</code></td>
+<td><strong>não suportado</strong> (varre tudo: <code>O(n·L)</code>)</td>
+<td><code>O(L_p · log n)</code></td>
+</tr>
+<tr>
+<td>Listar <code>k</code> palavras com prefixo</td>
+<td><code>O(L_p + k·L)</code></td>
+<td><strong>não suportado</strong> eficientemente</td>
+<td><code>O(log n + k·L)</code></td>
+</tr>
+<tr>
+<td>Iterar em ordem lexicográfica</td>
+<td><code>O(total de nós)</code></td>
+<td><strong>não suportado</strong></td>
+<td><code>O(n)</code> (in-order)</td>
+</tr>
+<tr>
+<td>Memória</td>
+<td>alta (ponteiros por nó)</td>
+<td>moderada</td>
+<td>moderada</td>
+</tr>
+</tbody>
+</table>
+<p>Note que <code>L</code> é o comprimento da string e <code>n</code> o número de strings: a coluna da trie <strong>não tem <code>n</code></strong> nas operações pontuais — esse desacoplamento é o trunfo. A coluna da hash tem <code>O(1)</code> por caractere mas <strong>zera</strong> na linha de prefixo, que é justamente o caso de uso da trie.</p>
+<h3 id="custo-de-memoria-o-calcanhar-de-aquiles">Custo de memória: o calcanhar de Aquiles<a class="headerlink" href="#custo-de-memoria-o-calcanhar-de-aquiles" title="Permanent link">&para;</a></h3>
+<p>Cada nó de uma trie de array com alfabeto de tamanho <code>Σ</code> reserva <code>Σ</code> ponteiros (a maioria <code>null</code> em tries esparsas). Para <code>a–z</code>, são 26 ponteiros por nó; para Unicode/bytes, 256. Num dicionário com muitas palavras curtas e diversas, o número de nós explode e a maioria dos slots fica vazia. Por isso a memória da trie costuma ser <strong>maior</strong> que a de uma hash equivalente. Mitigações: usar <code>HashMap&lt;Char,Node&gt;</code> por nó (paga overhead de hash, economiza slots vazios), comprimir em <strong>radix tree</strong>, ou compartilhar sufixos com <strong>DAWG/FST</strong>. Em entrevista, mencionar esse trade-off (rápido em prefixo, caro em memória) demonstra maturidade.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O diagrama mostra uma trie contendo as palavras <code>note</code>, <code>notebook</code>, <code>not</code>, <code>cat</code> e <code>car</code>. Os nós marcados com <code>(•)</code> são terminais (<code>isEndOfWord = true</code>). Repare como <code>note</code>/<code>notebook</code>/<code>not</code> compartilham o caminho <code>n→o→t</code>, e <code>cat</code>/<code>car</code> compartilham <code>c→a</code>.</p>
+<pre class="mermaid"><code>graph TD
+    root["(raiz)"] --&gt; n["n"]
+    root --&gt; c["c"]
+    n --&gt; no["o"]
+    no --&gt; not["t (•) = not"]
+    not --&gt; note["e (•) = note"]
+    note --&gt; noteb["b"]
+    noteb --&gt; noteo["o"]
+    noteo --&gt; noteoo["o"]
+    noteoo --&gt; notebook["k (•) = notebook"]
+    c --&gt; ca["a"]
+    ca --&gt; cat["t (•) = cat"]
+    ca --&gt; car["r (•) = car"]</code></pre>
+<p>O segundo diagrama mostra o fluxo de um <strong>autocomplete</strong> para o prefixo <code>not</code>: desce pelos nós do prefixo e depois enumera a subárvore.</p>
+<pre class="mermaid"><code>flowchart TD
+    START["prefixo digitado: 'not'"] --&gt; D1["desce raiz -&gt; n -&gt; o -&gt; t"]
+    D1 --&gt; CHK{"nó do prefixo existe?"}
+    CHK --&gt;|"não"| EMPTY["retorna lista vazia"]
+    CHK --&gt;|"sim"| DFS["DFS na subárvore a partir de 't'"]
+    DFS --&gt; COLLECT["coleta nós terminais"]
+    COLLECT --&gt; RESULT["resultados em ordem lexicográfica:&lt;br/&gt;not, note, notebook"]</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p><strong>Cenário: autocomplete da busca de um marketplace brasileiro.</strong> A caixa de busca precisa sugerir produtos enquanto o usuário digita. O catálogo tem milhões de termos de busca históricos (<code>notebook</code>, <code>notebook gamer</code>, <code>tênis nike</code>, <code>tênis adidas</code>, ...). A cada tecla, o front-end consulta <code>/suggest?q=note</code> e espera resposta em poucos milissegundos.</p>
+<p>Implementação com trie no serviço de sugestões:</p>
+<ul>
+<li><strong>Carga inicial:</strong> insere-se cada termo de busca na trie, anexando ao nó terminal um payload (ex.: popularidade/score do termo, para ranquear). Inserção em lote de <code>n</code> termos custa <code>O(Σ L)</code>.</li>
+<li><strong>Consulta:</strong> ao receber <code>q = "note"</code>, desce-se 4 níveis (<code>O(4)</code>, <strong>independente</strong> de o catálogo ter 1 milhão ou 100 milhões de termos), e faz-se uma DFS na subárvore para coletar os top-<code>k</code> termos por score. Como <code>k</code> é pequeno (mostra-se 10 sugestões), o custo total é dominado por <code>O(L_p + k)</code>.</li>
+<li><strong>Ranqueamento:</strong> uma otimização comum é, em cada nó, pré-computar e cachear os <strong>top-k termos da sua subárvore</strong> (precomputed suggestions). Aí o autocomplete vira uma simples descida até o nó do prefixo + leitura do cache — <code>O(L_p)</code> puro, sem DFS em tempo de consulta. É assim que sistemas de larga escala servem autocomplete em sub-milissegundo.</li>
+</ul>
+<p>Na prática, em vez de implementar a trie à mão, costuma-se delegar ao <strong>Elasticsearch completion suggester</strong>, que internamente usa um <strong>FST (Finite State Transducer)</strong> — uma generalização compacta da trie que compartilha prefixos <em>e</em> sufixos e cabe em memória por segmento de índice. O conceito mental, porém, é exatamente o da trie: matching caractere a caractere a partir do início da string.</p>
+<p>Pseudocódigo conciso da inserção e do autocomplete:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>// node: { children: Map&lt;char, node&gt;, isEnd: bool, topK: [...] }
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>inserir(raiz, palavra):
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    no = raiz
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    para c em palavra:
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        se c não em no.children:
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>            no.children[c] = novo_no()
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        no = no.children[c]
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    no.isEnd = true
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>autocomplete(raiz, prefixo):
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    no = raiz
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    para c em prefixo:
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        se c não em no.children: retorna []   // nenhum match
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        no = no.children[c]
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    resultados = []
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    dfs(no, prefixo, resultados)              // coleta terminais em ordem
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    retorna resultados
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>dfs(no, acc, out):
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    se no.isEnd: out.add(acc)
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    para c em ordenado(no.children):          // ordem lexicográfica
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>        dfs(no.children[c], acc + c, out)
+</code></pre></div>
+<p><strong>Outros casos reais:</strong> roteamento IP por <em>longest-prefix match</em> (radix tree no kernel), spell-checkers e corretores (verificar existência + sugerir por proximidade de prefixo), filtros de palavrões/conteúdo (matching de muitos padrões), e índices de chaves ordenadas em bancos KV como o <code>etcd</code> (radix tree).</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>Use trie quando:</strong></p>
+<ul>
+<li>A operação dominante é <strong>busca/enumeração por prefixo</strong> (autocomplete, sugestões, "começa com").</li>
+<li>Você precisa iterar chaves em <strong>ordem lexicográfica</strong> com frequência.</li>
+<li>O conjunto de chaves tem <strong>muitos prefixos compartilhados</strong> (URLs, caminhos de arquivo, palavras de um idioma) — o compartilhamento amortiza o custo de memória e pode até economizar espaço via compressão.</li>
+<li>Você quer tempo de operação <strong>independente de <code>n</code></strong> e determinístico (sem colisões de hash).</li>
+<li>Faz <em>longest-prefix match</em> (roteamento de IP, dispatch de rotas).</li>
+</ul>
+<p><strong>Evite trie quando:</strong></p>
+<ul>
+<li>A operação é puramente <strong>lookup exato</strong> sem necessidade de prefixo/ordem — uma <strong>hash table</strong> é mais simples, mais rápida e usa menos memória.</li>
+<li>As chaves são <strong>longas e quase sem prefixos comuns</strong> (ex.: hashes aleatórios, UUIDs) — a trie vira uma coleção de cadeias longas e isoladas, desperdiçando muitos nós; aqui considere radix tree ou simplesmente uma hash.</li>
+<li>O <strong>alfabeto é enorme</strong> (Unicode completo) e você usa array de filhos — o desperdício de ponteiros é proibitivo; troque por <code>HashMap</code> por nó ou um TST.</li>
+<li>A <strong>memória é o recurso crítico</strong> e você não precisa de prefixo/ordem — a trie tende a ser mais cara que as alternativas.</li>
+</ul>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Esquecer a flag <code>isEndOfWord</code>.</strong> Sem ela, é impossível distinguir uma palavra terminada (<code>note</code>) de um mero prefixo de outra (<code>note</code> dentro de <code>notebook</code>). Buscar <code>note</code> retornaria "existe" mesmo que só <code>notebook</code> tivesse sido inserido. Pegadinha clássica de entrevista.</li>
+<li><strong>Confundir <code>search</code> com <code>startsWith</code>.</strong> <code>search("note")</code> só é verdadeiro se o nó final for terminal; <code>startsWith("note")</code> é verdadeiro se o nó final apenas existir. Trocar os dois é erro comum no problema "Implement Trie" do LeetCode.</li>
+<li><strong>Achar que trie é sempre melhor que hash.</strong> Para lookup exato, a hash geralmente vence em velocidade e memória. A trie ganha <em>só</em> quando há prefixo/ordem em jogo. Afirmar superioridade absoluta da trie sinaliza falta de visão de trade-off.</li>
+<li><strong>Ignorar o custo de memória.</strong> Implementar trie de array com 256 filhos por nó para um dicionário grande e esparso pode estourar a RAM. Não medir/estimar memória é uma armadilha real em produção.</li>
+<li><strong>Remoção mal feita.</strong> Ao remover uma palavra, desmarcar o terminal é seguro; mas podar nós sem checar se ainda são prefixo de outras palavras (ou se ainda têm filhos) corrompe a estrutura. Muitos pulam a poda e vazam memória; outros podam demais e quebram chaves vizinhas.</li>
+<li><strong>DFS de autocomplete sem limite.</strong> Enumerar a subárvore inteira para um prefixo curto e popular (ex.: prefixo <code>a</code>) pode retornar milhões de resultados e travar a requisição. Sempre limite a <code>top-k</code> (e idealmente pré-compute os top-k por nó).</li>
+<li><strong>Reimplementar do zero em produção quando há solução pronta.</strong> Para autocomplete em escala, o FST do Elasticsearch (ou um trie/radix de biblioteca) costuma ser preferível a uma trie artesanal não testada — mas saber o conceito é o que permite escolher e tunar a ferramenta.</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Hash tables:</strong> a trie é a alternativa estrutural à hash quando se precisa de prefixo/ordem; a hash vence em lookup exato. Conhecer ambas e quando usar cada uma é o núcleo da decisão (ver os fundamentos de tabelas hash no bloco de estruturas de dados).</li>
+<li><strong>Árvores de busca balanceadas (BST/AVL/Red-Black/B-Tree):</strong> também mantêm ordem e suportam range/prefix queries via intervalos, mas comparam strings inteiras (<code>O(L·log n)</code>) e não compartilham prefixos. A trie troca <code>log n</code> por <code>L</code> e ganha o compartilhamento.</li>
+<li><strong>Cache patterns:</strong> o nó-folha de uma trie de autocomplete frequentemente guarda dados que precisam ser servidos rápido; combina-se com pré-computação de top-k e camadas de cache para latência mínima (ver <a href="../../05-dados-e-persistencia/08-cache-patterns/">Cache patterns</a>).</li>
+<li><strong>Consistent hashing / sharding:</strong> quando a trie de autocomplete não cabe num nó, particiona-se o espaço de chaves (ex.: por primeiro caractere) entre shards — conectando com estratégias de sharding (ver <a href="../../04-sistemas-distribuidos/11-leader-election-sharding-consistent-hashing/">Leader election, sharding e consistent hashing</a>).</li>
+<li><strong>Graph algorithms:</strong> o DAWG/FST é literalmente um grafo acíclico (DAG); a travessia de autocomplete é uma DFS, ligando a estrutura aos algoritmos de grafo do bloco de algoritmos.</li>
+<li><strong>Aho-Corasick:</strong> algoritmo de matching de múltiplos padrões construído <strong>sobre</strong> uma trie (com links de falha), usado em filtros de conteúdo e antivírus — extensão natural do conceito.</li>
+</ul>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Trie = árvore onde <strong>cada nó é um caractere</strong> e <strong>prefixos comuns compartilham caminho</strong>; operações pontuais custam <strong><code>O(L)</code>, independente de <code>n</code></strong>.</li>
+<li>A flag <strong><code>isEndOfWord</code></strong> é o que distingue palavra completa de prefixo — não esqueça em entrevista.</li>
+<li>A trie <strong>vence a hash</strong> apenas para <strong>busca por prefixo, ordem lexicográfica e ausência de colisões</strong>; para lookup exato, a hash costuma ser melhor.</li>
+<li><strong>Autocomplete</strong> = descer até o nó do prefixo (<code>O(L_p)</code>) + DFS na subárvore coletando terminais; <strong>pré-compute top-k</strong> por nó para servir em sub-milissegundo.</li>
+<li>O grande custo é <strong>memória</strong> (ponteiros por nó); mitigue com <strong>radix tree</strong> (comprime cadeias) ou <strong>DAWG/FST</strong> (compartilha sufixos — é o que o Elasticsearch usa).</li>
+<li>Casos reais: autocomplete de busca, spell-check, <strong>longest-prefix match</strong> em roteamento IP, índices de KV ordenados (etcd).</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://www.geeksforgeeks.org/dsa/trie-insert-and-search/">Trie (Insert and Search) — GeeksforGeeks</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Trie">Trie — Wikipedia</a></li>
+<li><a href="https://www.baeldung.com/cs/tries-prefix-trees">Tries or Prefix Trees — Baeldung on Computer Science</a></li>
+<li><a href="https://www.codecademy.com/article/trie-data-structure-complete-guide-to-prefix-trees">Trie Data Structure: Complete Guide to Prefix Trees — Codecademy</a></li>
+<li><a href="https://leetcode.com/problems/implement-trie-prefix-tree/">Implement Trie (Prefix Tree) — LeetCode</a></li>
+<li><a href="https://taranjeet.medium.com/elasticsearch-using-completion-suggester-to-build-autocomplete-e9c120cf6d87">Elasticsearch: Using Completion Suggester to build AutoComplete — Taranjeet Singh</a></li>
+<li><a href="https://medium.com/@mourjo_sen/a-detailed-comparison-between-autocompletion-strategies-in-elasticsearch-66cb9e9c62c4">A detailed comparison between autocompletion strategies in ElasticSearch — Mourjo Sen</a></li>
+<li><a href="https://visualgo.net/en/suffixtree">Suffix Tree — VisuAlgo (visualização de árvores de strings)</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../06-heaps/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Heaps">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Heaps
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../08-graphs-representacao/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Graphs (representação)">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Graphs (representação)
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

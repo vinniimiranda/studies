@@ -1,0 +1,2486 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+      
+      
+        <meta name="author" content="Flavio Miranda">
+      
+      
+        <link rel="canonical" href="https://vinniimiranda.github.io/studies/16-redes-e-protocolos/03-http1-http2-http3-quic/">
+      
+      
+        <link rel="prev" href="../02-tcp-vs-udp/">
+      
+      
+        <link rel="next" href="../04-https-tls-handshake-e-certificados/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>HTTP/1.1, HTTP/2, HTTP/3 (QUIC) - Arquitetura de Software — Estudo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#http11-vs-http2-multiplexing-vs-http3-quic-sobre-udp-a-saga-do-head-of-line-blocking" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-header__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Arquitetura de Software — Estudo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              HTTP/1.1, HTTP/2, HTTP/3 (QUIC)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Arquitetura de Software — Estudo" class="md-nav__button md-logo" aria-label="Arquitetura de Software — Estudo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Arquitetura de Software — Estudo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BIBLIOGRAFIA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bibliografia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-fundamentos-arquiteturais/01-atributos-de-qualidade/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Fundamentos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../02-estilos-e-padroes/01-layered-n-tier-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Estilos e padrões
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Design tático (DDD)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../04-sistemas-distribuidos/01-teorema-cap-e-pacelc/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Sistemas distribuídos
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../05-dados-e-persistencia/01-polyglot-persistence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Dados e persistência
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Mensageria e streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance e escalabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../08-seguranca-arquitetural/01-zero-trust-architecture/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Segurança arquitetural
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Observabilidade
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../10-evolucao-e-praticas/01-strangler-fig-pattern/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Evolução e práticas
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Complexidade algorítmica
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../12-estruturas-de-dados/01-arrays-e-linked-lists/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Estruturas de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Algoritmos essenciais
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Concorrência e paralelismo
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Banco de dados
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_18" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_18" id="__nav_18_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 · Redes e protocolos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_18_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_18">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    16 · Redes e protocolos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelo OSI e TCP/IP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-tcp-vs-udp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TCP vs UDP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP/1.1, HTTP/2, HTTP/3 (QUIC)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP/1.1, HTTP/2, HTTP/3 (QUIC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#http11-texto-uma-resposta-por-vez-conexoes-paralelas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP/1.1 — texto, uma resposta por vez, conexões paralelas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#http2-binario-multiplexing-uma-conexao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP/2 — binário, multiplexing, uma conexão
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#http3-sobre-quic-sobre-udp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP/3 — sobre QUIC, sobre UDP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-sintese-da-evolucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela síntese da evolução
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-https-tls-handshake-e-certificados/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTPS, TLS handshake e certificados
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-dns-resolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DNS resolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-rest-graphql-grpc-websockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST, GraphQL, gRPC, WebSockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-semantica-http-idempotencia-e-status-codes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semântica HTTP (idempotência, status codes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-cors-csrf-xss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS, CSRF, XSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-long-polling-sse-websockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long polling, SSE, WebSockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 · System Design (estudos de caso)
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-problema-que-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O problema que resolve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-e-definicao-aprofundada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que é (definição aprofundada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="O que é (definição aprofundada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#http11-texto-uma-resposta-por-vez-conexoes-paralelas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP/1.1 — texto, uma resposta por vez, conexões paralelas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#http2-binario-multiplexing-uma-conexao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP/2 — binário, multiplexing, uma conexão
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#http3-sobre-quic-sobre-udp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP/3 — sobre QUIC, sobre UDP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-sintese-da-evolucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela síntese da evolução
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#glossario-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossário rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrama-de-fluxo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama de fluxo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exemplo-pratico-caso-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemplo prático / caso real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quando-usar-quando-evitar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quando usar / Quando evitar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-padroes-e-armadilhas-comuns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-padrões e armadilhas comuns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relacao-com-outros-conceitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relação com outros conceitos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-mental-para-o-arquiteto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo mental para o arquiteto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pontos-para-fixar-revisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pontos para fixar (revisão)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="http11-vs-http2-multiplexing-vs-http3-quic-sobre-udp-a-saga-do-head-of-line-blocking">HTTP/1.1 vs HTTP/2 (Multiplexing) vs HTTP/3 (QUIC sobre UDP): A Saga do Head-of-Line Blocking<a class="headerlink" href="#http11-vs-http2-multiplexing-vs-http3-quic-sobre-udp-a-saga-do-head-of-line-blocking" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Bloco:</strong> Redes e protocolos · <strong>Nível:</strong> Intermediário/Avançado · <strong>Tempo de leitura:</strong> ~30 min</p>
+</blockquote>
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Permanent link">&para;</a></h2>
+<p>A evolução do HTTP é, no fundo, <strong>a história de uma única batalha: eliminar o head-of-line (HOL) blocking</strong> em camadas cada vez mais profundas. <strong>HTTP/1.1</strong> (RFC 9112) usa <strong>uma requisição por vez por conexão TCP</strong>: a próxima resposta só começa quando a anterior termina (HOL blocking <em>na camada de aplicação</em>). Para contornar, os navegadores abrem <strong>múltiplas conexões TCP paralelas</strong> (tipicamente 6 por origem) e os sites recorrem a <em>gambiarras</em> (sprite sheets, concatenação de JS/CSS, sharding de domínios). <strong>HTTP/2</strong> (RFC 9113) resolve o HOL da aplicação com <strong>multiplexing</strong>: divide tudo em <strong>frames binários</strong> e permite <strong>muitas streams concorrentes numa única conexão TCP</strong>, intercaladas. Elimina o HOL da aplicação e mata as gambiarras — mas <strong>expõe um HOL mais profundo: o do TCP</strong>. Como todas as streams compartilham uma conexão TCP, <em>um</em> pacote TCP perdido bloqueia <strong>todas</strong> as streams (o TCP precisa entregar em ordem). <strong>HTTP/3</strong> (RFC 9114) ataca a raiz: troca o TCP pelo <strong>QUIC</strong> (RFC 9000), um transporte sobre <strong>UDP</strong> que implementa <strong>streams independentes com controle de perda por stream</strong> — uma perda numa stream <strong>não</strong> bloqueia as outras. QUIC também <strong>combina os handshakes de transporte e TLS</strong> (conexão em 1-RTT, ou 0-RTT em retomada), criptografa por padrão (TLS 1.3 embutido) e suporta <strong>connection migration</strong> (a conexão sobrevive à troca de Wi-Fi para 4G). O fio condutor: HTTP/1.1 → HOL na aplicação; HTTP/2 → resolve na aplicação, sofre HOL no TCP; HTTP/3 → resolve no transporte rodando sobre UDP. Multiplexing é o conceito-chave do 2; QUIC e o fim do HOL transport-level é o do 3.</p>
+<h2 id="o-problema-que-resolve">O problema que resolve<a class="headerlink" href="#o-problema-que-resolve" title="Permanent link">&para;</a></h2>
+<p>Uma página web moderna não é um arquivo — é <strong>dezenas ou centenas de recursos</strong>: o HTML, várias folhas de estilo, scripts, fontes, dezenas de imagens, chamadas de API. Carregar tudo isso rápido, sobre uma rede com <strong>latência (RTT) que não diminui</strong> (a velocidade da luz é fixa; um RTT Brasil↔EUA é ~120ms inevitáveis), é o problema central de performance web. E o gargalo dominante não é banda — é <strong>latência e a forma como o protocolo a multiplica</strong>.</p>
+<p>O <strong>HTTP/1.0</strong> original abria uma conexão TCP, fazia <em>uma</em> requisição, recebia <em>uma</em> resposta e <strong>fechava a conexão</strong>. Para N recursos, N handshakes TCP (e TLS) — N×(vários RTTs) só de setup. Foi insustentável. O <strong>HTTP/1.1</strong> trouxe <strong>conexões persistentes</strong> (keep-alive: reutiliza a conexão para várias requisições) e tentou o <strong>pipelining</strong> (enviar várias requisições sem esperar as respostas). Mas o pipelining tinha um defeito fatal: as respostas tinham que voltar <strong>na mesma ordem</strong> das requisições. Se a primeira resposta fosse lenta (ex.: uma query pesada), todas as seguintes — <em>mesmo já prontas</em> — ficavam <strong>bloqueadas atrás dela</strong>. Esse é o <strong>head-of-line blocking na camada de aplicação</strong>: o "primeiro da fila" trava a fila inteira. O pipelining foi um fracasso prático (a maioria dos servidores/proxies o desabilitava) e os navegadores o abandonaram.</p>
+<p>Sem multiplexing real, o HTTP/1.1 só conseguia paralelismo <strong>abrindo várias conexões TCP em paralelo</strong> — na prática, 6 por origem (hostname). Isso trouxe seus próprios problemas: cada conexão paga handshake (TCP+TLS) e <strong>slow start</strong> do zero, compete por banda de forma descoordenada, e 6 é pouco para 100 recursos. Os desenvolvedores responderam com <strong>anti-padrões disfarçados de otimização</strong>: concatenar todos os JS num arquivo gigante, fazer <strong>sprites</strong> de imagens (juntar 50 ícones numa imagem só), inline de assets em base64, e <strong>domain sharding</strong> (espalhar recursos por <code>static1.loja.com</code>, <code>static2.loja.com</code> para enganar o limite de 6 por origem). Tudo isso eram <em>workarounds</em> para uma limitação do protocolo, com custos próprios (cache pior, complexidade).</p>
+<p>A pergunta que cada versão do HTTP tenta responder melhor: <strong>"como entregar dezenas de recursos sobre uma rede de alta latência sem que uma requisição lenta bloqueie as outras, e sem pagar setup repetido?"</strong> HTTP/2 responde com multiplexing sobre uma conexão; HTTP/3 responde eliminando o HOL que sobra no nível do transporte, trocando TCP por QUIC.</p>
+<h2 id="o-que-e-definicao-aprofundada">O que é (definição aprofundada)<a class="headerlink" href="#o-que-e-definicao-aprofundada" title="Permanent link">&para;</a></h2>
+<h3 id="http11-texto-uma-resposta-por-vez-conexoes-paralelas">HTTP/1.1 — texto, uma resposta por vez, conexões paralelas<a class="headerlink" href="#http11-texto-uma-resposta-por-vez-conexoes-paralelas" title="Permanent link">&para;</a></h3>
+<p>O <strong>HTTP/1.1</strong> (atualmente especificado pela RFC 9112 para a sintaxe de mensagens; a semântica comum a todas as versões está na RFC 9110) é um protocolo <strong>textual</strong> e <strong>request/response síncrono por conexão</strong>:</p>
+<ul>
+<li><strong>Mensagens em texto:</strong> cabeçalhos legíveis (<code>GET /produtos HTTP/1.1</code>, <code>Host:</code>, <code>Content-Type:</code> etc.), o que é simples de depurar mas verboso (cabeçalhos repetidos a cada requisição, sem compressão).</li>
+<li><strong>Conexões persistentes (keep-alive):</strong> a conexão TCP é reutilizada para múltiplas requisições sequenciais — evita re-handshake, mas continua <strong>uma de cada vez</strong>.</li>
+<li><strong>HOL blocking na aplicação:</strong> numa dada conexão, a resposta N+1 só começa depois da resposta N. Pipelining (tentar mandar várias requisições enfileiradas) falhou porque exigia respostas em ordem, recriando o HOL.</li>
+<li><strong>Paralelismo via múltiplas conexões:</strong> o navegador abre ~6 conexões TCP por origem para baixar recursos "em paralelo" — caro (handshakes + slow start repetidos) e limitado.</li>
+</ul>
+<h3 id="http2-binario-multiplexing-uma-conexao">HTTP/2 — binário, multiplexing, uma conexão<a class="headerlink" href="#http2-binario-multiplexing-uma-conexao" title="Permanent link">&para;</a></h3>
+<p>O <strong>HTTP/2</strong> (RFC 9113, originado do SPDY do Google) <strong>mantém a mesma semântica</strong> do HTTP (métodos, status, headers — definidos na RFC 9110) mas muda radicalmente o <strong>transporte da mensagem na conexão</strong>:</p>
+<ul>
+<li><strong>Protocolo binário com framing:</strong> a mensagem é dividida em <strong>frames</strong> binários (HEADERS, DATA, etc.). Mais eficiente e menos ambíguo de parsear que texto.</li>
+<li><strong>Multiplexing por streams:</strong> este é o conceito central. Uma conexão TCP carrega <strong>múltiplas streams</strong> concorrentes; cada stream é uma requisição/resposta independente, identificada por um <strong>stream ID</strong>. Os frames de streams diferentes são <strong>intercalados</strong> na mesma conexão e remontados no destino. Resultado: <strong>dezenas de requisições/respostas em voo simultaneamente numa única conexão TCP</strong>, sem ordem fixa de resposta. Elimina o <strong>HOL blocking da camada de aplicação</strong>.</li>
+<li><strong>HPACK (compressão de cabeçalhos):</strong> cabeçalhos repetidos (que em HTTP/1.1 eram reenviados verbatim a cada requisição) são comprimidos com uma tabela dinâmica — economia significativa, já que headers são muito redundantes.</li>
+<li><strong>Server push</strong> (recurso que o servidor antecipa e envia sem o cliente pedir) e <strong>priorização</strong> de streams — ambos pouco usados na prática e o push acabou depreciado.</li>
+</ul>
+<p>O ganho prático: como uma conexão basta, <strong>as gambiarras do HTTP/1.1 viram contraproducentes</strong>. Concatenar arquivos, sprites e domain sharding deixam de ajudar (e podem atrapalhar o cache): com multiplexing, baixar 100 arquivos pequenos numa conexão é eficiente. Menos conexões = menos handshakes, menos slow starts competindo, melhor uso de banda.</p>
+<p><strong>Mas há um problema sutil e profundo: o HOL blocking do TCP.</strong> HTTP/2 multiplexa as streams <em>acima</em> do TCP — mas o TCP, abaixo, é um <strong>único fluxo de bytes ordenado</strong>. O TCP não sabe que existem streams; para ele é um stream só. Se <strong>um pacote TCP se perde</strong>, o TCP <strong>bloqueia a entrega de todos os bytes seguintes</strong> (de <em>todas</em> as streams) até retransmitir o perdido, porque ele garante ordem. Ou seja: o multiplexing do HTTP/2 elimina o HOL na aplicação, mas <strong>expõe</strong> o HOL na camada de transporte. Em redes com perda (móvel, Wi-Fi ruim), HTTP/2 pode ser <em>pior</em> que HTTP/1.1 com múltiplas conexões — porque no /1.1 uma perda afeta só <em>uma</em> das 6 conexões, enquanto no /2 a única conexão afetada trava <em>tudo</em>. Esse é exatamente o problema que o HTTP/3 nasceu para resolver.</p>
+<h3 id="http3-sobre-quic-sobre-udp">HTTP/3 — sobre QUIC, sobre UDP<a class="headerlink" href="#http3-sobre-quic-sobre-udp" title="Permanent link">&para;</a></h3>
+<p>O <strong>HTTP/3</strong> (RFC 9114) mantém de novo a mesma semântica HTTP (RFC 9110), mas troca o transporte: em vez de TCP, roda sobre o <strong>QUIC</strong> (RFC 9000), que por sua vez roda sobre <strong>UDP</strong>. As propriedades-chave vêm do QUIC:</p>
+<ul>
+<li><strong>Streams independentes (fim do HOL transport-level):</strong> o QUIC implementa multiplexing de streams <strong>dentro do próprio transporte</strong>, com <strong>controle de perda e ordenação por stream</strong>. Se um pacote que carrega dados da stream A se perde, <strong>só a stream A</strong> espera a retransmissão — as streams B, C, D continuam sendo entregues normalmente. Isso elimina o HOL blocking do TCP que afligia o HTTP/2. (No TCP, era impossível: o TCP é cego às streams; o QUIC, rodando em espaço de usuário sobre UDP, conhece as streams e isola a perda.)</li>
+<li><strong>Handshake combinado (transporte + criptografia em 1-RTT):</strong> no HTTP/2-sobre-TLS, você paga o handshake TCP (1 RTT) <em>e depois</em> o handshake TLS (1-2 RTTs) — handshakes em série. O QUIC <strong>funde</strong> o handshake de transporte com o <strong>TLS 1.3</strong> num só, estabelecendo conexão <em>criptografada</em> em <strong>1 RTT</strong> — e, em retomada de conexão conhecida, em <strong>0-RTT</strong> (envia dados de aplicação no primeiro pacote). Latência de setup drasticamente menor, crucial em redes móveis de alto RTT.</li>
+<li><strong>Criptografia obrigatória:</strong> QUIC embute TLS 1.3; <strong>não existe QUIC em texto claro</strong>. Inclusive boa parte dos <em>metadados de transporte</em> (números de pacote, parte do header) é cifrada, reduzindo a "ossificação" por middleboxes.</li>
+<li><strong>Connection migration:</strong> a conexão QUIC é identificada por um <strong>Connection ID</strong> independente do 4-tuple (IP:porta). Por isso, quando o celular <strong>troca de Wi-Fi para 4G</strong> (mudando IP), a conexão <strong>sobrevive</strong> — não precisa refazer handshake. No TCP, mudar de rede quebra a conexão (o 4-tuple muda).</li>
+<li><strong>Roda sobre UDP por necessidade prática:</strong> o QUIC é um transporte novo; implementá-lo <em>dentro</em> do kernel/como novo protocolo IP demoraria décadas para ser adotado (middleboxes/firewalls ossificados só conhecem TCP/UDP). Rodando sobre UDP — que já passa pela infraestrutura existente — e em <strong>espaço de usuário</strong> (não no kernel), o QUIC pode ser implementado e <em>atualizado</em> pela aplicação/biblioteca, evoluindo rápido. É a mesma lição de "UDP como tela em branco" do tópico TCP vs UDP.</li>
+</ul>
+<h3 id="tabela-sintese-da-evolucao">Tabela síntese da evolução<a class="headerlink" href="#tabela-sintese-da-evolucao" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Dimensão</th>
+<th>HTTP/1.1</th>
+<th>HTTP/2</th>
+<th>HTTP/3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Transporte</td>
+<td>TCP</td>
+<td>TCP</td>
+<td><strong>QUIC sobre UDP</strong></td>
+</tr>
+<tr>
+<td>Formato</td>
+<td>Texto</td>
+<td>Binário (frames)</td>
+<td>Binário (frames)</td>
+</tr>
+<tr>
+<td>Concorrência</td>
+<td>1 req/conexão (+ ~6 conexões paralelas)</td>
+<td><strong>Multiplexing</strong> de streams numa conexão</td>
+<td>Multiplexing de streams numa conexão</td>
+</tr>
+<tr>
+<td>HOL na aplicação</td>
+<td>Sim (sério)</td>
+<td><strong>Não</strong> (multiplexing)</td>
+<td>Não</td>
+</tr>
+<tr>
+<td>HOL no transporte</td>
+<td>(mitigado por múltiplas conexões)</td>
+<td><strong>Sim</strong> (TCP cego às streams)</td>
+<td><strong>Não</strong> (streams independentes no QUIC)</td>
+</tr>
+<tr>
+<td>Compressão de headers</td>
+<td>Não</td>
+<td>HPACK</td>
+<td>QPACK</td>
+</tr>
+<tr>
+<td>Setup (com TLS)</td>
+<td>TCP (1 RTT) + TLS (1-2 RTT)</td>
+<td>TCP (1 RTT) + TLS (1-2 RTT)</td>
+<td><strong>1 RTT combinado (0-RTT em retomada)</strong></td>
+</tr>
+<tr>
+<td>Criptografia</td>
+<td>Opcional (HTTPS)</td>
+<td>Opcional (na prática sempre TLS)</td>
+<td><strong>Obrigatória (TLS 1.3 embutido)</strong></td>
+</tr>
+<tr>
+<td>Connection migration</td>
+<td>Não</td>
+<td>Não</td>
+<td><strong>Sim (Connection ID)</strong></td>
+</tr>
+<tr>
+<td>Workarounds necessários</td>
+<td>sprites, concat, sharding</td>
+<td>nenhum (e os antigos atrapalham)</td>
+<td>nenhum</td>
+</tr>
+</tbody>
+</table>
+<h3 id="glossario-rapido">Glossário rápido<a class="headerlink" href="#glossario-rapido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>HOL blocking (head-of-line):</strong> o primeiro item de uma fila bloqueia os demais; existe na <em>aplicação</em> (HTTP/1.1) e no <em>transporte</em> (TCP, sofrido pelo HTTP/2).</li>
+<li><strong>Multiplexing:</strong> muitas streams concorrentes intercaladas numa única conexão.</li>
+<li><strong>Stream:</strong> uma requisição/resposta lógica independente dentro de uma conexão multiplexada.</li>
+<li><strong>Frame:</strong> unidade binária em que mensagens HTTP/2-3 são divididas (HEADERS, DATA...).</li>
+<li><strong>HPACK / QPACK:</strong> compressão de cabeçalhos (HTTP/2 / HTTP/3).</li>
+<li><strong>QUIC:</strong> transporte sobre UDP com streams independentes, TLS 1.3 embutido e connection migration (RFC 9000).</li>
+<li><strong>0-RTT / 1-RTT:</strong> número de round-trips até poder enviar dados de aplicação.</li>
+<li><strong>Connection ID:</strong> identificador da conexão QUIC, independente de IP:porta (habilita migration).</li>
+<li><strong>Connection coalescing:</strong> reuso de uma conexão HTTP/2-3 para vários hostnames cobertos pelo mesmo certificado.</li>
+<li><strong>Ossificação:</strong> middleboxes que só entendem protocolos antigos, travando a evolução — motivo de QUIC cifrar metadados e usar UDP.</li>
+</ul>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p>O caminho mental mais útil é ver <strong>onde cada versão coloca o multiplexing e onde sobra HOL blocking</strong>:</p>
+<ul>
+<li><strong>HTTP/1.1:</strong> o multiplexing é "falso" — feito abrindo <strong>N conexões TCP</strong> físicas. Dentro de cada conexão, estrito request/response. Uma resposta lenta na conexão bloqueia as próximas <em>dela</em> (HOL na aplicação). Para 100 recursos com 6 conexões, há filas e ociosidade. Setup caro repetido.</li>
+<li><strong>HTTP/2:</strong> o multiplexing é <strong>real e lógico</strong>, em <strong>streams sobre uma conexão TCP</strong>. Os frames de várias streams se intercalam; o servidor pode responder fora de ordem. Some o HOL da aplicação. <strong>Mas</strong>: como tudo trafega num único stream de bytes TCP, e o TCP entrega <em>em ordem</em>, a perda de um único segmento TCP segura <strong>todos</strong> os bytes posteriores — de todas as streams — até a retransmissão. O HOL "subiu" da aplicação para o transporte. Em rede limpa, HTTP/2 voa; em rede com perda, esse HOL machuca.</li>
+<li><strong>HTTP/3:</strong> o multiplexing continua lógico (streams), mas agora o <strong>transporte conhece as streams</strong> (QUIC). Cada stream tem sua própria numeração e controle de perda. Um pacote perdido afeta só a(s) stream(s) cujos dados ele carregava; as demais seguem. O HOL transport-level <strong>desaparece</strong>. Além disso, o handshake é combinado (1-RTT) e a conexão migra entre redes.</li>
+</ul>
+<p>Vale frisar a <strong>estrutura em camadas</strong> dessa evolução (conecta com o modelo OSI/TCP-IP): HTTP é <strong>L7</strong>; ele roda sobre um transporte <strong>L4</strong> (TCP ou QUIC/UDP). O que mudou de HTTP/2 para HTTP/3 não foi a <em>semântica</em> HTTP (métodos, status, headers — idêntica, RFC 9110), mas o <strong>transporte sob ele</strong>. Por isso "HTTP/3" é melhor entendido como "HTTP semântico mapeado sobre QUIC". A maior parte da inovação está no <strong>QUIC</strong> (transporte), não no HTTP em si.</p>
+<p>Um detalhe operacional: HTTP/3 (UDP) é negociado via <strong>Alt-Svc</strong> (o servidor responde via HTTP/2 anunciando "também falo HTTP/3 nesta porta UDP"), e como muitas redes corporativas <strong>bloqueiam ou limitam UDP</strong>, há sempre <strong>fallback gracioso para HTTP/2 sobre TCP</strong>. Essa coexistência (servidor fala /1.1, /2 e /3; cliente escolhe o melhor disponível) é a realidade de produção — não é uma substituição abrupta.</p>
+<h2 id="diagrama-de-fluxo">Diagrama de fluxo<a class="headerlink" href="#diagrama-de-fluxo" title="Permanent link">&para;</a></h2>
+<p>O primeiro diagrama compara o multiplexing das três versões e onde o HOL blocking ocorre; o segundo mostra a economia de RTTs no handshake (TCP+TLS separados vs QUIC combinado).</p>
+<pre class="mermaid"><code>flowchart TB
+    subgraph H1["HTTP/1.1 - uma resposta por vez"]
+        direction LR
+        A1["req A"] --&gt; RA["resp A"] --&gt; B1["req B (espera A)"] --&gt; RB["resp B"]
+    end
+    subgraph H2["HTTP/2 - multiplexing sobre 1 TCP (HOL no TCP)"]
+        direction LR
+        MUX["streams A B C intercaladas"] --&gt; TCP1["1 conexao TCP (ordem unica)"]
+        TCP1 --&gt; LOSS["1 pacote TCP perdido"]
+        LOSS --&gt; BLK["bloqueia TODAS as streams ate retransmitir"]
+    end
+    subgraph H3["HTTP/3 - QUIC sobre UDP (sem HOL no transporte)"]
+        direction LR
+        QMUX["streams A B C independentes"] --&gt; QUIC["QUIC: perda por stream"]
+        QUIC --&gt; LOSS2["pacote da stream A perdido"]
+        LOSS2 --&gt; ONLYA["so a stream A espera; B e C seguem"]
+    end</code></pre>
+<pre class="mermaid"><code>sequenceDiagram
+    participant C as "Cliente"
+    participant S as "Servidor"
+    Note over C,S: HTTP/2 - TCP + TLS em serie (&gt;= 2-3 RTT)
+    C-&gt;&gt;S: "TCP SYN"
+    S-&gt;&gt;C: "TCP SYN-ACK"
+    C-&gt;&gt;S: "TCP ACK (1 RTT gasto)"
+    C-&gt;&gt;S: "TLS ClientHello"
+    S-&gt;&gt;C: "TLS ServerHello + cert"
+    C-&gt;&gt;S: "TLS Finished (mais 1-2 RTT)"
+    C-&gt;&gt;S: "enfim: GET /"
+    Note over C,S: HTTP/3 - QUIC combina transporte + TLS 1.3 (1 RTT)
+    C-&gt;&gt;S: "QUIC Initial (ClientHello embutido)"
+    S-&gt;&gt;C: "QUIC handshake (ServerHello + cert)"
+    C-&gt;&gt;S: "Finished + GET / (1 RTT total; 0-RTT em retomada)"</code></pre>
+<h2 id="exemplo-pratico-caso-real">Exemplo prático / caso real<a class="headerlink" href="#exemplo-pratico-caso-real" title="Permanent link">&para;</a></h2>
+<p>Cenário: a home de uma <strong>loja virtual brasileira</strong> com <strong>120 recursos</strong> (HTML, 4 CSS, 12 JS, 90 imagens de produto, fontes, chamadas de API), acessada por clientes em redes variadas (fibra, 4G, Wi-Fi de shopping lotado).</p>
+<p><strong>HTTP/1.1 — o gargalo das 6 conexões.</strong> Com HTTP/1.1, o navegador abre <strong>6 conexões TCP</strong> por origem e baixa 6 recursos por vez. Os outros 114 ficam <strong>na fila</strong>. Cada conexão paga handshake TCP + TLS e slow start. Resultado: o carregamento é serializado em ondas de 6, e uma imagem grande "segura" sua conexão. Para mitigar, o time da loja historicamente fez <strong>sprites</strong> (juntou 50 ícones numa imagem), <strong>concatenou</strong> os 12 JS num bundle único e fez <strong>domain sharding</strong> (<code>img1.loja.com.br</code>, <code>img2.loja.com.br</code>) para burlar o limite de 6. Funcionava, mas com custos: o bundle único invalidava o cache inteiro a cada mudança de 1 linha, e o sharding multiplicava handshakes.</p>
+<p><strong>HTTP/2 — multiplexing e o fim das gambiarras.</strong> Ao migrar para HTTP/2, a loja serve as 120 requisições <strong>numa única conexão TCP</strong>, multiplexadas. Não há mais fila de 6; tudo flui concorrente. As gambiarras viram contraproducentes: a loja <strong>desfaz o sharding</strong> (uma conexão é melhor que muitas) e <strong>quebra o bundle</strong> em módulos (cache granular volta a valer). Em rede de fibra limpa, o ganho é grande: menos handshakes, melhor uso de banda, headers comprimidos (HPACK). <strong>Mas</strong> no Wi-Fi lotado do shopping (com perda de pacotes), surge o sintoma do <strong>HOL do TCP</strong>: uma perda ocasional <strong>congela momentaneamente o carregamento inteiro</strong> (todas as streams esperam a retransmissão do TCP), porque tudo está na mesma conexão. Em alguns casos, clientes em rede ruim percebem o HTTP/2 como <em>menos</em> fluido que o /1.1 (onde a perda afetava só 1 das 6 conexões).</p>
+<p><strong>HTTP/3 — resiliência em rede móvel e setup mais rápido.</strong> A loja habilita HTTP/3 (QUIC). Agora, no Wi-Fi do shopping, <strong>uma perda numa stream não trava as outras</strong>: a imagem cuja perda ocorreu espera, mas o restante da página continua renderizando — a experiência em rede ruim melhora visivelmente. Além disso, o <strong>handshake de 1-RTT</strong> (vs TCP+TLS em série) reduz o tempo até o primeiro byte, especialmente no 4G de alto RTT — e em visitas repetidas, <strong>0-RTT</strong> manda o <code>GET /</code> no primeiro pacote. O detalhe que encanta o usuário: ao sair do Wi-Fi e cair no 4G no estacionamento, a <strong>conexão QUIC migra</strong> (Connection ID) e o download em andamento <strong>não quebra</strong> — algo impossível no TCP. Como nem toda rede deixa UDP passar, o servidor anuncia HTTP/3 via <strong>Alt-Svc</strong> e mantém <strong>fallback para HTTP/2 sobre TCP</strong> onde o UDP é bloqueado.</p>
+<p>A moral arquitetural: <strong>não há "melhor absoluto", há melhor por contexto de rede</strong>. HTTP/2 é excelente em redes limpas; HTTP/3 brilha em redes com perda e mobilidade (móvel). Servir as três versões com negociação é a postura madura. (Cloudflare e Google reportaram ganhos consistentes de HTTP/3 justamente em conexões móveis e de alta perda.)</p>
+<h2 id="quando-usar-quando-evitar">Quando usar / Quando evitar<a class="headerlink" href="#quando-usar-quando-evitar" title="Permanent link">&para;</a></h2>
+<p><strong>HTTP/1.1:</strong> use como <strong>fallback universal</strong> e para clientes/ferramentas simples (scripts, integrações legadas, proxies antigos). É onipresente e à prova de bala, mas sem multiplexing — evite como protocolo <em>principal</em> para páginas ricas em recursos.</p>
+<p><strong>HTTP/2:</strong> use como <strong>padrão moderno</strong> para a maioria das aplicações web e APIs sobre redes razoavelmente boas (data centers, fibra). Ganho claro de multiplexing e compressão. <strong>Evite confiar nele em cenários de alta perda/mobilidade</strong> sem ter HTTP/3 como complemento — o HOL do TCP penaliza redes ruins. Não reintroduza as gambiarras de /1.1 (sprites, sharding, mega-bundles) — elas atrapalham sob /2.</p>
+<p><strong>HTTP/3:</strong> habilite-o (junto com /2 como fallback) especialmente quando seu público tem forte presença <strong>móvel / redes com perda / alta latência</strong>, onde a eliminação do HOL transport-level e o setup de 1-RTT/0-RTT mais rendem. <strong>Evite tratá-lo como obrigatório/exclusivo</strong>: como roda sobre UDP, <strong>redes corporativas e alguns firewalls bloqueiam</strong>, então sempre mantenha o fallback para /2 sobre TCP. Também avalie o suporte da sua infra (CDN, balanceadores) — HTTP/3 ainda exige stack que o suporte.</p>
+<p>Regra geral: <strong>sirva as três versões com negociação</strong> (TLS ALPN para /1.1 e /2; Alt-Svc para /3). O cliente escolhe; você cobre todos os cenários.</p>
+<h2 id="anti-padroes-e-armadilhas-comuns">Anti-padrões e armadilhas comuns<a class="headerlink" href="#anti-padroes-e-armadilhas-comuns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Manter as gambiarras do HTTP/1.1 sob HTTP/2/3.</strong> Sprites, domain sharding e mega-bundles foram <em>workarounds</em> para a falta de multiplexing. Sob /2 e /3 eles <strong>pioram</strong> (sharding multiplica conexões e mata o connection coalescing; mega-bundle destrói granularidade de cache). Reverta-os ao migrar.</li>
+<li><strong>Achar que HTTP/2 elimina todo HOL blocking.</strong> Ele elimina o HOL da <em>aplicação</em>, mas <strong>expõe o HOL do TCP</strong>: uma perda de pacote bloqueia todas as streams. Esquecer isso leva a surpresas negativas em redes móveis/com perda. É exatamente o que o HTTP/3 resolve.</li>
+<li><strong>Adotar HTTP/3 sem fallback.</strong> UDP é bloqueado/limitado em muitas redes; HTTP/3 sem fallback gracioso para HTTP/2 sobre TCP deixa parte dos usuários sem acesso. Use Alt-Svc + fallback.</li>
+<li><strong>Confundir "HTTP/3" com "um HTTP novo".</strong> A semântica HTTP (métodos, status, headers — RFC 9110) é a <em>mesma</em> nas três versões. A mudança de /2 para /3 é <strong>o transporte</strong> (TCP → QUIC/UDP), não o HTTP. A inovação mora no QUIC.</li>
+<li><strong>Esperar ganhos de HTTP/3 em rede perfeita.</strong> Em rede limpa de data center (perda ~0), o HOL do TCP raramente dispara, e HTTP/2 já é ótimo — o ganho do /3 ali é marginal. Os ganhos do /3 aparecem em <strong>perda/mobilidade/alto RTT</strong>. Não prometa milagres em LAN.</li>
+<li><strong>Abrir muitas conexões HTTP/2.</strong> Abrir várias conexões /2 "para paralelizar mais" anula o benefício (cada uma com slow start próprio, mais handshakes) e quebra a priorização. Uma conexão multiplexada é o desenho correto.</li>
+<li><strong>Ignorar a ossificação / middleboxes.</strong> Firewalls e proxies que só entendem protocolos antigos quebram QUIC (UDP) e até HTTP/2 em alguns casos. É um motivo real para QUIC cifrar metadados e para sempre testar em redes reais, não só em laboratório.</li>
+<li><strong>Desligar TLS achando que ganha performance.</strong> HTTP/2 na prática só roda sobre TLS (navegadores exigem), e HTTP/3 <strong>exige</strong> TLS 1.3 embutido. "HTTP/2 em texto claro" não é uma opção viável na web. (Ver HTTPS/TLS.)</li>
+<li><strong>Não medir com percentis em redes reais.</strong> O benefício do /3 está justamente na <strong>cauda</strong> (p95/p99) em redes ruins. Medir só a média em rede boa esconde o ganho. (Ver latência/percentis.)</li>
+</ul>
+<h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Modelo OSI e TCP/IP:</strong> HTTP é L7; a mudança de /2 para /3 é uma troca do transporte L4 (TCP → QUIC/UDP) mantendo a semântica L7. Ver <code>16-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md</code>.</li>
+<li><strong>TCP vs UDP:</strong> o HOL blocking do TCP (entrega ordenada) é a razão de existir do QUIC/HTTP3; QUIC roda sobre UDP para ter streams independentes e evoluir fora do kernel. Ver <code>16-redes-e-protocolos/02-tcp-vs-udp.md</code>.</li>
+<li><strong>HTTPS/TLS:</strong> QUIC embute TLS 1.3 e combina os handshakes (1-RTT/0-RTT); entender o handshake TLS é pré-requisito para entender o ganho de setup do HTTP/3. Ver <code>16-redes-e-protocolos/04-https-tls-handshake-e-certificados.md</code>.</li>
+<li><strong>DNS:</strong> resolução de nomes precede qualquer conexão HTTP; HTTP/3 também depende de descobrir que o servidor fala /3 (Alt-Svc, e há registros HTTPS/SVCB no DNS). Ver <code>16-redes-e-protocolos/05-dns-resolution.md</code>.</li>
+<li><strong>Caching em múltiplas camadas:</strong> a granularidade de cache (por que mega-bundles são ruins sob /2) e CDNs (que terminam HTTP/2/3 na borda) conectam diretamente. Ver <code>07-performance-e-escalabilidade/04-caching-em-multiplas-camadas.md</code>.</li>
+<li><strong>Latência vs throughput e percentis:</strong> os ganhos de /2 e /3 são primariamente de <strong>latência</strong> (não banda) e aparecem na cauda (p95/p99) em redes ruins. Ver <code>07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis.md</code>.</li>
+<li><strong>Load balancing (L7):</strong> balanceadores/CDNs terminam HTTP/2 e /3 na borda e fazem fallback entre versões; a distinção L4/L7 é essencial aqui. Ver <code>04-sistemas-distribuidos/07-service-discovery-e-load-balancing.md</code>.</li>
+</ul>
+<h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
+<p>Três ideias para carregar:</p>
+<ol>
+<li><strong>A evolução do HTTP é a perseguição ao head-of-line blocking, camada por camada.</strong> /1.1 sofre HOL na <em>aplicação</em> (uma resposta por vez); /2 resolve com multiplexing mas herda o HOL do <em>TCP</em> (uma perda trava todas as streams); /3 elimina o HOL no <em>transporte</em> trocando TCP por QUIC (streams independentes). Saber <em>onde</em> o HOL mora em cada versão é o cerne do tópico.</li>
+<li><strong>Multiplexing (HTTP/2) e QUIC (HTTP/3) são os dois conceitos-chave.</strong> Multiplexing = muitas streams numa conexão (acaba com as gambiarras do /1.1). QUIC = transporte sobre UDP com streams independentes, TLS 1.3 embutido (1-RTT/0-RTT) e connection migration. A semântica HTTP não muda; o transporte sob ela, sim.</li>
+<li><strong>Não há "melhor absoluto" — há melhor por contexto de rede.</strong> /2 brilha em redes limpas; /3 brilha em perda/mobilidade/alto RTT (móvel). A postura madura é servir as três versões com negociação e fallback (Alt-Svc, ALPN), medindo o ganho real na <strong>cauda</strong> (p99) em redes reais, não a média em LAN.</li>
+</ol>
+<h2 id="pontos-para-fixar-revisao">Pontos para fixar (revisão)<a class="headerlink" href="#pontos-para-fixar-revisao" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>HTTP/1.1:</strong> texto, 1 resposta por vez por conexão (HOL na aplicação), paralelismo via ~6 conexões TCP; pipelining fracassou.</li>
+<li><strong>HTTP/2:</strong> binário, <strong>multiplexing</strong> de streams numa conexão TCP, HPACK; elimina HOL da aplicação mas <strong>sofre HOL do TCP</strong> (1 perda trava todas as streams).</li>
+<li><strong>HTTP/3:</strong> semântica HTTP sobre <strong>QUIC sobre UDP</strong>; streams <strong>independentes</strong> (sem HOL no transporte), TLS 1.3 embutido, handshake <strong>1-RTT (0-RTT em retomada)</strong>, <strong>connection migration</strong>, QPACK.</li>
+<li>A inovação de /2→/3 está no <strong>transporte</strong> (TCP→QUIC); a semântica HTTP (RFC 9110) é a mesma nas três versões.</li>
+<li><strong>Gambiarras</strong> do /1.1 (sprites, concat, domain sharding) <strong>atrapalham</strong> sob /2 e /3 — reverta-as.</li>
+<li>QUIC roda sobre <strong>UDP</strong> para evoluir fora do kernel e atravessar middleboxes; por isso HTTP/3 precisa de <strong>fallback para /2 sobre TCP</strong> (UDP é bloqueado em muitas redes).</li>
+<li>Ganhos de /3 aparecem em <strong>perda/mobilidade/alto RTT</strong> (móvel) e na <strong>cauda</strong> (p99), não em LAN limpa.</li>
+<li>Sirva as três versões com <strong>negociação</strong> (ALPN para /1.1+/2, Alt-Svc para /3); o cliente escolhe.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc9114">RFC 9114 — HTTP/3</a></li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc9113">RFC 9113 — HTTP/2</a></li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc9110">RFC 9110 — HTTP Semantics (semântica comum às três versões)</a></li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc9000">RFC 9000 — QUIC: A UDP-Based Multiplexed and Secure Transport</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Connection_management_in_HTTP_1.x">Connection management in HTTP/1.x — MDN Web Docs</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Evolution_of_HTTP">Evolution of HTTP — MDN Web Docs</a></li>
+<li><a href="https://www.cloudflare.com/learning/performance/what-is-http3/">What is HTTP/3? — Cloudflare Learning Center</a></li>
+<li><a href="https://hpbn.co/http2/">HTTP/2 — High Performance Browser Networking (Ilya Grigorik)</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../02-tcp-vs-udp/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: TCP vs UDP">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                TCP vs UDP
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../04-https-tls-handshake-e-certificados/" class="md-footer__link md-footer__link--next" aria-label="Próximo: HTTPS, TLS handshake e certificados">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                HTTPS, TLS handshake e certificados
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.indexes", "navigation.footer", "navigation.prune", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

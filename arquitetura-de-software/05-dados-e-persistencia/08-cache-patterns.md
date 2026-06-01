@@ -1,55 +1,69 @@
-# Cache Patterns: Cache-Aside, Write-Through, Write-Behind, Refresh-Ahead
+# Cache: padrões e camadas (cache-aside, write-through, write-behind, refresh-ahead, CDN→edge→app→banco)
 
-> **Bloco:** Dados e persistência · **Nível:** Intermediário/Avançado · **Tempo de leitura:** ~23 min
+> **Bloco:** Dados e persistência · **Nível:** Intermediário/Avançado · **Tempo de leitura:** ~30 min
 
 ## TL;DR
 
-Caching troca **consistência por latência e throughput**: você guarda uma cópia de dados caros de obter num store rápido (memória, Redis) e aceita que essa cópia pode ficar desatualizada. Os quatro padrões fundamentais diferem em *quem* lê/escreve no cache e na origem, e *quando*: **Cache-Aside** (lazy loading) — a aplicação gerencia o cache, carregando sob demanda no miss; **Write-Through** — toda escrita passa pelo cache que sincronamente grava na origem (cache sempre fresco, escrita mais lenta); **Write-Behind/Write-Back** — escreve no cache e persiste na origem de forma *assíncrona* (escrita rápida, risco de perda); **Refresh-Ahead** — recarrega proativamente entradas quentes *antes* de expirarem (esconde latência de reload, gasta recursos). A taxonomia clássica vem da documentação do Oracle Coherence. As armadilhas mais perigosas são **invalidação incorreta** e **cache stampede**.
+Caching guarda uma cópia de dados caros de obter num store rápido para reaproveitá-la, trocando **frescor (consistência) por latência, throughput e custo**. Há duas dimensões para dominar. A primeira é **quais padrões** governam leitura/escrita entre aplicação, cache e origem: **Cache-Aside** (lazy loading, a aplicação gerencia o cache), **Read-Through** (o cache carrega da origem no miss), **Write-Through** (escrita síncrona cache→origem, sempre coerente, mais lenta), **Write-Behind/Write-Back** (escrita assíncrona, rápida mas com risco de perda) e **Refresh-Ahead** (recarrega entradas quentes antes de expirarem). A segunda é que, em arquitetura web séria, cache não é uma coisa e sim uma **hierarquia de camadas**: **navegador → CDN → edge/reverse proxy → cache de aplicação (L1 in-process + L2 distribuído) → buffer pool do banco**. Quanto mais alto o hit, menor a latência e a carga nas camadas abaixo. As armadilhas que derrubam sistemas em pico são **invalidação incorreta**, **cache stampede** (thundering herd), **hot keys** e **cache penetration** — combatidas com **TTL + jitter**, **single-flight**, **stale-while-revalidate** e **soft TTL / hard TTL** (Amazon Builders' Library). Como diz o adágio de Phil Karlton: "as duas coisas difíceis em CS são invalidação de cache e nomear coisas".
 
 ## O problema que resolve
 
-Acessar a fonte de verdade (banco relacional, serviço remoto) é caro: latência de disco/rede, CPU de queries complexas, carga sobre um recurso de escala limitada. Em cargas read-heavy — a maioria — o mesmo dado é lido muitas vezes. Recomputar/rebuscar tudo a cada leitura é desperdício.
+Acessar a fonte de verdade (banco relacional, serviço remoto, cálculo de preço, render de página, round-trip ao outro lado do continente) é caro: latência de disco/rede, CPU de queries complexas, carga sobre um recurso de escala limitada. Em cargas **read-heavy** — a maioria — o mesmo dado é lido muitas vezes; recomputar tudo a cada leitura é desperdício que domina tanto a latência percebida quanto o custo de infraestrutura.
 
-**Cache** resolve guardando uma cópia em um store rápido e próximo (memória local, Redis, Memcached) para servir leituras subsequentes sem tocar a origem. Os ganhos: **latência menor** (memória vs. disco/rede), **throughput maior** e **menos carga sobre a origem** (protege o banco de saturar). A Microsoft observa que o caching funciona melhor para dados relativamente estáticos ou lidos com frequência.
+**Cache** ataca os dois ao mesmo tempo: serve o resultado já pronto, mais perto de quem pede. Os ganhos: **latência menor** (memória vs. disco/rede), **throughput maior** e **menos carga sobre a origem** (protege o banco de saturar). A Microsoft observa que caching funciona melhor para dados relativamente estáticos ou lidos com frequência.
 
-O custo fundamental: o dado no cache é uma **cópia** que pode divergir da origem. Toda a engenharia de caching gira em torno de **quando e como manter cache e origem coerentes** — políticas de expiração (TTL), invalidação, e os padrões de leitura/escrita abaixo. Como diz o adágio: "há duas coisas difíceis em CS — invalidação de cache e nomear coisas".
+O custo fundamental: o dado no cache é uma **cópia** que pode divergir da origem. Toda a engenharia de caching gira em torno de **quando e como manter cache e origem coerentes**. A frase de **Phil Karlton**, popularizada por **Martin Fowler** ("There are only two hard things in Computer Science: cache invalidation and naming things"), não é gratuita: **invalidação** é difícil porque você precisa saber *quando* o dado em cache deixou de ser válido, e essa informação muitas vezes mora em outro sistema, em outro momento, sob concorrência. Servir dado velho vai de inofensivo (um contador de likes atrasado) a catastrófico (um saldo errado, um preço desatualizado no checkout).
 
-A taxonomia canônica desses padrões aparece na documentação do **Oracle Coherence** ([Read-Through, Write-Through, Write-Behind and Refresh-Ahead Caching](https://docs.oracle.com/cd/E16459_01/coh.350/e14510/readthrough.htm)), e os mesmos conceitos estão no [Azure Architecture Center](https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside).
+A motivação para **múltiplas camadas** é que cada uma resolve um sub-problema: a CDN tira da origem o tráfego de assets e conteúdo cacheável geograficamente; o cache de aplicação evita recomputar lógica cara; o buffer pool do banco evita ir ao disco. A taxonomia canônica dos padrões aparece na documentação do **Oracle Coherence**, e os mesmos conceitos estão no **Azure Architecture Center**; os padrões operacionais de resiliência (soft/hard TTL, backpressure) estão na **Amazon Builders' Library**.
 
 ## O que é (definição aprofundada)
 
-### Cache-Aside (Lazy Loading)
+### Os padrões de leitura/escrita
 
-A **aplicação** é responsável por gerenciar o cache; o cache não conhece a origem. Fluxo de leitura: tenta ler do cache; se **hit**, retorna; se **miss**, lê da origem, **popula o cache** e retorna. Escrita: a aplicação escreve na origem e **invalida** (ou atualiza) a entrada do cache. É o padrão mais comum e flexível. Carregamento **lazy** — só entra no cache o que é efetivamente requisitado. Resiliente: se o cache cair, a aplicação ainda funciona indo direto à origem (com mais latência).
+**Cache-Aside (Lazy Loading).** A **aplicação** gerencia o cache; o cache não conhece a origem. Leitura: tenta o cache; **hit** retorna; **miss** lê da origem, **popula** o cache e retorna. Escrita: escreve na origem e **invalida** (ou atualiza) a entrada. É o padrão mais comum e flexível, e resiliente — se o cache cai, a aplicação ainda funciona indo à origem (com mais latência).
 
-### Read-Through
+**Read-Through.** Variante onde o **cache** (não a aplicação) sabe carregar da origem no miss, via um *cache loader*. A aplicação só fala com o cache, que busca na origem transparentemente.
 
-Variante onde o **cache** (e não a aplicação) sabe carregar da origem no miss, via um *cache loader*. A aplicação só fala com o cache; o cache busca na origem transparentemente. Conceptualmente parente do cache-aside, mas com a responsabilidade de load delegada ao cache.
+**Write-Through.** Toda escrita passa pelo cache, que a propaga **sincronamente** à origem antes de confirmar. Cache e origem ficam sempre coerentes; o custo é latência de escrita maior. Bom quando a consistência do cache importa e há leituras logo após escritas.
 
-### Write-Through
+**Write-Behind (Write-Back).** Escreve no cache e confirma **imediatamente**; persiste na origem de forma **assíncrona** (em lote/coalescido). Entrega throughput muito maior e menor latência, e reduz carga no banco — ao preço de **risco de perda** num crash antes de persistir e de uma janela de origem desatualizada.
 
-Toda **escrita** passa pelo cache, que a propaga **sincronamente** para a origem *antes* de confirmar. Cache e origem ficam sempre coerentes na escrita (o cache nunca tem dado mais novo que a origem). Custo: a latência de escrita inclui a gravação na origem — escrita mais lenta. Bom quando a consistência do cache importa e leituras logo após escrita são frequentes.
+**Refresh-Ahead.** O cache **recarrega proativa e assincronamente** entradas recentemente acessadas *antes* de expirarem. Útil para itens quentes acessados por muitos usuários: o valor permanece fresco e evita-se o stampede que ocorreria quando uma entrada quente expira e todos batem na origem. Custo: recarrega itens que talvez não fossem mais necessários.
 
-### Write-Behind (Write-Back)
+### A hierarquia de camadas
 
-Escreve no cache e confirma **imediatamente**; a persistência na origem acontece de forma **assíncrona** (em lote, com algum atraso). A documentação do Coherence destaca que write-behind pode entregar throughput consideravelmente maior e latência menor que write-through, além de **reduzir a carga no banco** (menos escritas, agrupadas/coalescidas). O preço: **risco de perda de dados** se o cache cair antes de persistir, e uma janela em que origem está desatualizada em relação ao cache.
+Uma **camada de cache** é definida por: o que guarda, por quanto tempo (TTL), como é invalidada e onde fica (proximidade do cliente). Da mais próxima do usuário à mais profunda:
 
-### Refresh-Ahead
+**1. Cache de navegador (client-side).** Controlado por headers HTTP: `Cache-Control` (`max-age`, `s-maxage`, `no-store`, `private/public`), `ETag` + `If-None-Match` (validação condicional, 304), `Last-Modified`. Hit aqui = zero round-trip. Ideal para assets versionados (`app.a1b2c3.js`).
 
-O cache **recarrega proativa e assincronamente** entradas recentemente acessadas *antes* de elas expirarem. Conforme o Coherence, é especialmente útil quando objetos são acessados por muitos usuários: o valor permanece fresco no cache e evita-se a latência (e o stampede) que ocorreria quando uma entrada quente expira e todos batem na origem ao mesmo tempo. Custo: recarrega entradas que talvez não fossem mais necessárias, gastando recursos.
+**2. CDN.** Cloudflare, Fastly, CloudFront, Akamai. Réplicas geograficamente distribuídas (PoPs) que cacheiam conteúdo perto do usuário. Invalidação por **purge** (URL ou **tag/surrogate key**), **stale-while-revalidate** e **stale-if-error**. Reduzem latência geográfica e protegem a origem.
+
+**3. Edge / reverse proxy.** NGINX, Varnish, Envoy. Cache HTTP de página/fragmento, ESI, terminação TLS. Amortecedor entre internet e aplicação; também isola de falhas (serve stale se a origem cai).
+
+**4. Cache de aplicação.** Dois sub-tipos, frequentemente combinados como **near-cache**: **L1 in-process** (Caffeine, Guava) — latência de nanossegundos, zero rede, mas não compartilhado e duplica memória; **L2 distribuído** (Redis, Memcached) — compartilhado entre nós, latência sub-ms a poucos ms, escala por sharding.
+
+**5. Cache do banco.** O **buffer pool / page cache** (InnoDB buffer pool, `shared_buffers` do Postgres) mantém páginas quentes em RAM, evitando IO de disco; mais o **plan cache**. É a camada mais profunda — e dimensioná-la bem é caching.
+
+**Métricas-chave:** **hit rate**, **miss rate**, latência por camada, taxa de evicção e efeito sobre a carga da origem.
 
 ## Como funciona
 
-A diferença prática entre os padrões está no caminho de cada operação:
+Numa pilha bem montada, a requisição desce camada a camada: o navegador checa seu cache (304/hit → fim); miss → CDN (hit → serve em dezenas de ms); miss → edge/reverse proxy; miss → L1 in-process; miss → L2 distribuído (Redis); miss → executa lógica/query, com o banco servindo do buffer pool (RAM) ou, em último caso, do disco. No caminho de volta, cada camada **popula** seu cache. Cada hit numa camada superior *absorve* carga de todas as inferiores — por isso a pilha é multiplicativa: 90% de hit na CDN + 90% nos 10% restantes no Redis significa que só ~1% chega ao banco.
 
-- **Cache-Aside (leitura)**: `valor = cache.get(k)`; se nulo → `valor = db.get(k)`; `cache.set(k, valor, ttl)`; retorna. (Lógica vive na aplicação.)
-- **Write-Through (escrita)**: `cache.set(k, v)` → o cache, sincronamente, `db.write(k, v)` → confirma só depois.
-- **Write-Behind (escrita)**: `cache.set(k, v)` → confirma já; uma fila/buffer agenda `db.write` em lote depois.
-- **Refresh-Ahead**: ao acessar uma entrada cujo TTL está próximo de expirar (dentro de um fator configurável), o cache dispara um reload assíncrono em background, servindo o valor atual enquanto atualiza.
+Os **padrões de escrita** definem o caminho de cada operação:
 
-Read-through/write-through (e variantes) tipicamente operam com topologia de cache distribuído/particionado (no Coherence, Partitioned/Near cache). Combinações são comuns: **read-through + write-behind**, ou **cache-aside + refresh-ahead** para entradas quentes.
+- **Cache-Aside (leitura):** `v = cache.get(k)`; se nulo → `v = db.get(k)`; `cache.set(k, v, ttl)`; retorna.
+- **Write-Through:** `cache.set(k, v)` → o cache grava `db.write(k, v)` síncrono → confirma depois.
+- **Write-Behind:** `cache.set(k, v)` → confirma já; fila/buffer agenda `db.write` em lote.
+- **Refresh-Ahead:** ao acessar entrada com TTL próximo de expirar, dispara reload assíncrono servindo o valor atual.
+
+**Invalidação e consistência** — três estratégias coexistem: **expiração por TTL** (simples, eventual); **invalidação ativa** (no write da origem, purge/delete das chaves/tags afetadas — mais forte, mas exige rastrear *quais* chaves mudaram); **validação condicional** (ETag/Last-Modified, revalida barato com 304).
+
+**Soft TTL / Hard TTL (Amazon Builders' Library).** Mantenha dois TTLs por item: o **soft TTL** (curto) marca quando *deveria* ser refrescado; o **hard TTL** (longo) marca quando *não pode mais* ser usado. Após o soft TTL, serve o valor atual e dispara refresh assíncrono; se a origem está indisponível ou sinaliza **backpressure**, continua servindo o cacheado até o hard TTL — o cache vira amortecedor de resiliência durante *brownouts*, em vez de despejar toda a carga na origem no instante da expiração.
 
 ## Diagrama de fluxo
+
+Padrões de leitura/escrita:
 
 ```mermaid
 flowchart TD
@@ -66,51 +80,83 @@ flowchart TD
     AsyncDB --> Ok
 ```
 
-## Exemplo prático / caso real
+Hierarquia de camadas:
 
-**E-commerce brasileiro** usando **Redis** como cache e **PostgreSQL** como origem.
-
-- **Cache-Aside para página de produto** (leitura intensa, muda pouco): ao abrir um produto, a aplicação tenta o Redis; no miss, busca no PostgreSQL, popula o Redis com TTL de 5 min, retorna. Quando o vendedor edita o produto, a aplicação **invalida** a chave no Redis (`DEL produto:123`). Resiliente: se o Redis cair, o site fica mais lento mas funciona.
-
-```text
-GET produto:123 no Redis
-  hit  -> retorna
-  miss -> SELECT no PostgreSQL -> SET produto:123 (ttl 300s) -> retorna
-edicao do produto -> UPDATE no PostgreSQL -> DEL produto:123
+```mermaid
+flowchart TB
+    U["Usuario / Navegador (cache local, ETag)"] --> CDN["CDN - PoP geografico"]
+    CDN --> EDGE["Edge / Reverse Proxy - Varnish/NGINX/Envoy"]
+    EDGE --> L1["Cache L1 in-process - Caffeine (ns)"]
+    L1 --> L2["Cache L2 distribuido - Redis/Memcached (sub-ms)"]
+    L2 --> DB["Banco - buffer pool / page cache (RAM)"]
+    DB --> DISK["Disco (IO caro)"]
 ```
 
-- **Write-Through para o saldo de pontos de fidelidade** (precisa estar coerente no cache, lido logo após mudar): toda atualização de pontos grava no Redis *e* sincronamente no PostgreSQL. Leituras subsequentes do saldo vêm do cache já correto.
+Combate ao stampede:
 
-- **Write-Behind para contador de visualizações de produto** ("X pessoas viram isto"): incrementos vão para o Redis e são persistidos no PostgreSQL em lote a cada 30s. Aceita-se perder alguns incrementos num crash (não é crítico) em troca de throughput altíssimo e proteção do banco contra milhões de UPDATEs.
+```mermaid
+flowchart LR
+    EXP["Chave quente expira"] --> HERD{"Stampede / thundering herd?"}
+    HERD -->|"Sem protecao"| BAD["Milhares de miss simultaneos -> recomputam o mesmo valor -> origem cai"]
+    HERD -->|"single-flight"| OK1["1 recomputa, demais esperam/servem stale"]
+    HERD -->|"stale-while-revalidate"| OK2["serve valor velho + refresh em background"]
+    HERD -->|"jitter no TTL"| OK3["expiracoes dessincronizadas"]
+    HERD -->|"soft/hard TTL"| OK4["serve stale ate hard TTL se origem indisponivel"]
+```
 
-- **Refresh-Ahead para o catálogo da home / produtos em destaque** (entradas quentes, acessadas por todos): o cache recarrega esses itens antes do TTL expirar, evitando que, no instante da expiração, milhares de requests simultâneos batam no PostgreSQL ao mesmo tempo (stampede) na Black Friday.
+## Exemplo prático / caso real
+
+**Marketplace brasileiro, página de produto (PDP) na Black Friday.** Sem cache, cada visualização dispara ~12 queries (produto, preço, estoque, avaliações, recomendações, frete). Pico projetado: **40.000 page views/segundo** → 480.000 queries/s no banco, inviável. A solução é a pilha combinada com os padrões certos:
+
+- **CDN (Fastly) — cache-aside na borda.** HTML semi-estático da PDP e assets versionados cacheados nos PoPs com `Cache-Control: s-maxage=60, stale-while-revalidate=300`. Surrogate keys por `product_id` permitem **purge cirúrgico** quando o produto muda. Hit-rate ~85% — a origem recebe ~6.000 req/s, não 40.000.
+- **L2 (Redis) + L1 (Caffeine) — cache-aside com TTL curto.** Fragmentos dinâmicos (preço, estoque) ficam no Redis com **TTL curto + jitter** (5 s ± 1 s, para evitar expiração sincronizada de milhões de chaves). Dados de catálogo quase imutáveis (nome, descrição) ficam também no Caffeine in-process (TTL de minutos), eliminando ida ao Redis na maioria dos hits.
+- **Write-Through para o saldo de pontos de fidelidade** (precisa coerente, lido logo após mudar) e **Write-Behind para o contador de visualizações** ("X pessoas viram isto") — incrementos vão ao Redis e são persistidos em lote a cada 30 s; aceita-se perder alguns num crash em troca de throughput e proteção do banco.
+- **Refresh-Ahead + single-flight para o preço dos itens em destaque** (caro de calcular: promoção, cupom, frete). Quando uma SKU quente expira às 20h00 sob 40k views/s, sem proteção haveria stampede. Aplicam **single-flight** (lock por chave no Redis: só uma thread recalcula, as demais servem o valor anterior) + **soft TTL/hard TTL** (soft 5 s, hard 60 s): se o serviço de precificação dá brownout e sinaliza backpressure, a PDP serve o último preço válido até 60 s em vez de martelar o serviço caído.
+- **Banco.** As ~1.000 queries/s que escapam batem no Postgres com `shared_buffers` dimensionado para manter o working set em RAM, mais réplicas de leitura. Hit no buffer pool > 99%.
+
+```text
+# Pseudocódigo: cache-aside com single-flight + soft/hard TTL
+get(key):
+  v = cache.get(key)
+  if v and now < v.soft_ttl: return v.value                 # fresco
+  if v and now < v.hard_ttl:                                # stale aceitável
+      async refresh_with_singleflight(key)                  # refresca em background
+      return v.value
+  return blocking_refresh_with_singleflight(key)            # miss real, 1 recomputa
+```
+
+**Resultado:** a origem nunca passou de 7.000 req/s e o banco de ~1.100 queries/s — três ordens de grandeza abaixo dos 480k crus; p99 da PDP em 140 ms. Lição registrada num teste anterior: **sem jitter, milhões de chaves expiraram no mesmo segundo e a origem caiu** — jitter de TTL e single-flight foram o que evitaram o colapso.
 
 ## Quando usar / Quando evitar
 
-- **Cache-Aside**: default para a maioria dos cenários de leitura. Use quando o padrão de acesso é imprevisível e você quer só cachear o que é pedido. Cuidado com a janela entre escrita na origem e invalidação do cache (leituras stale).
-- **Write-Through**: use quando o cache precisa estar sempre coerente e há leituras frequentes logo após escritas. Evite quando a latência de escrita é crítica e a origem é lenta.
-- **Write-Behind**: use para escrita de altíssimo volume tolerante a pequena perda/atraso (contadores, métricas, logs). **Evite** para dados que não podem ser perdidos (financeiro, pedidos) — o risco de perda num crash é real.
-- **Refresh-Ahead**: use para um conjunto pequeno e identificável de entradas quentes muito acessadas. Evite aplicar a tudo — recarregar proativamente dados frios desperdiça recursos.
-- **Não cacheie** dados que mudam a cada leitura, dados altamente personalizados de baixo reuso, ou onde a consistência forte é inegociável e o stale é inaceitável.
+**Use caching quando:** a leitura é cara e **read-heavy**; os dados toleram alguma **staleness** (TTL) ou há invalidação confiável; há **localidade** (mesmas chaves repetidas); você precisa proteger a origem de picos e isolar de falhas (reverse proxy + stale-if-error).
+
+**Por padrão:** **Cache-Aside** para a maioria dos cenários. **Write-Through** quando o cache precisa estar sempre coerente com leituras logo após escrita. **Write-Behind** para escrita de altíssimo volume tolerante a perda/atraso (contadores, métricas). **Refresh-Ahead** para um conjunto pequeno e identificável de entradas quentes.
+
+**Evite ou tenha cautela quando:** os dados exigem **consistência forte e imediata** e servir stale é caro (saldos, confirmação final de estoque — ali se valida na fonte); o **hit-rate seria baixo** (cardinalidade altíssima, chaves únicas); **escritas dominam** (invalidação constante anula o ganho); o custo de uma invalidação errada excede o ganho. **Nunca** use write-behind para dados que não podem ser perdidos (financeiro, pedidos).
 
 ## Anti-padrões e armadilhas comuns
 
-- **Cache stampede (thundering herd)**: uma entrada quente expira e milhares de requests sofrem miss simultâneo, todos batendo na origem ao mesmo tempo, derrubando o banco. Mitigações: **refresh-ahead**, **lock/single-flight** (só um request recarrega, os outros esperam), TTL com jitter (variar o TTL para não expirarem todos juntos), e *probabilistic early expiration*.
-- **Invalidação incorreta / dados stale**: esquecer de invalidar o cache numa escrita deixa dado velho servindo indefinidamente. O bug mais comum e insidioso de caching.
-- **Dual-write inconsistente (cache + DB)**: escrever no cache e no DB sem ordem/atomicidade clara leva a divergência sob falha. Em cache-aside, prefira **invalidar** (não atualizar) o cache após escrever na origem, para evitar gravar valor errado por race condition.
-- **TTL eterno ou ausente**: sem expiração e sem invalidação confiável, o cache acumula lixo desatualizado.
-- **Write-behind para dados críticos**: usar write-back para pedidos/pagamentos e perder dados num crash do cache. Inaceitável.
-- **Cachear tudo indiscriminadamente**: cache de dados de baixo reuso só adiciona latência (miss sempre) e custo de memória.
-- **Ignorar a queda do cache**: se a aplicação trava quando o Redis cai (em vez de cair para a origem), o cache virou ponto único de falha. Cache-aside é resiliente; desenhe para degradar, não falhar.
-- **No-caching antipattern**: o oposto — recomputar tudo sempre, saturando a origem em cargas read-heavy onde caching seria trivial.
+- **Cache stampede / thundering herd.** Chave quente expira e milhares de requests recomputam o mesmo valor, derrubando a origem. Use single-flight, stale-while-revalidate, jitter no TTL e soft/hard TTL.
+- **Expiração sincronizada.** Popular muitas chaves com o mesmo TTL faz todas expirarem juntas → stampede em massa. Adicione jitter.
+- **Hot key.** Uma única chave (produto mais vendido) satura um shard do Redis. Replique a hot key, use L1 in-process na frente, ou shard por sufixo.
+- **Cache penetration.** Requests por chaves inexistentes (IDs inválidos, ataque) sempre dão miss e batem na origem. Cacheie negativos (null) com TTL curto ou use **Bloom filter**.
+- **Invalidação esquecida / dado eterno velho.** Esquecer de invalidar ao escrever → dado obsoleto servindo indefinidamente. É o bug de cache mais comum e insidioso. Mapeie escrita → chaves/tags afetadas.
+- **Dual-write inconsistente (cache + DB).** Em cache-aside, prefira **invalidar** (não atualizar) o cache após escrever na origem, para evitar gravar valor errado por race condition.
+- **Cachear dado sensível na camada errada.** `Cache-Control: public` num response com dados pessoais → CDN/proxy serve dado de um usuário para outro. Use `private`/`no-store` para conteúdo per-user.
+- **Cache como SPOF.** Aplicação que trava se o Redis cai. Tenha fallback (servir da origem, circuit breaker); não dependa do cache para *correção*, só para *performance*.
+- **Confiar em hit-rate sem olhar a cauda.** 95% de hit pode esconder que os 5% de miss são justamente as requisições caras que dominam o p99.
 
 ## Relação com outros conceitos
 
-- **Read Replicas / Sharding**: caching reduz a pressão de leitura, frequentemente adiando a necessidade de réplicas ou sharding. Ver `03-read-replicas-sharding-particionamento.md`.
-- **CQRS / Materialized Views**: read models materializados são, conceitualmente, um cache pré-computado e persistido alimentado por eventos. Ver `04-materialized-views-e-projecoes.md`.
-- **ACID vs BASE**: cache introduz consistência eventual por natureza (a cópia diverge da origem). Ver `09-acid-vs-base.md`.
-- **CDC**: pode invalidar/atualizar caches de forma confiável ao reagir a mudanças do banco fonte. Ver `05-cdc-change-data-capture-debezium.md`.
-- **Polyglot Persistence**: Redis como store de cache/sessão é um caso clássico de persistência poliglota. Ver `01-polyglot-persistence.md`.
+- **Read Replicas / Sharding:** caching reduz a pressão de leitura, adiando réplicas/sharding. Ver `03-read-replicas-sharding-particionamento.md`.
+- **CQRS / Materialized Views:** read models materializados são, conceitualmente, um cache pré-computado e persistido alimentado por eventos. Ver `04-materialized-views-e-projecoes.md`.
+- **ACID vs BASE:** cache introduz consistência eventual por natureza. Ver `09-acid-vs-base.md`.
+- **CDC:** pode invalidar/atualizar caches de forma confiável ao reagir a mudanças do banco fonte. Ver `05-cdc-change-data-capture-debezium.md`.
+- **Polyglot Persistence:** Redis como store de cache/sessão é caso clássico de persistência poliglota. Ver `01-polyglot-persistence.md`.
+- **Latência e percentis:** cache derruba o p50, mas miss/stampede inflam o p99/p999 — cuidado com a cauda. Ver `../07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis.md`.
+- **Padrões de resiliência:** soft/hard TTL, stale-if-error e backpressure conectam cache à resiliência; retries cegos a uma origem em brownout amplificam o stampede. Ver `../04-sistemas-distribuidos/10-padroes-de-resiliencia.md`.
+- **Bloom filter:** estrutura ideal para barrar cache penetration. Ver `../12-estruturas-de-dados/09-skip-list-bloom-filter-lru-lfu.md`.
 
 ## Referências
 
@@ -118,5 +164,7 @@ edicao do produto -> UPDATE no PostgreSQL -> DEL produto:123
 - [Caching guidance — Azure Architecture Center (Microsoft Learn)](https://learn.microsoft.com/en-us/azure/architecture/best-practices/caching)
 - [No-Caching antipattern — Azure Architecture Center (Microsoft Learn)](https://learn.microsoft.com/en-us/azure/architecture/antipatterns/no-caching/)
 - [Read-Through, Write-Through, Write-Behind, and Refresh-Ahead Caching — Oracle Coherence Docs](https://docs.oracle.com/cd/E16459_01/coh.350/e14510/readthrough.htm)
-- [Caching data sources — Developing Applications with Oracle Coherence](https://docs.oracle.com/en/middleware/standalone/coherence/14.1.1.0/develop-applications/caching-data-sources.html)
+- [Caching challenges and strategies — Amazon Builders' Library](https://aws.amazon.com/builders-library/caching-challenges-and-strategies/)
+- [Timeouts, retries, and backoff with jitter — Amazon Builders' Library](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/)
+- [Two Hard Things — Martin Fowler (bliki)](https://www.martinfowler.com/bliki/TwoHardThings.html)
 - [Designing Data-Intensive Applications — Martin Kleppmann (site oficial)](https://dataintensive.net/)

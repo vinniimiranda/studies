@@ -200,10 +200,10 @@ function rotacionaDireita(Q):          // Q é a raiz pesada à esquerda
 - **Hash Tables:** a **alternativa não-ordenada** — O(1) sem ordem vs O(log n) com ordem. E o `HashMap` do Java usa **red-black trees** internamente para "treeificar" buckets degenerados. Veja [Hash Tables](03-hash-tables.md).
 - **B-Tree e B+Tree:** a generalização das árvores de busca para **alto fan-out**, projetada para disco — onde AVL/Red-Black não servem. A relação memória (binária) vs disco (B-Tree) é central. Veja [B-Tree e B+Tree](05-b-tree-e-b-plus-tree.md).
 - **Heaps:** também são árvores binárias, mas com um invariante diferente (ordem só pai-filho), servindo priority queues, não busca ordenada. Veja [Heaps](06-heaps.md).
-- **Complexidade algorítmica:** O(log n) vs O(n) (BST degenerada); a diferença entre pior caso médio e garantido. Veja [Complexidade Algorítmica](../11-complexidade-algoritmica/01-notacao-assintotica-big-o.md).
+- **Complexidade algorítmica:** O(log n) vs O(n) (BST degenerada); a diferença entre pior caso médio e garantido. Veja [Complexidade Algorítmica](../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega.md).
 - **Arrays e Linked Lists:** a BST degenerada *é* uma linked list; e árvores sofrem a mesma penalidade de cache locality (nós encadeados) discutida em [Arrays e Linked Lists](01-arrays-e-linked-lists.md).
 - **Índices de banco:** índices ordenados (range, ORDER BY) usam estruturas em árvore (B-Tree em disco; o conceito de "balanceada para O(log n)" vem daqui). Veja [Read Replicas, Sharding, Particionamento](../05-dados-e-persistencia/03-read-replicas-sharding-particionamento.md).
-- **Algoritmos:** travessias (in/pre/post-order), busca binária e a recursão sobre estruturas hierárquicas. Veja [Algoritmos Essenciais](../13-algoritmos-essenciais/01-bfs-dfs-grafos.md).
+- **Algoritmos:** travessias (in/pre/post-order), busca binária e a recursão sobre estruturas hierárquicas. Veja [Algoritmos Essenciais](../13-algoritmos-essenciais/08-graph-algorithms.md).
 
 ## Referências
 

@@ -169,8 +169,8 @@ function topK(stream, K):
 
 - **Arrays e Linked Lists:** são o substrato dessas ADTs — stack/queue/deque sobre array dinâmico (cache locality) ou linked list; entender os trade-offs de [Arrays e Linked Lists](01-arrays-e-linked-lists.md) é pré-requisito para escolher a implementação certa.
 - **Heaps:** a priority queue é implementada com heap binário; insert/extract O(log n) e heapify O(n) vêm de lá. Veja [Heaps](06-heaps.md).
-- **Algoritmos de grafos:** BFS usa Queue, DFS usa Stack (ou recursão), Dijkstra/Prim usam Priority Queue — a escolha da ADT define o algoritmo. Veja [Algoritmos Essenciais](../13-algoritmos-essenciais/01-bfs-dfs-grafos.md).
-- **Complexidade algorítmica:** O(1) das operações de stack/queue vs O(log n) da PQ; análise amortizada do ring buffer crescível. Veja [Complexidade Algorítmica](../11-complexidade-algoritmica/01-notacao-assintotica-big-o.md).
+- **Algoritmos de grafos:** BFS usa Queue, DFS usa Stack (ou recursão), Dijkstra/Prim usam Priority Queue — a escolha da ADT define o algoritmo. Veja [Algoritmos Essenciais](../13-algoritmos-essenciais/08-graph-algorithms.md).
+- **Complexidade algorítmica:** O(1) das operações de stack/queue vs O(log n) da PQ; análise amortizada do ring buffer crescível. Veja [Complexidade Algorítmica](../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega.md).
 - **Mensageria (queue/topic/partition):** message brokers são a versão distribuída e durável da ADT Queue (FIFO por partição), com retry, persistência e consumer groups. Veja [Pub/Sub, Queue, Topic, Partition](../06-mensageria-e-streaming/02-pubsub-queue-topic-partition-consumer-groups.md).
 - **Backpressure:** filas limitadas (bounded queues) são o mecanismo central de backpressure entre produtor e consumidor; o tamanho da fila e a política de cheia (bloquear, descartar) são decisões de resiliência. Veja [Backpressure](../06-mensageria-e-streaming/03-backpressure.md).
 - **Rate limiting / schedulers:** priority queues e timer wheels implementam agendamento por prioridade/tempo, base de schedulers e rate limiters.

@@ -192,12 +192,12 @@ DNS não é "opcional" — toda comunicação por nome passa por ele. Aqui "quan
 
 ## Relação com outros conceitos
 
-- **Modelo OSI e TCP/IP:** DNS é um protocolo de **aplicação (L7)** que roda sobre **UDP/TCP (L4)**; é o primeiro passo da jornada por camadas. Ver `16-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md`.
-- **TCP vs UDP:** DNS usa primariamente **UDP** (consultas pequenas, sem handshake), com fallback para **TCP** (respostas grandes/DNSSEC) — exemplo canônico de "por que UDP". Ver `16-redes-e-protocolos/02-tcp-vs-udp.md`.
-- **HTTPS/TLS:** o SNI no handshake TLS revela o host; **DoT/DoH** cifram o DNS com TLS; registros **CAA** controlam quais CAs emitem certificados. Ver `16-redes-e-protocolos/04-https-tls-handshake-e-certificados.md`.
-- **HTTP/3:** registros **SVCB/HTTPS** no DNS anunciam suporte a HTTP/3 e parâmetros de conexão, ajudando na negociação. Ver `16-redes-e-protocolos/03-http1-http2-http3-quic.md`.
+- **Modelo OSI e TCP/IP:** DNS é um protocolo de **aplicação (L7)** que roda sobre **UDP/TCP (L4)**; é o primeiro passo da jornada por camadas. Ver `15-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md`.
+- **TCP vs UDP:** DNS usa primariamente **UDP** (consultas pequenas, sem handshake), com fallback para **TCP** (respostas grandes/DNSSEC) — exemplo canônico de "por que UDP". Ver `15-redes-e-protocolos/02-tcp-vs-udp.md`.
+- **HTTPS/TLS:** o SNI no handshake TLS revela o host; **DoT/DoH** cifram o DNS com TLS; registros **CAA** controlam quais CAs emitem certificados. Ver `15-redes-e-protocolos/04-https-tls-handshake-e-certificados.md`.
+- **HTTP/3:** registros **SVCB/HTTPS** no DNS anunciam suporte a HTTP/3 e parâmetros de conexão, ajudando na negociação. Ver `15-redes-e-protocolos/03-http1-http2-http3-quic.md`.
 - **Service Discovery & Load Balancing:** DNS é uma forma de **service discovery** (resolver nome → endereço) e de **balanceamento/failover** (geo-DNS, round-robin, health checks), complementar aos LBs L4/L7. Ver `04-sistemas-distribuidos/07-service-discovery-e-load-balancing.md`.
-- **Caching em múltiplas camadas:** o DNS é o exemplo máximo de cache hierárquico com TTL; os mesmos trade-offs de invalidação/TTL valem aqui. Ver `07-performance-e-escalabilidade/04-caching-em-multiplas-camadas.md`.
+- **Caching em múltiplas camadas:** o DNS é o exemplo máximo de cache hierárquico com TTL; os mesmos trade-offs de invalidação/TTL valem aqui. Ver `05-dados-e-persistencia/08-cache-patterns.md`.
 - **Latência vs throughput e percentis:** a resolução DNS é o primeiro RTT da conexão fria e aparece na cauda (p99); cache hit a torna quase gratuita. Ver `07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis.md`.
 - **Padrões de resiliência:** múltiplos nameservers, anycast e health-check failover são resiliência aplicada ao DNS, que é pré-requisito de tudo. Ver `04-sistemas-distribuidos/10-padroes-de-resiliencia.md`.
 

@@ -168,11 +168,11 @@ Regra geral: **sirva as três versões com negociação** (TLS ALPN para /1.1 e 
 
 ## Relação com outros conceitos
 
-- **Modelo OSI e TCP/IP:** HTTP é L7; a mudança de /2 para /3 é uma troca do transporte L4 (TCP → QUIC/UDP) mantendo a semântica L7. Ver `16-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md`.
-- **TCP vs UDP:** o HOL blocking do TCP (entrega ordenada) é a razão de existir do QUIC/HTTP3; QUIC roda sobre UDP para ter streams independentes e evoluir fora do kernel. Ver `16-redes-e-protocolos/02-tcp-vs-udp.md`.
-- **HTTPS/TLS:** QUIC embute TLS 1.3 e combina os handshakes (1-RTT/0-RTT); entender o handshake TLS é pré-requisito para entender o ganho de setup do HTTP/3. Ver `16-redes-e-protocolos/04-https-tls-handshake-e-certificados.md`.
-- **DNS:** resolução de nomes precede qualquer conexão HTTP; HTTP/3 também depende de descobrir que o servidor fala /3 (Alt-Svc, e há registros HTTPS/SVCB no DNS). Ver `16-redes-e-protocolos/05-dns-resolution.md`.
-- **Caching em múltiplas camadas:** a granularidade de cache (por que mega-bundles são ruins sob /2) e CDNs (que terminam HTTP/2/3 na borda) conectam diretamente. Ver `07-performance-e-escalabilidade/04-caching-em-multiplas-camadas.md`.
+- **Modelo OSI e TCP/IP:** HTTP é L7; a mudança de /2 para /3 é uma troca do transporte L4 (TCP → QUIC/UDP) mantendo a semântica L7. Ver `15-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md`.
+- **TCP vs UDP:** o HOL blocking do TCP (entrega ordenada) é a razão de existir do QUIC/HTTP3; QUIC roda sobre UDP para ter streams independentes e evoluir fora do kernel. Ver `15-redes-e-protocolos/02-tcp-vs-udp.md`.
+- **HTTPS/TLS:** QUIC embute TLS 1.3 e combina os handshakes (1-RTT/0-RTT); entender o handshake TLS é pré-requisito para entender o ganho de setup do HTTP/3. Ver `15-redes-e-protocolos/04-https-tls-handshake-e-certificados.md`.
+- **DNS:** resolução de nomes precede qualquer conexão HTTP; HTTP/3 também depende de descobrir que o servidor fala /3 (Alt-Svc, e há registros HTTPS/SVCB no DNS). Ver `15-redes-e-protocolos/05-dns-resolution.md`.
+- **Caching em múltiplas camadas:** a granularidade de cache (por que mega-bundles são ruins sob /2) e CDNs (que terminam HTTP/2/3 na borda) conectam diretamente. Ver `05-dados-e-persistencia/08-cache-patterns.md`.
 - **Latência vs throughput e percentis:** os ganhos de /2 e /3 são primariamente de **latência** (não banda) e aparecem na cauda (p95/p99) em redes ruins. Ver `07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis.md`.
 - **Load balancing (L7):** balanceadores/CDNs terminam HTTP/2 e /3 na borda e fazem fallback entre versões; a distinção L4/L7 é essencial aqui. Ver `04-sistemas-distribuidos/07-service-discovery-e-load-balancing.md`.
 

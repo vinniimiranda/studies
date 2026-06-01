@@ -1,8 +1,8 @@
 # Arquitetura de Software — Estudo de Conceitos Intermediários e Avançados
 
-Material de estudo aprofundado, em português, cobrindo **137 conceitos** de arquitetura de software e fundamentos de ciência da computação, organizados em 17 blocos temáticos. Cada conceito tem seu próprio arquivo com: definição aprofundada, mecânica de funcionamento, **diagrama de fluxo (Mermaid)**, exemplo prático em cenário brasileiro (e-commerce/marketplace/fintech), trade-offs de quando usar e evitar, anti-padrões e **referências reais** (blogs, papers, docs oficiais e livros).
+Material de estudo aprofundado, em português, cobrindo **136 conceitos** de arquitetura de software e fundamentos de ciência da computação, organizados em 16 blocos temáticos. Cada conceito tem seu próprio arquivo com: definição aprofundada, mecânica de funcionamento, **diagrama de fluxo (Mermaid)**, exemplo prático em cenário brasileiro (e-commerce/marketplace/fintech), trade-offs de quando usar e evitar, anti-padrões e **referências reais** (blogs, papers, docs oficiais e livros).
 
-O material tem duas partes complementares: **Parte I — Arquitetura (blocos 01–10)**, voltada ao papel de arquiteto; e **Parte II — Fundamentos de CS e entrevistas (blocos 11–17)**, cobrindo complexidade, estruturas de dados, algoritmos, concorrência, banco de dados a fundo, redes e System Design.
+O material tem duas partes complementares: **Parte I — Arquitetura (blocos 01–10)**, voltada ao papel de arquiteto; e **Parte II — Fundamentos de CS e entrevistas (blocos 11–16)**, cobrindo complexidade, estruturas de dados, algoritmos, concorrência, redes e System Design (banco de dados a fundo foi unificado no bloco 05).
 
 > Público-alvo: dev sênior em transição para arquiteto e preparação para entrevistas de senioridade. Nível: intermediário/avançado.
 
@@ -124,10 +124,10 @@ O coração teórico. Não pule — sustenta tudo de mensageria e dados.
 |---|---|
 | 51 | [Escalabilidade horizontal vs vertical](07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical.md) |
 | 52 | [Latência vs Throughput (percentis p50/p95/p99/p999)](07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis.md) |
-| 53 | [Leis: Little, Amdahl, Universal Scalability Law](07-performance-e-escalabilidade/06-leis-little-amdahl-universal-scalability-law.md) |
-| 54 | [Caching em múltiplas camadas](07-performance-e-escalabilidade/04-caching-em-multiplas-camadas.md) |
-| 55 | [Connection/thread pooling, async I/O, reactive](07-performance-e-escalabilidade/05-connection-pooling-thread-pooling-async-io-reactive.md) |
-| 56 | [USE, RED, Four Golden Signals](07-performance-e-escalabilidade/03-use-red-four-golden-signals.md) |
+| 53 | [Leis: Little, Amdahl, Universal Scalability Law](07-performance-e-escalabilidade/04-leis-little-amdahl-universal-scalability-law.md) |
+| 54 | [Caching em múltiplas camadas](05-dados-e-persistencia/08-cache-patterns.md) |
+| 55 | [Connection/thread pooling, async I/O, reactive](07-performance-e-escalabilidade/03-connection-pooling-thread-pooling-async-io-reactive.md) |
+| 56 | [USE, RED, Four Golden Signals](09-observabilidade/05-use-red-four-golden-signals.md) |
 | 57 | [Três pilares da observabilidade (+ eventos)](09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos.md) |
 | 58 | [Distributed Tracing (OpenTelemetry, Jaeger, Zipkin)](09-observabilidade/02-distributed-tracing-opentelemetry-jaeger-zipkin.md) |
 | 59 | [Correlation IDs e propagação de contexto](09-observabilidade/03-correlation-ids-e-propagacao-de-contexto.md) |
@@ -212,8 +212,14 @@ O coração teórico. Não pule — sustenta tudo de mensageria e dados.
 - [CDC (Change Data Capture) com Debezium](05-dados-e-persistencia/05-cdc-change-data-capture-debezium.md)
 - [Data Lake, Warehouse, Mesh, Lakehouse](05-dados-e-persistencia/06-data-lake-warehouse-mesh-lakehouse.md)
 - [OLTP vs OLAP (Lambda, Kappa)](05-dados-e-persistencia/07-oltp-vs-olap-lambda-kappa.md)
-- [Cache patterns](05-dados-e-persistencia/08-cache-patterns.md)
+- [Cache: padrões e camadas](05-dados-e-persistencia/08-cache-patterns.md)
 - [ACID vs BASE](05-dados-e-persistencia/09-acid-vs-base.md)
+- [Níveis de isolamento e anomalias](05-dados-e-persistencia/10-niveis-de-isolamento-e-anomalias.md)
+- [Locking: pessimista vs otimista](05-dados-e-persistencia/11-locking-pessimista-vs-otimista.md)
+- [Índices: B-Tree, Hash, composite, covering](05-dados-e-persistencia/12-indices-de-banco-btree-hash-composite-covering.md)
+- [Query optimization: EXPLAIN e N+1](05-dados-e-persistencia/13-query-optimization-explain-e-n-mais-1.md)
+- [Normalização vs desnormalização](05-dados-e-persistencia/14-normalizacao-vs-desnormalizacao.md)
+- [SQL vs NoSQL](05-dados-e-persistencia/15-sql-vs-nosql.md)
 
 ### 06 — Mensageria e streaming
 
@@ -228,10 +234,8 @@ O coração teórico. Não pule — sustenta tudo de mensageria e dados.
 
 - [Escalabilidade horizontal vs vertical](07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical.md)
 - [Latência vs Throughput (percentis)](07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis.md)
-- [USE, RED, Four Golden Signals](07-performance-e-escalabilidade/03-use-red-four-golden-signals.md)
-- [Caching em múltiplas camadas](07-performance-e-escalabilidade/04-caching-em-multiplas-camadas.md)
-- [Connection pooling, thread pooling, async I/O, reactive](07-performance-e-escalabilidade/05-connection-pooling-thread-pooling-async-io-reactive.md)
-- [Leis de Little, Amdahl e Universal Scalability Law](07-performance-e-escalabilidade/06-leis-little-amdahl-universal-scalability-law.md)
+- [Connection pooling, thread pooling, async I/O, reactive](07-performance-e-escalabilidade/03-connection-pooling-thread-pooling-async-io-reactive.md)
+- [Leis de Little, Amdahl e Universal Scalability Law](07-performance-e-escalabilidade/04-leis-little-amdahl-universal-scalability-law.md)
 
 ### 08 — Segurança arquitetural
 
@@ -248,6 +252,7 @@ O coração teórico. Não pule — sustenta tudo de mensageria e dados.
 - [Distributed Tracing (OpenTelemetry, Jaeger, Zipkin)](09-observabilidade/02-distributed-tracing-opentelemetry-jaeger-zipkin.md)
 - [Correlation IDs e propagação de contexto](09-observabilidade/03-correlation-ids-e-propagacao-de-contexto.md)
 - [SLI, SLO, SLA e Error Budgets](09-observabilidade/04-sli-slo-sla-error-budgets.md)
+- [USE, RED, Four Golden Signals (métodos de monitoramento)](09-observabilidade/05-use-red-four-golden-signals.md)
 
 ### 10 — Evolução e práticas
 
@@ -304,43 +309,34 @@ O coração teórico. Não pule — sustenta tudo de mensageria e dados.
 - [Thread pools e tuning](14-concorrencia-e-paralelismo/08-thread-pools-e-tuning.md)
 - [Async/await, Futures/Promises, Reactive Streams](14-concorrencia-e-paralelismo/09-async-await-futures-promises-reactive-streams.md)
 
-### 15 — Banco de dados (a fundo)
+### 15 — Redes e protocolos
 
-- [Níveis de isolamento e anomalias](15-banco-de-dados/01-niveis-de-isolamento-e-anomalias.md)
-- [Locking: pessimista vs otimista](15-banco-de-dados/02-locking-pessimista-vs-otimista.md)
-- [Índices: B-Tree, Hash, composite, covering](15-banco-de-dados/03-indices-de-banco-btree-hash-composite-covering.md)
-- [Query optimization: EXPLAIN e N+1](15-banco-de-dados/04-query-optimization-explain-e-n-mais-1.md)
-- [Normalização vs desnormalização](15-banco-de-dados/05-normalizacao-vs-desnormalizacao.md)
-- [SQL vs NoSQL](15-banco-de-dados/06-sql-vs-nosql.md)
+- [Modelo OSI e TCP/IP](15-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md)
+- [TCP vs UDP](15-redes-e-protocolos/02-tcp-vs-udp.md)
+- [HTTP/1.1 vs HTTP/2 vs HTTP/3 (QUIC)](15-redes-e-protocolos/03-http1-http2-http3-quic.md)
+- [HTTPS, TLS handshake e certificados](15-redes-e-protocolos/04-https-tls-handshake-e-certificados.md)
+- [DNS resolution](15-redes-e-protocolos/05-dns-resolution.md)
+- [REST vs GraphQL vs gRPC vs WebSockets](15-redes-e-protocolos/06-rest-graphql-grpc-websockets.md)
+- [Semântica HTTP: idempotência e status codes](15-redes-e-protocolos/07-semantica-http-idempotencia-e-status-codes.md)
+- [CORS, CSRF, XSS](15-redes-e-protocolos/08-cors-csrf-xss.md)
+- [Long polling, SSE, WebSockets](15-redes-e-protocolos/09-long-polling-sse-websockets.md)
 
-### 16 — Redes e protocolos
+### 16 — System Design (estudos de caso)
 
-- [Modelo OSI e TCP/IP](16-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md)
-- [TCP vs UDP](16-redes-e-protocolos/02-tcp-vs-udp.md)
-- [HTTP/1.1 vs HTTP/2 vs HTTP/3 (QUIC)](16-redes-e-protocolos/03-http1-http2-http3-quic.md)
-- [HTTPS, TLS handshake e certificados](16-redes-e-protocolos/04-https-tls-handshake-e-certificados.md)
-- [DNS resolution](16-redes-e-protocolos/05-dns-resolution.md)
-- [REST vs GraphQL vs gRPC vs WebSockets](16-redes-e-protocolos/06-rest-graphql-grpc-websockets.md)
-- [Semântica HTTP: idempotência e status codes](16-redes-e-protocolos/07-semantica-http-idempotencia-e-status-codes.md)
-- [CORS, CSRF, XSS](16-redes-e-protocolos/08-cors-csrf-xss.md)
-- [Long polling, SSE, WebSockets](16-redes-e-protocolos/09-long-polling-sse-websockets.md)
-
-### 17 — System Design (estudos de caso)
-
-- [Encurtador de URL](17-system-design/01-encurtador-de-url.md)
-- [Timeline de rede social](17-system-design/02-timeline-rede-social.md)
-- [Sistema de chat](17-system-design/03-sistema-de-chat.md)
-- [Notificações em escala](17-system-design/04-sistema-de-notificacoes-em-escala.md)
-- [Rate limiter](17-system-design/05-rate-limiter.md)
-- [Web crawler distribuído](17-system-design/06-web-crawler-distribuido.md)
-- [Sistema de busca](17-system-design/07-sistema-de-busca.md)
-- [Upload de arquivos](17-system-design/08-upload-de-arquivos.md)
-- [Streaming de vídeo](17-system-design/09-streaming-de-video.md)
-- [Sistema de reservas](17-system-design/10-sistema-de-reservas.md)
-- [Sistema de pagamentos](17-system-design/11-sistema-de-pagamentos.md)
-- [Newsfeed ranking e recomendação](17-system-design/12-newsfeed-ranking-e-recomendacao.md)
-- [Sistema de logs distribuído](17-system-design/13-sistema-de-logs-distribuido.md)
-- [Top K trending (count-min sketch)](17-system-design/14-top-k-trending-count-min-sketch.md)
+- [Encurtador de URL](16-system-design/01-encurtador-de-url.md)
+- [Timeline de rede social](16-system-design/02-timeline-rede-social.md)
+- [Sistema de chat](16-system-design/03-sistema-de-chat.md)
+- [Notificações em escala](16-system-design/04-sistema-de-notificacoes-em-escala.md)
+- [Rate limiter](16-system-design/05-rate-limiter.md)
+- [Web crawler distribuído](16-system-design/06-web-crawler-distribuido.md)
+- [Sistema de busca](16-system-design/07-sistema-de-busca.md)
+- [Upload de arquivos](16-system-design/08-upload-de-arquivos.md)
+- [Streaming de vídeo](16-system-design/09-streaming-de-video.md)
+- [Sistema de reservas](16-system-design/10-sistema-de-reservas.md)
+- [Sistema de pagamentos](16-system-design/11-sistema-de-pagamentos.md)
+- [Newsfeed ranking e recomendação](16-system-design/12-newsfeed-ranking-e-recomendacao.md)
+- [Sistema de logs distribuído](16-system-design/13-sistema-de-logs-distribuido.md)
+- [Top K trending (count-min sketch)](16-system-design/14-top-k-trending-count-min-sketch.md)
 
 ---
 

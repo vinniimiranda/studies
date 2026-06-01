@@ -191,8 +191,8 @@ function siftDown(heap, i):
 - **Priority Queue:** o heap é a **implementação canônica** da priority queue (insert/extract O(log n), peek O(1)). A ADT é a interface; o heap é o motor. Veja [Stacks, Queues, Deque e Priority Queue](02-stacks-queues-deque-priority-queue.md).
 - **Arrays:** o heap é uma **árvore implementada sobre um array** — herda cache locality e zero overhead de ponteiros, o oposto das árvores baseadas em nós. Veja [Arrays e Linked Lists](01-arrays-e-linked-lists.md).
 - **Árvores de busca (BST/AVL/Red-Black):** o heap é uma árvore binária com invariante **diferente** (ordem parcial pai-filho, não busca ordenada) — comparar os dois invariantes esclarece ambos. Veja [Árvores de Busca: BST, AVL, Red-Black](04-arvores-de-busca-bst-avl-red-black.md).
-- **Algoritmos (Dijkstra, Prim, heapsort, top-K, mediana):** o heap é a estrutura que define a complexidade desses algoritmos; sem ele, muitos degradam. Veja [Algoritmos Essenciais](../13-algoritmos-essenciais/01-bfs-dfs-grafos.md).
-- **Complexidade algorítmica / análise agregada:** o build-heap O(n) (vs O(n log n) ingênuo) é um exemplo central de análise agregada/somatório; e O(1) peek vs O(log n) insert ilustram trade-offs. Veja [Complexidade Algorítmica](../11-complexidade-algoritmica/01-notacao-assintotica-big-o.md).
+- **Algoritmos (Dijkstra, Prim, heapsort, top-K, mediana):** o heap é a estrutura que define a complexidade desses algoritmos; sem ele, muitos degradam. Veja [Algoritmos Essenciais](../13-algoritmos-essenciais/08-graph-algorithms.md).
+- **Complexidade algorítmica / análise agregada:** o build-heap O(n) (vs O(n log n) ingênuo) é um exemplo central de análise agregada/somatório; e O(1) peek vs O(log n) insert ilustram trade-offs. Veja [Complexidade Algorítmica](../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega.md).
 - **Schedulers, timers e rate limiting:** priority queues por timestamp (timer wheels, event loops) são heaps no coração de runtimes e schedulers — conectando com escalonamento e resiliência.
 
 ## Referências

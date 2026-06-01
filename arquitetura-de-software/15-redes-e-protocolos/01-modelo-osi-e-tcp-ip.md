@@ -206,10 +206,10 @@ Aqui "usar" significa "qual modelo/camada usar como referência mental e operaci
 
 ## Relação com outros conceitos
 
-- **TCP vs UDP (camada 4):** os dois protagonistas da camada de transporte; toda decisão de confiabilidade vs latência mora na L4. Ver `16-redes-e-protocolos/02-tcp-vs-udp.md`.
-- **HTTP/1.1, HTTP/2, HTTP/3 (camada 7):** os protocolos de aplicação mais usados; HTTP/3 (QUIC) é o caso onde a fronteira L4/L7 se borra. Ver `16-redes-e-protocolos/03-http1-http2-http3-quic.md`.
-- **HTTPS/TLS (camadas 6/7):** segurança da comunicação, situada entre transporte e aplicação. Ver `16-redes-e-protocolos/04-https-tls-handshake-e-certificados.md`.
-- **DNS (camada 7 sobre UDP):** o primeiro passo de quase toda comunicação; protocolo de aplicação que roda sobre transporte. Ver `16-redes-e-protocolos/05-dns-resolution.md`.
+- **TCP vs UDP (camada 4):** os dois protagonistas da camada de transporte; toda decisão de confiabilidade vs latência mora na L4. Ver `15-redes-e-protocolos/02-tcp-vs-udp.md`.
+- **HTTP/1.1, HTTP/2, HTTP/3 (camada 7):** os protocolos de aplicação mais usados; HTTP/3 (QUIC) é o caso onde a fronteira L4/L7 se borra. Ver `15-redes-e-protocolos/03-http1-http2-http3-quic.md`.
+- **HTTPS/TLS (camadas 6/7):** segurança da comunicação, situada entre transporte e aplicação. Ver `15-redes-e-protocolos/04-https-tls-handshake-e-certificados.md`.
+- **DNS (camada 7 sobre UDP):** o primeiro passo de quase toda comunicação; protocolo de aplicação que roda sobre transporte. Ver `15-redes-e-protocolos/05-dns-resolution.md`.
 - **mTLS entre serviços:** autenticação mútua na camada de segurança (L6/L7), base de zero trust. Ver `08-seguranca-arquitetural/03-mtls-entre-servicos.md`.
 - **Service Discovery & Load Balancing:** a distinção LB L4 vs L7 é diretamente um problema de "em que camada inspecionar". Ver `04-sistemas-distribuidos/07-service-discovery-e-load-balancing.md`.
 - **Latência vs throughput e percentis:** o empilhamento de camadas (DNS+TCP+TLS+HTTP) soma latência; cada round-trip conta e aparece nos percentis. Ver `07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis.md`.

@@ -177,7 +177,7 @@ function busca(no, chave):
 - **Hash Tables:** a alternativa para **igualdade exata** (índice hash, O(1)) vs a B+Tree para **range + ordem** (O(log n)). A escolha entre índice hash e B-Tree é decisão de schema. Veja [Hash Tables](03-hash-tables.md).
 - **Índices de banco, read replicas e particionamento:** B+Trees são o substrato físico de quase todo índice; entender sua estrutura é a base de tuning de consultas e de decisões de particionamento. Veja [Read Replicas, Sharding, Particionamento](../05-dados-e-persistencia/03-read-replicas-sharding-particionamento.md).
 - **OLTP vs OLAP:** B-Trees brilham em OLTP (lookups e ranges pontuais); cargas OLAP analíticas frequentemente preferem armazenamento colunar e outras estruturas. Veja [OLTP vs OLAP, Lambda, Kappa](../05-dados-e-persistencia/07-oltp-vs-olap-lambda-kappa.md).
-- **Complexidade algorítmica:** O(log_m n) e por que a base do logaritmo (fan-out) domina o número de I/Os; análise em modelo de I/O em vez de modelo de comparações. Veja [Complexidade Algorítmica](../11-complexidade-algoritmica/01-notacao-assintotica-big-o.md).
+- **Complexidade algorítmica:** O(log_m n) e por que a base do logaritmo (fan-out) domina o número de I/Os; análise em modelo de I/O em vez de modelo de comparações. Veja [Complexidade Algorítmica](../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega.md).
 
 ## Referências
 

@@ -177,11 +177,11 @@ function rehash(table, novoTamanho):
 
 - **Arrays e Linked Lists:** a hash table é construída sobre um **array** (os buckets) e, em separate chaining, **linked lists** (as cadeias) — herda a cache locality do array e o overhead de ponteiros da lista. Veja [Arrays e Linked Lists](01-arrays-e-linked-lists.md).
 - **Árvores balanceadas:** são a **alternativa ordenada** à hash table (O(log n) com ordem vs O(1) sem ordem); e o `HashMap` do Java usa **red-black trees** para treeification de buckets degenerados. Veja [Árvores de Busca: BST, AVL, Red-Black](04-arvores-de-busca-bst-avl-red-black.md).
-- **Complexidade algorítmica / análise amortizada:** o O(1) médio, o pior caso O(n) e o rehashing amortizado O(1) são exemplos centrais de por que distinguir caso médio, pior caso e amortizado importa. Veja [Complexidade Algorítmica](../11-complexidade-algoritmica/01-notacao-assintotica-big-o.md).
+- **Complexidade algorítmica / análise amortizada:** o O(1) médio, o pior caso O(n) e o rehashing amortizado O(1) são exemplos centrais de por que distinguir caso médio, pior caso e amortizado importa. Veja [Complexidade Algorítmica](../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega.md).
 - **Consistent hashing & sharding:** distribuir chaves entre nós de um cache/banco distribuído é "hash table no nível de cluster"; consistent hashing minimiza o "rehashing" (remapeamento) quando nós entram/saem. Veja [Leader Election, Sharding, Consistent Hashing](../04-sistemas-distribuidos/11-leader-election-sharding-consistent-hashing.md).
 - **Cache patterns:** caches em memória (Redis, Memcached, cache local) são hash tables com política de evicção; o LRU combina hash table + doubly linked list. Veja [Cache Patterns](../05-dados-e-persistencia/08-cache-patterns.md).
 - **Índices de banco:** índices hash servem igualdade O(1); B-Tree serve range/ordem. A escolha é decisão de design de schema. Veja [B-Tree e B+Tree](05-b-tree-e-b-plus-tree.md).
-- **Algoritmos:** hash join, deduplicação, contagem de frequência e detecção de duplicatas usam hash tables como ferramenta central. Veja [Algoritmos Essenciais](../13-algoritmos-essenciais/01-bfs-dfs-grafos.md).
+- **Algoritmos:** hash join, deduplicação, contagem de frequência e detecção de duplicatas usam hash tables como ferramenta central. Veja [Algoritmos Essenciais](../13-algoritmos-essenciais/08-graph-algorithms.md).
 
 ## Referências
 

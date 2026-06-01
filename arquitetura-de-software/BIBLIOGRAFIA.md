@@ -1,6 +1,6 @@
 # Bibliografia essencial — comentada
 
-Lista de leituras-base para os 72 conceitos deste estudo. Para cada livro: o que cobre, quais blocos deste material ele sustenta, e uma nota sobre quando lê-lo. A ordem abaixo é a recomendada de leitura.
+Lista de leituras-base para os 136 conceitos deste estudo. Para cada livro: o que cobre, quais blocos deste material ele sustenta, e uma nota sobre quando lê-lo. A ordem abaixo é a recomendada de leitura.
 
 ---
 
@@ -82,19 +82,19 @@ Não são "obrigatórias", mas aparecem com frequência nas referências dos con
 
 ---
 
-## Parte II — Fundamentos de CS e entrevistas (blocos 11–17)
+## Parte II — Fundamentos de CS e entrevistas (blocos 11–16)
 
 Referências-base para complexidade, estruturas de dados, algoritmos, concorrência, banco de dados, redes e System Design.
 
 - **Introduction to Algorithms (CLRS)** — Cormen, Leiserson, Rivest & Stein (complexidade, estruturas de dados e algoritmos — blocos 11/12/13). <https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/>
 - **Operating Systems: Three Easy Pieces (OSTEP)** — Arpaci-Dusseau (concorrência, threads, locks — bloco 14; gratuito). <https://pages.cs.wisc.edu/~remzi/OSTEP/>
 - **Java Concurrency in Practice** — Brian Goetz et al. (memory model, sincronização — bloco 14). <https://jcip.net/>
-- **Database Internals** — Alex Petrov (B-Trees, isolamento, replicação — blocos 12/15). <https://www.databass.dev/>
-- **SQL Performance Explained / use-the-index-luke.com** — Markus Winand (índices, EXPLAIN — bloco 15). <https://use-the-index-luke.com/>
-- **High Performance Browser Networking** — Ilya Grigorik (TCP, TLS, HTTP/2, HTTP/3 — bloco 16; gratuito). <https://hpbn.co/>
-- **System Design Interview, Vol. 1 & 2** — Alex Xu / ByteByteGo (bloco 17). <https://bytebytego.com/>
-- **The System Design Primer** — Donne Martin (guia aberto no GitHub — bloco 17). <https://github.com/donnemartin/system-design-primer>
-- **Designing Data-Intensive Applications** — Kleppmann (já citado na Parte I; também sustenta quórum, relógios, isolamento — blocos 04/15/17).
+- **Database Internals** — Alex Petrov (B-Trees, isolamento, replicação — blocos 12/05). <https://www.databass.dev/>
+- **SQL Performance Explained / use-the-index-luke.com** — Markus Winand (índices, EXPLAIN — bloco 05). <https://use-the-index-luke.com/>
+- **High Performance Browser Networking** — Ilya Grigorik (TCP, TLS, HTTP/2, HTTP/3 — bloco 15; gratuito). <https://hpbn.co/>
+- **System Design Interview, Vol. 1 & 2** — Alex Xu / ByteByteGo (bloco 16). <https://bytebytego.com/>
+- **The System Design Primer** — Donne Martin (guia aberto no GitHub — bloco 16). <https://github.com/donnemartin/system-design-primer>
+- **Designing Data-Intensive Applications** — Kleppmann (já citado na Parte I; também sustenta quórum, relógios, isolamento — blocos 04/05/16).
 
 ---
 

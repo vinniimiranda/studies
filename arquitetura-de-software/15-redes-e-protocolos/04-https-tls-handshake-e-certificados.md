@@ -190,10 +190,10 @@ Cenário: o cliente acessa `https://loja.com.br` para comprar, e queremos seguir
 ## Relação com outros conceitos
 
 - **mTLS entre serviços:** o mTLS estende o TLS exigindo certificado de *ambos* os lados, base de identidade de workload e zero trust; a PKI/cadeia de confiança aqui é a mesma mecânica. Ver `08-seguranca-arquitetural/03-mtls-entre-servicos.md`.
-- **Modelo OSI e TCP/IP:** TLS senta entre L4 (transporte) e L7 (aplicação); HTTPS é HTTP encapsulado em TLS. Ver `16-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md`.
-- **TCP vs UDP:** o handshake TLS roda *após* o handshake TCP (RTTs somados); em QUIC, TLS 1.3 é embutido sobre UDP. Ver `16-redes-e-protocolos/02-tcp-vs-udp.md`.
-- **HTTP/1.1, HTTP/2, HTTP/3:** HTTP/2 só roda sobre TLS na prática (ALPN negocia a versão); HTTP/3 **embute TLS 1.3 obrigatoriamente** no QUIC, fundindo handshakes. Ver `16-redes-e-protocolos/03-http1-http2-http3-quic.md`.
-- **DNS:** a resolução de nomes (e DNSSEC) precede o handshake; o SNI revela o host no handshake (ECH/ESNI o cifra), e DoT/DoH cifram o próprio DNS com TLS. Ver `16-redes-e-protocolos/05-dns-resolution.md`.
+- **Modelo OSI e TCP/IP:** TLS senta entre L4 (transporte) e L7 (aplicação); HTTPS é HTTP encapsulado em TLS. Ver `15-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md`.
+- **TCP vs UDP:** o handshake TLS roda *após* o handshake TCP (RTTs somados); em QUIC, TLS 1.3 é embutido sobre UDP. Ver `15-redes-e-protocolos/02-tcp-vs-udp.md`.
+- **HTTP/1.1, HTTP/2, HTTP/3:** HTTP/2 só roda sobre TLS na prática (ALPN negocia a versão); HTTP/3 **embute TLS 1.3 obrigatoriamente** no QUIC, fundindo handshakes. Ver `15-redes-e-protocolos/03-http1-http2-http3-quic.md`.
+- **DNS:** a resolução de nomes (e DNSSEC) precede o handshake; o SNI revela o host no handshake (ECH/ESNI o cifra), e DoT/DoH cifram o próprio DNS com TLS. Ver `15-redes-e-protocolos/05-dns-resolution.md`.
 - **Idempotência:** o 0-RTT do TLS 1.3 só é seguro para requisições idempotentes (risco de replay). Ver `04-sistemas-distribuidos/04-idempotencia-e-semanticas-de-entrega.md`.
 - **Load balancing / TLS termination:** balanceadores/CDNs terminam o TLS na borda; a decisão borda vs fim a fim é arquitetural. Ver `04-sistemas-distribuidos/07-service-discovery-e-load-balancing.md`.
 - **Secrets management:** chaves privadas de certificados são segredos críticos que precisam de gestão/rotação segura. Ver `08-seguranca-arquitetural/05-secrets-management-vault-kms.md`.

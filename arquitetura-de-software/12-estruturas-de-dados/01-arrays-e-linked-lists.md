@@ -182,7 +182,7 @@ function append(arr, x):
 
 ## Relação com outros conceitos
 
-- **Complexidade algorítmica / análise amortizada:** o array dinâmico é o exemplo canônico de **custo amortizado O(1)** (vs. pior caso O(n)); arrays e listas materializam a diferença entre O(1) e O(n) e por que a constante escondida (cache) importa. Veja [Complexidade Algorítmica](../11-complexidade-algoritmica/01-notacao-assintotica-big-o.md).
+- **Complexidade algorítmica / análise amortizada:** o array dinâmico é o exemplo canônico de **custo amortizado O(1)** (vs. pior caso O(n)); arrays e listas materializam a diferença entre O(1) e O(n) e por que a constante escondida (cache) importa. Veja [Complexidade Algorítmica](../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega.md).
 - **Stacks, Queues e Deque:** pilhas e filas são *quase sempre* implementadas sobre array dinâmico (ring buffer) ou linked list — a escolha do substrato herda exatamente os trade-offs deste documento. Veja [Stacks, Queues, Deque e Priority Queue](02-stacks-queues-deque-priority-queue.md).
 - **Hash Tables:** o **separate chaining** usa linked lists nos buckets para resolver colisões; entender por que cadeias longas degradam (e custam cache misses) conecta diretamente. Veja [Hash Tables](03-hash-tables.md).
 - **Árvores e Heaps:** o **heap binário** é uma árvore *implementada sobre um array* (ganhando cache locality), enquanto BSTs usam nós encadeados (sofrendo o custo de ponteiros). Veja [Heaps](06-heaps.md).

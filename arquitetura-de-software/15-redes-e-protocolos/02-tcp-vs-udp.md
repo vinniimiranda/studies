@@ -230,12 +230,12 @@ Cenários de uma plataforma de e-commerce/mídia brasileira, escolhidos para con
 
 ## Relação com outros conceitos
 
-- **Modelo OSI e TCP/IP:** TCP e UDP são a camada de transporte (L4); este tópico é o aprofundamento da L4 do modelo de camadas. Ver `16-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md`.
-- **HTTP/1.1, HTTP/2, HTTP/3:** HTTP/1.1 e HTTP/2 rodam sobre TCP (e sofrem com seu HOL blocking); HTTP/3 roda sobre QUIC sobre UDP justamente para eliminá-lo. Ver `16-redes-e-protocolos/03-http1-http2-http3-quic.md`.
-- **HTTPS/TLS:** o TLS handshake roda *após* o TCP handshake, somando RTTs — motivação para TLS 1.3 e QUIC. Ver `16-redes-e-protocolos/04-https-tls-handshake-e-certificados.md`.
-- **DNS:** roda primariamente sobre UDP (consultas pequenas), com fallback para TCP. Ver `16-redes-e-protocolos/05-dns-resolution.md`.
+- **Modelo OSI e TCP/IP:** TCP e UDP são a camada de transporte (L4); este tópico é o aprofundamento da L4 do modelo de camadas. Ver `15-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md`.
+- **HTTP/1.1, HTTP/2, HTTP/3:** HTTP/1.1 e HTTP/2 rodam sobre TCP (e sofrem com seu HOL blocking); HTTP/3 roda sobre QUIC sobre UDP justamente para eliminá-lo. Ver `15-redes-e-protocolos/03-http1-http2-http3-quic.md`.
+- **HTTPS/TLS:** o TLS handshake roda *após* o TCP handshake, somando RTTs — motivação para TLS 1.3 e QUIC. Ver `15-redes-e-protocolos/04-https-tls-handshake-e-certificados.md`.
+- **DNS:** roda primariamente sobre UDP (consultas pequenas), com fallback para TCP. Ver `15-redes-e-protocolos/05-dns-resolution.md`.
 - **Latência vs throughput e percentis:** RTT, handshake, slow start e HOL blocking impactam diretamente latência de cauda (p99); o controle de congestionamento define o throughput sustentável. Ver `07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis.md`.
-- **Connection pooling / back-pressure:** a receive window do TCP é back-pressure fim a fim; pooling de conexões amortiza o custo de handshake/slow start. Ver `07-performance-e-escalabilidade/05-connection-pooling-thread-pooling-async-io-reactive.md`.
+- **Connection pooling / back-pressure:** a receive window do TCP é back-pressure fim a fim; pooling de conexões amortiza o custo de handshake/slow start. Ver `07-performance-e-escalabilidade/03-connection-pooling-thread-pooling-async-io-reactive.md`.
 - **Padrões de resiliência:** timeouts de conexão/leitura, keep-alive e detecção de conexões mortas são parte do arsenal de resiliência sobre TCP. Ver `04-sistemas-distribuidos/10-padroes-de-resiliencia.md`.
 
 ## Modelo mental para o arquiteto

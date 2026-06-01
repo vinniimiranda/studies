@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+        <meta name="description" content="Estudo aprofundado de 136 conceitos de arquitetura de software e fundamentos de CS, com diagramas, exemplos e referências.">
       
       
         <meta name="author" content="Flavio Miranda">
@@ -590,6 +590,18 @@
       
         
       
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
@@ -710,10 +722,6 @@
       
         
       
-        
-      
-        
-      
     
     
     
@@ -825,6 +833,8 @@
   
     
     
+      
+        
       
         
       
@@ -1773,68 +1783,6 @@
       
         
       
-    
-    
-    
-    
-      
-        
-        
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-  
-    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
-      
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    15 · Banco de dados
-  
-
-    
-  </span>
-  
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
         
       
         
@@ -1856,14 +1804,14 @@
   
   
   
-    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+    <a href="../../15-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
       
   
   
   <span class="md-ellipsis">
     
   
-    16 · Redes e protocolos
+    15 · Redes e protocolos
   
 
     
@@ -1934,14 +1882,14 @@
   
   
   
-    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+    <a href="../../16-system-design/01-encurtador-de-url/" class="md-nav__link">
       
   
   
   <span class="md-ellipsis">
     
   
-    17 · System Design (estudos de caso)
+    16 · System Design (estudos de caso)
   
 
     
@@ -2381,7 +2329,7 @@
 </ul>
 <h2 id="relacao-com-outros-conceitos">Relação com outros conceitos<a class="headerlink" href="#relacao-com-outros-conceitos" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Complexidade algorítmica / análise amortizada:</strong> o array dinâmico é o exemplo canônico de <strong>custo amortizado O(1)</strong> (vs. pior caso O(n)); arrays e listas materializam a diferença entre O(1) e O(n) e por que a constante escondida (cache) importa. Veja <a href="../11-complexidade-algoritmica/01-notacao-assintotica-big-o.md">Complexidade Algorítmica</a>.</li>
+<li><strong>Complexidade algorítmica / análise amortizada:</strong> o array dinâmico é o exemplo canônico de <strong>custo amortizado O(1)</strong> (vs. pior caso O(n)); arrays e listas materializam a diferença entre O(1) e O(n) e por que a constante escondida (cache) importa. Veja <a href="../../11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega/">Complexidade Algorítmica</a>.</li>
 <li><strong>Stacks, Queues e Deque:</strong> pilhas e filas são <em>quase sempre</em> implementadas sobre array dinâmico (ring buffer) ou linked list — a escolha do substrato herda exatamente os trade-offs deste documento. Veja <a href="../02-stacks-queues-deque-priority-queue/">Stacks, Queues, Deque e Priority Queue</a>.</li>
 <li><strong>Hash Tables:</strong> o <strong>separate chaining</strong> usa linked lists nos buckets para resolver colisões; entender por que cadeias longas degradam (e custam cache misses) conecta diretamente. Veja <a href="../03-hash-tables/">Hash Tables</a>.</li>
 <li><strong>Árvores e Heaps:</strong> o <strong>heap binário</strong> é uma árvore <em>implementada sobre um array</em> (ganhando cache locality), enquanto BSTs usam nós encadeados (sofrendo o custo de ponteiros). Veja <a href="../06-heaps/">Heaps</a>.</li>

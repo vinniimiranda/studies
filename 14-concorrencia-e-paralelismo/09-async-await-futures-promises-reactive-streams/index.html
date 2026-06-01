@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Estudo aprofundado de 72 conceitos intermediários e avançados de arquitetura de software, com diagramas, exemplos e referências.">
+        <meta name="description" content="Estudo aprofundado de 136 conceitos de arquitetura de software e fundamentos de CS, com diagramas, exemplos e referências.">
       
       
         <meta name="author" content="Flavio Miranda">
@@ -18,7 +18,7 @@
         <link rel="prev" href="../08-thread-pools-e-tuning/">
       
       
-        <link rel="next" href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/">
+        <link rel="next" href="../../15-redes-e-protocolos/01-modelo-osi-e-tcp-ip/">
       
       
         
@@ -590,6 +590,18 @@
       
         
       
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
@@ -710,10 +722,6 @@
       
         
       
-        
-      
-        
-      
     
     
     
@@ -825,6 +833,8 @@
   
     
     
+      
+        
       
         
       
@@ -1800,68 +1810,6 @@
       
         
       
-    
-    
-    
-    
-      
-        
-        
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-  
-    <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-nav__link">
-      
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    15 · Banco de dados
-  
-
-    
-  </span>
-  
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
         
       
         
@@ -1883,14 +1831,14 @@
   
   
   
-    <a href="../../16-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
+    <a href="../../15-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-nav__link">
       
   
   
   <span class="md-ellipsis">
     
   
-    16 · Redes e protocolos
+    15 · Redes e protocolos
   
 
     
@@ -1961,14 +1909,14 @@
   
   
   
-    <a href="../../17-system-design/01-encurtador-de-url/" class="md-nav__link">
+    <a href="../../16-system-design/01-encurtador-de-url/" class="md-nav__link">
       
   
   
   <span class="md-ellipsis">
     
   
-    17 · System Design (estudos de caso)
+    16 · System Design (estudos de caso)
   
 
     
@@ -2539,8 +2487,8 @@
 <li><strong>Thread pools e tuning</strong> (ver <code>08-thread-pools-e-tuning.md</code>): async/reactive é a <strong>alternativa</strong> ao pool grande para IO-bound — em vez de muitas threads bloqueadas, poucas threads não-bloqueantes; o raciocínio "natureza da carga define a estratégia" (CPU vs IO) é o mesmo, e o <code>CompletableFuture</code> roda no <code>ForkJoinPool.commonPool</code> por default (não o bloqueie).</li>
 <li><strong>Concorrência vs paralelismo e context-switching</strong> (ver <code>01-concorrencia-vs-paralelismo-e-context-switching.md</code>): o event loop é o exemplo máximo de <strong>concorrência sem paralelismo</strong> (uma thread, muitas tarefas em voo); confundir os dois leva a esperar que async acelere CPU.</li>
 <li><strong>Backpressure</strong> (ver <code>../06-mensageria-e-streaming/03-backpressure.md</code>): <code>request(n)</code> é a materialização <em>in-process</em> do mesmo conceito que governa o controle de fluxo em mensageria/streaming — o consumidor regulando o produtor para não ser afogado.</li>
-<li><strong>Connection pooling, async I/O e reactive</strong> (ver <code>../07-performance-e-escalabilidade/05-connection-pooling-thread-pooling-async-io-reactive.md</code>): este conceito é o "como" do async I/O e do reactive ali apresentados como estratégias de escalabilidade; o pool de conexões também precisa ser reativo/não-bloqueante para o pipeline não bloquear nele.</li>
-<li><strong>Leis de Little, Amdahl e USL</strong> (ver <code>../07-performance-e-escalabilidade/06-leis-little-amdahl-universal-scalability-law.md</code>): a Lei de Little explica por que liberar a thread durante a espera (reduzir o tempo que cada thread fica "ocupada") aumenta a concorrência sustentável; Amdahl lembra que async não paraleliza a parte serial/CPU-bound.</li>
+<li><strong>Connection pooling, async I/O e reactive</strong> (ver <code>../07-performance-e-escalabilidade/03-connection-pooling-thread-pooling-async-io-reactive.md</code>): este conceito é o "como" do async I/O e do reactive ali apresentados como estratégias de escalabilidade; o pool de conexões também precisa ser reativo/não-bloqueante para o pipeline não bloquear nele.</li>
+<li><strong>Leis de Little, Amdahl e USL</strong> (ver <code>../07-performance-e-escalabilidade/04-leis-little-amdahl-universal-scalability-law.md</code>): a Lei de Little explica por que liberar a thread durante a espera (reduzir o tempo que cada thread fica "ocupada") aumenta a concorrência sustentável; Amdahl lembra que async não paraleliza a parte serial/CPU-bound.</li>
 </ul>
 <h2 id="modelo-mental-para-o-arquiteto">Modelo mental para o arquiteto<a class="headerlink" href="#modelo-mental-para-o-arquiteto" title="Permanent link">&para;</a></h2>
 <p>Três ideias para carregar:</p>
@@ -2626,13 +2574,13 @@
         
         
           
-          <a href="../../15-banco-de-dados/01-niveis-de-isolamento-e-anomalias/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Níveis de isolamento e anomalias">
+          <a href="../../15-redes-e-protocolos/01-modelo-osi-e-tcp-ip/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Modelo OSI e TCP/IP">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Próximo
               </span>
               <div class="md-ellipsis">
-                Níveis de isolamento e anomalias
+                Modelo OSI e TCP/IP
               </div>
             </div>
             <div class="md-footer__button md-icon">

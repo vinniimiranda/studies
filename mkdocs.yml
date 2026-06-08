@@ -10,217 +10,224 @@ docs_dir: arquitetura-de-software
 site_dir: site
 
 theme:
-  name: material
-  language: pt-BR
-  palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/weather-night
-        name: Mudar para modo escuro
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/weather-sunny
-        name: Mudar para modo claro
-  features:
-    # Navegação na barra lateral esquerda, com os blocos recolhíveis
-    # (sem abas horizontais no topo, que causavam scroll lateral).
-    - navigation.top
-    - navigation.indexes
-    - navigation.footer
-    - navigation.prune
-    - toc.follow
-    - search.suggest
-    - search.highlight
-    - content.code.copy
-    - content.tooltips
+    name: material
+    language: pt-BR
+    palette:
+        - media: "(prefers-color-scheme: light)"
+          scheme: default
+          primary: indigo
+          accent: indigo
+          toggle:
+              icon: material/weather-night
+              name: Mudar para modo escuro
+        - media: "(prefers-color-scheme: dark)"
+          scheme: slate
+          primary: indigo
+          accent: indigo
+          toggle:
+              icon: material/weather-sunny
+              name: Mudar para modo claro
+    features:
+        # Navegação na barra lateral esquerda, com os blocos recolhíveis
+        # (sem abas horizontais no topo, que causavam scroll lateral).
+        - navigation.top
+        - navigation.indexes
+        - navigation.footer
+        - navigation.prune
+        - toc.follow
+        - search.suggest
+        - search.highlight
+        - content.code.copy
+        - content.tooltips
 
 extra_css:
-  - stylesheets/extra.css
+    - stylesheets/extra.css
+
+extra_javascript:
+    - javascripts/progress.js
+    - javascripts/mermaid-zoom.js
+    - javascripts/graph-data.js
+    - javascripts/graph.js
 
 plugins:
-  - search:
-      lang: pt
+    - search:
+          lang: pt
 
 markdown_extensions:
-  - admonition
-  - attr_list
-  - md_in_html
-  - tables
-  - footnotes
-  - toc:
-      permalink: true
-      toc_depth: 3
-  - pymdownx.details
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.tabbed:
-      alternate_style: true
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
+    - admonition
+    - attr_list
+    - md_in_html
+    - tables
+    - footnotes
+    - toc:
+          permalink: true
+          toc_depth: 3
+    - pymdownx.details
+    - pymdownx.highlight:
+          anchor_linenums: true
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - pymdownx.tabbed:
+          alternate_style: true
+    - pymdownx.superfences:
+          custom_fences:
+              - name: mermaid
+                class: mermaid
+                format: !!python/name:pymdownx.superfences.fence_code_format
 
 nav:
-  - Início: README.md
-  - Bibliografia: BIBLIOGRAFIA.md
-  - 01 · Fundamentos:
-      - Atributos de qualidade: 01-fundamentos-arquiteturais/01-atributos-de-qualidade.md
-      - Architecture Decision Records (ADRs): 01-fundamentos-arquiteturais/02-architecture-decision-records-adr.md
-      - Fitness Functions: 01-fundamentos-arquiteturais/03-fitness-functions.md
-      - Conway's Law e Inverse Conway: 01-fundamentos-arquiteturais/04-conway-law-e-inverse-conway-maneuver.md
-      - C4 Model: 01-fundamentos-arquiteturais/05-c4-model.md
-  - 02 · Estilos e padrões:
-      - Layered / N-Tier: 02-estilos-e-padroes/01-layered-n-tier-architecture.md
-      - Hexagonal (Ports & Adapters): 02-estilos-e-padroes/02-hexagonal-ports-and-adapters.md
-      - Clean Architecture: 02-estilos-e-padroes/03-clean-architecture.md
-      - Onion Architecture: 02-estilos-e-padroes/04-onion-architecture.md
-      - Vertical Slice Architecture: 02-estilos-e-padroes/05-vertical-slice-architecture.md
-      - Modular Monolith: 02-estilos-e-padroes/06-modular-monolith.md
-      - Microservices: 02-estilos-e-padroes/07-microservices.md
-      - SOA: 02-estilos-e-padroes/08-service-oriented-architecture-soa.md
-      - Event-Driven Architecture (EDA): 02-estilos-e-padroes/09-event-driven-architecture-eda.md
-      - Space-Based Architecture: 02-estilos-e-padroes/10-space-based-architecture.md
-      - Pipes and Filters: 02-estilos-e-padroes/11-pipes-and-filters.md
-      - Serverless / FaaS: 02-estilos-e-padroes/12-serverless-faas.md
-  - 03 · Design tático (DDD):
-      - Bounded Contexts, Context Mapping, Ubiquitous Language: 03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language.md
-      - Aggregates, Entities, Value Objects, Domain Events: 03-design-tatico-ddd/02-ddd-aggregates-entities-value-objects-domain-events.md
-      - Context Mapping (ACL, Shared Kernel, Customer-Supplier): 03-design-tatico-ddd/03-ddd-context-mapping-patterns-acl-shared-kernel-customer-supplier.md
-      - CQRS: 03-design-tatico-ddd/04-cqrs.md
-      - Event Sourcing: 03-design-tatico-ddd/05-event-sourcing.md
-      - Saga Pattern: 03-design-tatico-ddd/06-saga-pattern.md
-      - Outbox e Inbox Pattern: 03-design-tatico-ddd/07-outbox-e-inbox-pattern.md
-  - 04 · Sistemas distribuídos:
-      - Teorema CAP e PACELC: 04-sistemas-distribuidos/01-teorema-cap-e-pacelc.md
-      - Modelos de consistência: 04-sistemas-distribuidos/02-modelos-de-consistencia.md
-      - Consenso distribuído (Paxos, Raft, 2PC, 3PC): 04-sistemas-distribuidos/03-consenso-distribuido-paxos-raft-2pc-3pc.md
-      - Idempotência e semânticas de entrega: 04-sistemas-distribuidos/04-idempotencia-e-semanticas-de-entrega.md
-      - Vector Clocks e Lamport Timestamps: 04-sistemas-distribuidos/05-vector-clocks-e-lamport-timestamps.md
-      - CRDTs: 04-sistemas-distribuidos/06-crdts.md
-      - Service Discovery e Load Balancing: 04-sistemas-distribuidos/07-service-discovery-e-load-balancing.md
-      - API Gateway vs BFF: 04-sistemas-distribuidos/08-api-gateway-vs-bff.md
-      - Service Mesh (sidecar): 04-sistemas-distribuidos/09-service-mesh-sidecar.md
-      - Padrões de resiliência: 04-sistemas-distribuidos/10-padroes-de-resiliencia.md
-      - Leader Election, Sharding, Consistent Hashing: 04-sistemas-distribuidos/11-leader-election-sharding-consistent-hashing.md
-      - Quórum reads/writes (N, R, W): 04-sistemas-distribuidos/12-quorum-reads-writes-n-r-w.md
-      - Relógios físicos (clock skew, NTP, TrueTime): 04-sistemas-distribuidos/13-relogios-fisicos-clock-skew-ntp-truetime.md
-  - 05 · Dados e persistência:
-      - Polyglot Persistence: 05-dados-e-persistencia/01-polyglot-persistence.md
-      - Database per Service: 05-dados-e-persistencia/02-database-per-service.md
-      - Read Replicas, Sharding, Particionamento: 05-dados-e-persistencia/03-read-replicas-sharding-particionamento.md
-      - Materialized Views e projeções: 05-dados-e-persistencia/04-materialized-views-e-projecoes.md
-      - CDC com Debezium: 05-dados-e-persistencia/05-cdc-change-data-capture-debezium.md
-      - Data Lake, Warehouse, Mesh, Lakehouse: 05-dados-e-persistencia/06-data-lake-warehouse-mesh-lakehouse.md
-      - OLTP vs OLAP (Lambda, Kappa): 05-dados-e-persistencia/07-oltp-vs-olap-lambda-kappa.md
-      - Cache - padrões e camadas: 05-dados-e-persistencia/08-cache-patterns.md
-      - ACID vs BASE: 05-dados-e-persistencia/09-acid-vs-base.md
-      - Níveis de isolamento e anomalias: 05-dados-e-persistencia/10-niveis-de-isolamento-e-anomalias.md
-      - Locking pessimista vs otimista: 05-dados-e-persistencia/11-locking-pessimista-vs-otimista.md
-      - Índices (B-Tree, Hash, composite, covering): 05-dados-e-persistencia/12-indices-de-banco-btree-hash-composite-covering.md
-      - Query optimization (EXPLAIN, N+1): 05-dados-e-persistencia/13-query-optimization-explain-e-n-mais-1.md
-      - Normalização vs desnormalização: 05-dados-e-persistencia/14-normalizacao-vs-desnormalizacao.md
-      - SQL vs NoSQL: 05-dados-e-persistencia/15-sql-vs-nosql.md
-  - 06 · Mensageria e streaming:
-      - Brokers vs log-based streaming: 06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming.md
-      - Pub/Sub, Queue, Topic, Partition, Consumer Groups: 06-mensageria-e-streaming/02-pubsub-queue-topic-partition-consumer-groups.md
-      - Backpressure: 06-mensageria-e-streaming/03-backpressure.md
-      - Dead Letter Queue e Poison Messages: 06-mensageria-e-streaming/04-dead-letter-queue-e-poison-messages.md
-      - Stream Processing (Kafka Streams, Flink, janelas): 06-mensageria-e-streaming/05-stream-processing-kafka-streams-flink-janelas.md
-      - Event-carried State Transfer vs Event Notification: 06-mensageria-e-streaming/06-event-carried-state-transfer-vs-event-notification.md
-  - 07 · Performance e escalabilidade:
-      - Escalabilidade horizontal vs vertical: 07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical.md
-      - Latência vs Throughput (percentis): 07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis.md
-      - Connection/thread pooling, async I/O, reactive: 07-performance-e-escalabilidade/03-connection-pooling-thread-pooling-async-io-reactive.md
-      - Leis de Little, Amdahl e USL: 07-performance-e-escalabilidade/04-leis-little-amdahl-universal-scalability-law.md
-  - 08 · Segurança arquitetural:
-      - Zero Trust Architecture: 08-seguranca-arquitetural/01-zero-trust-architecture.md
-      - OAuth 2.0, OIDC, SAML, JWT: 08-seguranca-arquitetural/02-oauth2-oidc-saml-jwt.md
-      - mTLS entre serviços: 08-seguranca-arquitetural/03-mtls-entre-servicos.md
-      - Defense in Depth, Least Privilege, Secure by Default: 08-seguranca-arquitetural/04-defense-in-depth-least-privilege-secure-by-default.md
-      - Secrets Management (Vault, KMS): 08-seguranca-arquitetural/05-secrets-management-vault-kms.md
-      - Threat Modeling (STRIDE, PASTA): 08-seguranca-arquitetural/06-threat-modeling-stride-pasta.md
-  - 09 · Observabilidade:
-      - Três pilares (+ eventos): 09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos.md
-      - Distributed Tracing (OpenTelemetry, Jaeger, Zipkin): 09-observabilidade/02-distributed-tracing-opentelemetry-jaeger-zipkin.md
-      - Correlation IDs e propagação de contexto: 09-observabilidade/03-correlation-ids-e-propagacao-de-contexto.md
-      - SLI, SLO, SLA e Error Budgets: 09-observabilidade/04-sli-slo-sla-error-budgets.md
-      - USE, RED, Four Golden Signals: 09-observabilidade/05-use-red-four-golden-signals.md
-  - 10 · Evolução e práticas:
-      - Strangler Fig Pattern: 10-evolucao-e-praticas/01-strangler-fig-pattern.md
-      - Branch by Abstraction, Parallel Run, Feature Toggles: 10-evolucao-e-praticas/02-branch-by-abstraction-parallel-run-feature-toggles.md
-      - Anti-Corruption Layer em migrações: 10-evolucao-e-praticas/03-anti-corruption-layer-em-migracoes.md
-      - Trunk-Based Development: 10-evolucao-e-praticas/04-trunk-based-development.md
-      - GitOps, IaC, Immutable Infrastructure: 10-evolucao-e-praticas/05-gitops-iac-immutable-infrastructure.md
-      - Platform Engineering e IDPs: 10-evolucao-e-praticas/06-platform-engineering-e-idps.md
-  - 11 · Complexidade algorítmica:
-      - Notação assintótica (Big O, Θ, Ω): 11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega.md
-      - Pior, melhor e caso médio: 11-complexidade-algoritmica/02-pior-melhor-e-caso-medio.md
-      - Complexidade amortizada: 11-complexidade-algoritmica/03-complexidade-amortizada.md
-      - Time vs space complexity: 11-complexidade-algoritmica/04-time-vs-space-complexity-tradeoffs.md
-      - Análise de recursão e Master Theorem: 11-complexidade-algoritmica/05-analise-de-recursao-arvore-e-master-theorem.md
-  - 12 · Estruturas de dados:
-      - Arrays e Linked Lists: 12-estruturas-de-dados/01-arrays-e-linked-lists.md
-      - Stacks, Queues, Deque, Priority Queue: 12-estruturas-de-dados/02-stacks-queues-deque-priority-queue.md
-      - Hash Tables: 12-estruturas-de-dados/03-hash-tables.md
-      - Árvores de busca (BST, AVL, Red-Black): 12-estruturas-de-dados/04-arvores-de-busca-bst-avl-red-black.md
-      - B-Tree e B+Tree: 12-estruturas-de-dados/05-b-tree-e-b-plus-tree.md
-      - Heaps: 12-estruturas-de-dados/06-heaps.md
-      - Tries: 12-estruturas-de-dados/07-tries.md
-      - Graphs (representação): 12-estruturas-de-dados/08-graphs-representacao.md
-      - Skip List, Bloom Filter, LRU/LFU: 12-estruturas-de-dados/09-skip-list-bloom-filter-lru-lfu.md
-      - Union-Find (Disjoint Set): 12-estruturas-de-dados/10-union-find-disjoint-set.md
-      - Segment Tree e Fenwick Tree: 12-estruturas-de-dados/11-segment-tree-e-fenwick-tree.md
-  - 13 · Algoritmos essenciais:
-      - Sorting (quick, merge, heap, radix, counting): 13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting.md
-      - Searching (busca binária e variações): 13-algoritmos-essenciais/02-searching-busca-binaria-e-variacoes.md
-      - Two Pointers, Sliding Window, Fast & Slow: 13-algoritmos-essenciais/03-two-pointers-sliding-window-fast-slow.md
-      - Recursão e Backtracking: 13-algoritmos-essenciais/04-recursao-e-backtracking.md
-      - Divide and Conquer: 13-algoritmos-essenciais/05-divide-and-conquer.md
-      - Greedy Algorithms: 13-algoritmos-essenciais/06-greedy-algorithms.md
-      - Dynamic Programming: 13-algoritmos-essenciais/07-dynamic-programming.md
-      - Graph Algorithms (BFS, DFS, Dijkstra…): 13-algoritmos-essenciais/08-graph-algorithms.md
-      - String Algorithms (KMP, Rabin-Karp, Z): 13-algoritmos-essenciais/09-string-algorithms-kmp-rabin-karp-z.md
-  - 14 · Concorrência e paralelismo:
-      - Concorrência vs Paralelismo e context switching: 14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching.md
-      - Race Condition e Critical Section: 14-concorrencia-e-paralelismo/02-race-condition-e-critical-section.md
-      - Deadlock, Livelock, Starvation: 14-concorrencia-e-paralelismo/03-deadlock-livelock-starvation.md
-      - Primitivas (Mutex, Semaphore, Monitor, Spinlock): 14-concorrencia-e-paralelismo/04-primitivas-de-sincronizacao-mutex-semaphore-monitor-spinlock.md
-      - Atomic, CAS, lock-free, wait-free: 14-concorrencia-e-paralelismo/05-atomic-cas-lock-free-wait-free.md
-      - Memory model e false sharing: 14-concorrencia-e-paralelismo/06-memory-model-happens-before-volatile-barriers-false-sharing.md
-      - Problemas clássicos: 14-concorrencia-e-paralelismo/07-problemas-classicos-producer-consumer-readers-writers-dining-philosophers.md
-      - Thread pools e tuning: 14-concorrencia-e-paralelismo/08-thread-pools-e-tuning.md
-      - Async/await, Futures, Reactive Streams: 14-concorrencia-e-paralelismo/09-async-await-futures-promises-reactive-streams.md
-  - 15 · Redes e protocolos:
-      - Modelo OSI e TCP/IP: 15-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md
-      - TCP vs UDP: 15-redes-e-protocolos/02-tcp-vs-udp.md
-      - HTTP/1.1, HTTP/2, HTTP/3 (QUIC): 15-redes-e-protocolos/03-http1-http2-http3-quic.md
-      - HTTPS, TLS handshake e certificados: 15-redes-e-protocolos/04-https-tls-handshake-e-certificados.md
-      - DNS resolution: 15-redes-e-protocolos/05-dns-resolution.md
-      - REST, GraphQL, gRPC, WebSockets: 15-redes-e-protocolos/06-rest-graphql-grpc-websockets.md
-      - Semântica HTTP (idempotência, status codes): 15-redes-e-protocolos/07-semantica-http-idempotencia-e-status-codes.md
-      - CORS, CSRF, XSS: 15-redes-e-protocolos/08-cors-csrf-xss.md
-      - Long polling, SSE, WebSockets: 15-redes-e-protocolos/09-long-polling-sse-websockets.md
-  - 16 · System Design (estudos de caso):
-      - Encurtador de URL: 16-system-design/01-encurtador-de-url.md
-      - Timeline de rede social: 16-system-design/02-timeline-rede-social.md
-      - Sistema de chat: 16-system-design/03-sistema-de-chat.md
-      - Notificações em escala: 16-system-design/04-sistema-de-notificacoes-em-escala.md
-      - Rate limiter: 16-system-design/05-rate-limiter.md
-      - Web crawler distribuído: 16-system-design/06-web-crawler-distribuido.md
-      - Sistema de busca: 16-system-design/07-sistema-de-busca.md
-      - Upload de arquivos: 16-system-design/08-upload-de-arquivos.md
-      - Streaming de vídeo: 16-system-design/09-streaming-de-video.md
-      - Sistema de reservas: 16-system-design/10-sistema-de-reservas.md
-      - Sistema de pagamentos: 16-system-design/11-sistema-de-pagamentos.md
-      - Newsfeed ranking e recomendação: 16-system-design/12-newsfeed-ranking-e-recomendacao.md
-      - Sistema de logs distribuído: 16-system-design/13-sistema-de-logs-distribuido.md
-      - Top K trending (count-min sketch): 16-system-design/14-top-k-trending-count-min-sketch.md
+    - Início: README.md
+    - Mapa de conceitos: mapa-de-conceitos.md
+    - Bibliografia: BIBLIOGRAFIA.md
+    - 01 · Fundamentos:
+          - Atributos de qualidade: 01-fundamentos-arquiteturais/01-atributos-de-qualidade.md
+          - Architecture Decision Records (ADRs): 01-fundamentos-arquiteturais/02-architecture-decision-records-adr.md
+          - Fitness Functions: 01-fundamentos-arquiteturais/03-fitness-functions.md
+          - Conway's Law e Inverse Conway: 01-fundamentos-arquiteturais/04-conway-law-e-inverse-conway-maneuver.md
+          - C4 Model: 01-fundamentos-arquiteturais/05-c4-model.md
+    - 02 · Estilos e padrões:
+          - Layered / N-Tier: 02-estilos-e-padroes/01-layered-n-tier-architecture.md
+          - Hexagonal (Ports & Adapters): 02-estilos-e-padroes/02-hexagonal-ports-and-adapters.md
+          - Clean Architecture: 02-estilos-e-padroes/03-clean-architecture.md
+          - Onion Architecture: 02-estilos-e-padroes/04-onion-architecture.md
+          - Vertical Slice Architecture: 02-estilos-e-padroes/05-vertical-slice-architecture.md
+          - Modular Monolith: 02-estilos-e-padroes/06-modular-monolith.md
+          - Microservices: 02-estilos-e-padroes/07-microservices.md
+          - SOA: 02-estilos-e-padroes/08-service-oriented-architecture-soa.md
+          - Event-Driven Architecture (EDA): 02-estilos-e-padroes/09-event-driven-architecture-eda.md
+          - Space-Based Architecture: 02-estilos-e-padroes/10-space-based-architecture.md
+          - Pipes and Filters: 02-estilos-e-padroes/11-pipes-and-filters.md
+          - Serverless / FaaS: 02-estilos-e-padroes/12-serverless-faas.md
+    - 03 · Design tático (DDD):
+          - Bounded Contexts, Context Mapping, Ubiquitous Language: 03-design-tatico-ddd/01-ddd-bounded-contexts-context-mapping-ubiquitous-language.md
+          - Aggregates, Entities, Value Objects, Domain Events: 03-design-tatico-ddd/02-ddd-aggregates-entities-value-objects-domain-events.md
+          - Context Mapping (ACL, Shared Kernel, Customer-Supplier): 03-design-tatico-ddd/03-ddd-context-mapping-patterns-acl-shared-kernel-customer-supplier.md
+          - CQRS: 03-design-tatico-ddd/04-cqrs.md
+          - Event Sourcing: 03-design-tatico-ddd/05-event-sourcing.md
+          - Saga Pattern: 03-design-tatico-ddd/06-saga-pattern.md
+          - Outbox e Inbox Pattern: 03-design-tatico-ddd/07-outbox-e-inbox-pattern.md
+    - 04 · Sistemas distribuídos:
+          - Teorema CAP e PACELC: 04-sistemas-distribuidos/01-teorema-cap-e-pacelc.md
+          - Modelos de consistência: 04-sistemas-distribuidos/02-modelos-de-consistencia.md
+          - Consenso distribuído (Paxos, Raft, 2PC, 3PC): 04-sistemas-distribuidos/03-consenso-distribuido-paxos-raft-2pc-3pc.md
+          - Idempotência e semânticas de entrega: 04-sistemas-distribuidos/04-idempotencia-e-semanticas-de-entrega.md
+          - Vector Clocks e Lamport Timestamps: 04-sistemas-distribuidos/05-vector-clocks-e-lamport-timestamps.md
+          - CRDTs: 04-sistemas-distribuidos/06-crdts.md
+          - Service Discovery e Load Balancing: 04-sistemas-distribuidos/07-service-discovery-e-load-balancing.md
+          - API Gateway vs BFF: 04-sistemas-distribuidos/08-api-gateway-vs-bff.md
+          - Service Mesh (sidecar): 04-sistemas-distribuidos/09-service-mesh-sidecar.md
+          - Padrões de resiliência: 04-sistemas-distribuidos/10-padroes-de-resiliencia.md
+          - Leader Election, Sharding, Consistent Hashing: 04-sistemas-distribuidos/11-leader-election-sharding-consistent-hashing.md
+          - Quórum reads/writes (N, R, W): 04-sistemas-distribuidos/12-quorum-reads-writes-n-r-w.md
+          - Relógios físicos (clock skew, NTP, TrueTime): 04-sistemas-distribuidos/13-relogios-fisicos-clock-skew-ntp-truetime.md
+    - 05 · Dados e persistência:
+          - Polyglot Persistence: 05-dados-e-persistencia/01-polyglot-persistence.md
+          - Database per Service: 05-dados-e-persistencia/02-database-per-service.md
+          - Read Replicas, Sharding, Particionamento: 05-dados-e-persistencia/03-read-replicas-sharding-particionamento.md
+          - Materialized Views e projeções: 05-dados-e-persistencia/04-materialized-views-e-projecoes.md
+          - CDC com Debezium: 05-dados-e-persistencia/05-cdc-change-data-capture-debezium.md
+          - Data Lake, Warehouse, Mesh, Lakehouse: 05-dados-e-persistencia/06-data-lake-warehouse-mesh-lakehouse.md
+          - OLTP vs OLAP (Lambda, Kappa): 05-dados-e-persistencia/07-oltp-vs-olap-lambda-kappa.md
+          - Cache - padrões e camadas: 05-dados-e-persistencia/08-cache-patterns.md
+          - ACID vs BASE: 05-dados-e-persistencia/09-acid-vs-base.md
+          - Níveis de isolamento e anomalias: 05-dados-e-persistencia/10-niveis-de-isolamento-e-anomalias.md
+          - Locking pessimista vs otimista: 05-dados-e-persistencia/11-locking-pessimista-vs-otimista.md
+          - Índices (B-Tree, Hash, composite, covering): 05-dados-e-persistencia/12-indices-de-banco-btree-hash-composite-covering.md
+          - Query optimization (EXPLAIN, N+1): 05-dados-e-persistencia/13-query-optimization-explain-e-n-mais-1.md
+          - Normalização vs desnormalização: 05-dados-e-persistencia/14-normalizacao-vs-desnormalizacao.md
+          - SQL vs NoSQL: 05-dados-e-persistencia/15-sql-vs-nosql.md
+    - 06 · Mensageria e streaming:
+          - Brokers vs log-based streaming: 06-mensageria-e-streaming/01-message-brokers-vs-log-based-streaming.md
+          - Pub/Sub, Queue, Topic, Partition, Consumer Groups: 06-mensageria-e-streaming/02-pubsub-queue-topic-partition-consumer-groups.md
+          - Backpressure: 06-mensageria-e-streaming/03-backpressure.md
+          - Dead Letter Queue e Poison Messages: 06-mensageria-e-streaming/04-dead-letter-queue-e-poison-messages.md
+          - Stream Processing (Kafka Streams, Flink, janelas): 06-mensageria-e-streaming/05-stream-processing-kafka-streams-flink-janelas.md
+          - Event-carried State Transfer vs Event Notification: 06-mensageria-e-streaming/06-event-carried-state-transfer-vs-event-notification.md
+    - 07 · Performance e escalabilidade:
+          - Escalabilidade horizontal vs vertical: 07-performance-e-escalabilidade/01-escalabilidade-horizontal-vs-vertical.md
+          - Latência vs Throughput (percentis): 07-performance-e-escalabilidade/02-latencia-vs-throughput-percentis.md
+          - Connection/thread pooling, async I/O, reactive: 07-performance-e-escalabilidade/03-connection-pooling-thread-pooling-async-io-reactive.md
+          - Leis de Little, Amdahl e USL: 07-performance-e-escalabilidade/04-leis-little-amdahl-universal-scalability-law.md
+    - 08 · Segurança arquitetural:
+          - Zero Trust Architecture: 08-seguranca-arquitetural/01-zero-trust-architecture.md
+          - OAuth 2.0, OIDC, SAML, JWT: 08-seguranca-arquitetural/02-oauth2-oidc-saml-jwt.md
+          - mTLS entre serviços: 08-seguranca-arquitetural/03-mtls-entre-servicos.md
+          - Defense in Depth, Least Privilege, Secure by Default: 08-seguranca-arquitetural/04-defense-in-depth-least-privilege-secure-by-default.md
+          - Secrets Management (Vault, KMS): 08-seguranca-arquitetural/05-secrets-management-vault-kms.md
+          - Threat Modeling (STRIDE, PASTA): 08-seguranca-arquitetural/06-threat-modeling-stride-pasta.md
+    - 09 · Observabilidade:
+          - Três pilares (+ eventos): 09-observabilidade/01-tres-pilares-logs-metricas-traces-eventos.md
+          - Distributed Tracing (OpenTelemetry, Jaeger, Zipkin): 09-observabilidade/02-distributed-tracing-opentelemetry-jaeger-zipkin.md
+          - Correlation IDs e propagação de contexto: 09-observabilidade/03-correlation-ids-e-propagacao-de-contexto.md
+          - SLI, SLO, SLA e Error Budgets: 09-observabilidade/04-sli-slo-sla-error-budgets.md
+          - USE, RED, Four Golden Signals: 09-observabilidade/05-use-red-four-golden-signals.md
+    - 10 · Evolução e práticas:
+          - Strangler Fig Pattern: 10-evolucao-e-praticas/01-strangler-fig-pattern.md
+          - Branch by Abstraction, Parallel Run, Feature Toggles: 10-evolucao-e-praticas/02-branch-by-abstraction-parallel-run-feature-toggles.md
+          - Anti-Corruption Layer em migrações: 10-evolucao-e-praticas/03-anti-corruption-layer-em-migracoes.md
+          - Trunk-Based Development: 10-evolucao-e-praticas/04-trunk-based-development.md
+          - GitOps, IaC, Immutable Infrastructure: 10-evolucao-e-praticas/05-gitops-iac-immutable-infrastructure.md
+          - Platform Engineering e IDPs: 10-evolucao-e-praticas/06-platform-engineering-e-idps.md
+    - 11 · Complexidade algorítmica:
+          - Notação assintótica (Big O, Θ, Ω): 11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega.md
+          - Pior, melhor e caso médio: 11-complexidade-algoritmica/02-pior-melhor-e-caso-medio.md
+          - Complexidade amortizada: 11-complexidade-algoritmica/03-complexidade-amortizada.md
+          - Time vs space complexity: 11-complexidade-algoritmica/04-time-vs-space-complexity-tradeoffs.md
+          - Análise de recursão e Master Theorem: 11-complexidade-algoritmica/05-analise-de-recursao-arvore-e-master-theorem.md
+    - 12 · Estruturas de dados:
+          - Arrays e Linked Lists: 12-estruturas-de-dados/01-arrays-e-linked-lists.md
+          - Stacks, Queues, Deque, Priority Queue: 12-estruturas-de-dados/02-stacks-queues-deque-priority-queue.md
+          - Hash Tables: 12-estruturas-de-dados/03-hash-tables.md
+          - Árvores de busca (BST, AVL, Red-Black): 12-estruturas-de-dados/04-arvores-de-busca-bst-avl-red-black.md
+          - B-Tree e B+Tree: 12-estruturas-de-dados/05-b-tree-e-b-plus-tree.md
+          - Heaps: 12-estruturas-de-dados/06-heaps.md
+          - Tries: 12-estruturas-de-dados/07-tries.md
+          - Graphs (representação): 12-estruturas-de-dados/08-graphs-representacao.md
+          - Skip List, Bloom Filter, LRU/LFU: 12-estruturas-de-dados/09-skip-list-bloom-filter-lru-lfu.md
+          - Union-Find (Disjoint Set): 12-estruturas-de-dados/10-union-find-disjoint-set.md
+          - Segment Tree e Fenwick Tree: 12-estruturas-de-dados/11-segment-tree-e-fenwick-tree.md
+    - 13 · Algoritmos essenciais:
+          - Sorting (quick, merge, heap, radix, counting): 13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting.md
+          - Searching (busca binária e variações): 13-algoritmos-essenciais/02-searching-busca-binaria-e-variacoes.md
+          - Two Pointers, Sliding Window, Fast & Slow: 13-algoritmos-essenciais/03-two-pointers-sliding-window-fast-slow.md
+          - Recursão e Backtracking: 13-algoritmos-essenciais/04-recursao-e-backtracking.md
+          - Divide and Conquer: 13-algoritmos-essenciais/05-divide-and-conquer.md
+          - Greedy Algorithms: 13-algoritmos-essenciais/06-greedy-algorithms.md
+          - Dynamic Programming: 13-algoritmos-essenciais/07-dynamic-programming.md
+          - Graph Algorithms (BFS, DFS, Dijkstra…): 13-algoritmos-essenciais/08-graph-algorithms.md
+          - String Algorithms (KMP, Rabin-Karp, Z): 13-algoritmos-essenciais/09-string-algorithms-kmp-rabin-karp-z.md
+    - 14 · Concorrência e paralelismo:
+          - Concorrência vs Paralelismo e context switching: 14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching.md
+          - Race Condition e Critical Section: 14-concorrencia-e-paralelismo/02-race-condition-e-critical-section.md
+          - Deadlock, Livelock, Starvation: 14-concorrencia-e-paralelismo/03-deadlock-livelock-starvation.md
+          - Primitivas (Mutex, Semaphore, Monitor, Spinlock): 14-concorrencia-e-paralelismo/04-primitivas-de-sincronizacao-mutex-semaphore-monitor-spinlock.md
+          - Atomic, CAS, lock-free, wait-free: 14-concorrencia-e-paralelismo/05-atomic-cas-lock-free-wait-free.md
+          - Memory model e false sharing: 14-concorrencia-e-paralelismo/06-memory-model-happens-before-volatile-barriers-false-sharing.md
+          - Problemas clássicos: 14-concorrencia-e-paralelismo/07-problemas-classicos-producer-consumer-readers-writers-dining-philosophers.md
+          - Thread pools e tuning: 14-concorrencia-e-paralelismo/08-thread-pools-e-tuning.md
+          - Async/await, Futures, Reactive Streams: 14-concorrencia-e-paralelismo/09-async-await-futures-promises-reactive-streams.md
+    - 15 · Redes e protocolos:
+          - Modelo OSI e TCP/IP: 15-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md
+          - TCP vs UDP: 15-redes-e-protocolos/02-tcp-vs-udp.md
+          - HTTP/1.1, HTTP/2, HTTP/3 (QUIC): 15-redes-e-protocolos/03-http1-http2-http3-quic.md
+          - HTTPS, TLS handshake e certificados: 15-redes-e-protocolos/04-https-tls-handshake-e-certificados.md
+          - DNS resolution: 15-redes-e-protocolos/05-dns-resolution.md
+          - REST, GraphQL, gRPC, WebSockets: 15-redes-e-protocolos/06-rest-graphql-grpc-websockets.md
+          - Semântica HTTP (idempotência, status codes): 15-redes-e-protocolos/07-semantica-http-idempotencia-e-status-codes.md
+          - CORS, CSRF, XSS: 15-redes-e-protocolos/08-cors-csrf-xss.md
+          - Long polling, SSE, WebSockets: 15-redes-e-protocolos/09-long-polling-sse-websockets.md
+    - 16 · System Design (estudos de caso):
+          - Encurtador de URL: 16-system-design/01-encurtador-de-url.md
+          - Timeline de rede social: 16-system-design/02-timeline-rede-social.md
+          - Sistema de chat: 16-system-design/03-sistema-de-chat.md
+          - Notificações em escala: 16-system-design/04-sistema-de-notificacoes-em-escala.md
+          - Rate limiter: 16-system-design/05-rate-limiter.md
+          - Web crawler distribuído: 16-system-design/06-web-crawler-distribuido.md
+          - Sistema de busca: 16-system-design/07-sistema-de-busca.md
+          - Upload de arquivos: 16-system-design/08-upload-de-arquivos.md
+          - Streaming de vídeo: 16-system-design/09-streaming-de-video.md
+          - Sistema de reservas: 16-system-design/10-sistema-de-reservas.md
+          - Sistema de pagamentos: 16-system-design/11-sistema-de-pagamentos.md
+          - Newsfeed ranking e recomendação: 16-system-design/12-newsfeed-ranking-e-recomendacao.md
+          - Sistema de logs distribuído: 16-system-design/13-sistema-de-logs-distribuido.md
+          - Top K trending (count-min sketch): 16-system-design/14-top-k-trending-count-min-sketch.md

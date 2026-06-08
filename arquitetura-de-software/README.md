@@ -16,6 +16,16 @@ Os diagramas Mermaid renderizam automaticamente no GitHub, GitLab, Obsidian, VS 
 
 Sugestão: leia na ordem do **roteiro** abaixo, não na ordem das pastas. A numeração das pastas é organizacional; o roteiro otimiza a curva de aprendizado.
 
+> **Progresso de leitura:** em cada conceito, use o botão **"Marcar como estudado"** no topo da página. O estado fica salvo no seu navegador (localStorage) e alimenta as barras de progresso abaixo.
+
+---
+
+## Seu progresso
+
+<div id="progress-dashboard">
+  <p><em>As barras de progresso aparecem aqui quando o JavaScript do site está ativo. Marque conceitos como estudados para acompanhar o avanço por bloco.</em></p>
+</div>
+
 ---
 
 ## Roteiro de estudo sugerido
@@ -149,6 +159,113 @@ O coração teórico. Não pule — sustenta tudo de mensageria e dados.
 | 70 | [Trunk-Based Development](10-evolucao-e-praticas/04-trunk-based-development.md) |
 | 71 | [GitOps, IaC, Immutable Infrastructure](10-evolucao-e-praticas/05-gitops-iac-immutable-infrastructure.md) |
 | 72 | [Platform Engineering e IDPs](10-evolucao-e-praticas/06-platform-engineering-e-idps.md) |
+
+---
+
+## Roteiro de estudo — Parte II (blocos 11–16)
+
+Os blocos 11–16 formam os **fundamentos de CS e a preparação para entrevistas**: complexidade, estruturas de dados, algoritmos, concorrência, redes e System Design. Podem ser estudados **em paralelo** à Parte I (15–30 min/dia de fundamentos como aquecimento) ou **em sequência**, depois de fechar o bloco 10. Em ritmo confortável, são mais **5 a 7 semanas**.
+
+A ordem abaixo respeita os pré-requisitos: complexidade dá o vocabulário para analisar tudo; estruturas de dados vêm antes dos algoritmos que as usam; concorrência e redes sustentam o System Design, que fecha como capstone integrando toda a Parte I e a Parte II.
+
+### Fase 10 — Análise de complexidade (semana 11)
+
+A base de medição. Tudo o que vem depois é avaliado em termos de tempo e espaço.
+
+| Ordem | Conceito | Por quê primeiro |
+|---|---|---|
+| 73 | [Notação assintótica (Big O, Θ, Ω)](11-complexidade-algoritmica/01-notacao-assintotica-big-o-theta-omega.md) | Vocabulário para comparar qualquer algoritmo ou estrutura. |
+| 74 | [Pior, melhor e caso médio](11-complexidade-algoritmica/02-pior-melhor-e-caso-medio.md) | Por que "O(n)" sem contexto engana. |
+| 75 | [Complexidade amortizada](11-complexidade-algoritmica/03-complexidade-amortizada.md) | Explica arrays dinâmicos, hash tables e muito do bloco 12. |
+| 76 | [Time vs space complexity e trade-offs](11-complexidade-algoritmica/04-time-vs-space-complexity-tradeoffs.md) | O trade-off mais comum em entrevistas e em produção. |
+| 77 | [Análise de recursão: árvore e Master Theorem](11-complexidade-algoritmica/05-analise-de-recursao-arvore-e-master-theorem.md) | Necessário para analisar divide-and-conquer (bloco 13). |
+
+### Fase 11 — Estruturas de dados (semanas 11–12)
+
+Do linear ao hierárquico ao probabilístico. Cada estrutura é uma resposta a um trade-off de complexidade da fase anterior.
+
+| Ordem | Conceito |
+|---|---|
+| 78 | [Arrays e Linked Lists](12-estruturas-de-dados/01-arrays-e-linked-lists.md) |
+| 79 | [Stacks, Queues, Deque, Priority Queue](12-estruturas-de-dados/02-stacks-queues-deque-priority-queue.md) |
+| 80 | [Hash Tables](12-estruturas-de-dados/03-hash-tables.md) |
+| 81 | [Heaps](12-estruturas-de-dados/06-heaps.md) |
+| 82 | [Árvores de busca: BST, AVL, Red-Black](12-estruturas-de-dados/04-arvores-de-busca-bst-avl-red-black.md) |
+| 83 | [B-Tree e B+Tree](12-estruturas-de-dados/05-b-tree-e-b-plus-tree.md) |
+| 84 | [Tries](12-estruturas-de-dados/07-tries.md) |
+| 85 | [Graphs (representação)](12-estruturas-de-dados/08-graphs-representacao.md) |
+| 86 | [Union-Find (Disjoint Set)](12-estruturas-de-dados/10-union-find-disjoint-set.md) |
+| 87 | [Skip List, Bloom Filter, LRU/LFU](12-estruturas-de-dados/09-skip-list-bloom-filter-lru-lfu.md) |
+| 88 | [Segment Tree e Fenwick Tree](12-estruturas-de-dados/11-segment-tree-e-fenwick-tree.md) |
+
+### Fase 12 — Algoritmos essenciais (semanas 12–13)
+
+Padrões que reaparecem em quase todo problema. Estude cada um já resolvendo exercícios.
+
+| Ordem | Conceito |
+|---|---|
+| 89 | [Sorting (quicksort, mergesort, heapsort, radix, counting)](13-algoritmos-essenciais/01-sorting-quicksort-mergesort-heapsort-radix-counting.md) |
+| 90 | [Searching: busca binária e variações](13-algoritmos-essenciais/02-searching-busca-binaria-e-variacoes.md) |
+| 91 | [Two Pointers, Sliding Window, Fast & Slow](13-algoritmos-essenciais/03-two-pointers-sliding-window-fast-slow.md) |
+| 92 | [Divide and Conquer](13-algoritmos-essenciais/05-divide-and-conquer.md) |
+| 93 | [Recursão e Backtracking](13-algoritmos-essenciais/04-recursao-e-backtracking.md) |
+| 94 | [Greedy Algorithms](13-algoritmos-essenciais/06-greedy-algorithms.md) |
+| 95 | [Dynamic Programming](13-algoritmos-essenciais/07-dynamic-programming.md) |
+| 96 | [Graph Algorithms (BFS, DFS, Dijkstra…)](13-algoritmos-essenciais/08-graph-algorithms.md) |
+| 97 | [String Algorithms (KMP, Rabin-Karp, Z)](13-algoritmos-essenciais/09-string-algorithms-kmp-rabin-karp-z.md) |
+
+### Fase 13 — Concorrência e paralelismo (semana 14)
+
+Do conceito aos problemas clássicos. Sustenta thread pools, async I/O (bloco 07) e muito do System Design.
+
+| Ordem | Conceito |
+|---|---|
+| 98 | [Concorrência vs Paralelismo e context switching](14-concorrencia-e-paralelismo/01-concorrencia-vs-paralelismo-e-context-switching.md) |
+| 99 | [Race Condition e Critical Section](14-concorrencia-e-paralelismo/02-race-condition-e-critical-section.md) |
+| 100 | [Primitivas: Mutex, Semaphore, Monitor, Spinlock](14-concorrencia-e-paralelismo/04-primitivas-de-sincronizacao-mutex-semaphore-monitor-spinlock.md) |
+| 101 | [Deadlock, Livelock, Starvation](14-concorrencia-e-paralelismo/03-deadlock-livelock-starvation.md) |
+| 102 | [Atomic, CAS, lock-free e wait-free](14-concorrencia-e-paralelismo/05-atomic-cas-lock-free-wait-free.md) |
+| 103 | [Memory model e false sharing](14-concorrencia-e-paralelismo/06-memory-model-happens-before-volatile-barriers-false-sharing.md) |
+| 104 | [Problemas clássicos (Producer-Consumer, Readers-Writers, Dining Philosophers)](14-concorrencia-e-paralelismo/07-problemas-classicos-producer-consumer-readers-writers-dining-philosophers.md) |
+| 105 | [Thread pools e tuning](14-concorrencia-e-paralelismo/08-thread-pools-e-tuning.md) |
+| 106 | [Async/await, Futures/Promises, Reactive Streams](14-concorrencia-e-paralelismo/09-async-await-futures-promises-reactive-streams.md) |
+
+### Fase 14 — Redes e protocolos (semana 15)
+
+Do modelo de camadas ao protocolo de aplicação. Pré-requisito direto para discutir latência e comunicação no System Design.
+
+| Ordem | Conceito |
+|---|---|
+| 107 | [Modelo OSI e TCP/IP](15-redes-e-protocolos/01-modelo-osi-e-tcp-ip.md) |
+| 108 | [TCP vs UDP](15-redes-e-protocolos/02-tcp-vs-udp.md) |
+| 109 | [DNS resolution](15-redes-e-protocolos/05-dns-resolution.md) |
+| 110 | [HTTP/1.1 vs HTTP/2 vs HTTP/3 (QUIC)](15-redes-e-protocolos/03-http1-http2-http3-quic.md) |
+| 111 | [HTTPS, TLS handshake e certificados](15-redes-e-protocolos/04-https-tls-handshake-e-certificados.md) |
+| 112 | [Semântica HTTP: idempotência e status codes](15-redes-e-protocolos/07-semantica-http-idempotencia-e-status-codes.md) |
+| 113 | [REST vs GraphQL vs gRPC vs WebSockets](15-redes-e-protocolos/06-rest-graphql-grpc-websockets.md) |
+| 114 | [Long polling, SSE, WebSockets](15-redes-e-protocolos/09-long-polling-sse-websockets.md) |
+| 115 | [CORS, CSRF, XSS](15-redes-e-protocolos/08-cors-csrf-xss.md) |
+
+### Fase 15 — System Design — capstone (semanas 15–16)
+
+O fechamento: cada estudo de caso integra blocos da Parte I (distribuídos, dados, mensageria, cache, resiliência) com os fundamentos da Parte II. Comece pelos clássicos de entrevista e avance para os mais ricos.
+
+| Ordem | Conceito |
+|---|---|
+| 116 | [Encurtador de URL](16-system-design/01-encurtador-de-url.md) |
+| 117 | [Rate limiter](16-system-design/05-rate-limiter.md) |
+| 118 | [Timeline de rede social](16-system-design/02-timeline-rede-social.md) |
+| 119 | [Sistema de chat](16-system-design/03-sistema-de-chat.md) |
+| 120 | [Notificações em escala](16-system-design/04-sistema-de-notificacoes-em-escala.md) |
+| 121 | [Sistema de busca](16-system-design/07-sistema-de-busca.md) |
+| 122 | [Web crawler distribuído](16-system-design/06-web-crawler-distribuido.md) |
+| 123 | [Upload de arquivos](16-system-design/08-upload-de-arquivos.md) |
+| 124 | [Streaming de vídeo](16-system-design/09-streaming-de-video.md) |
+| 125 | [Sistema de reservas](16-system-design/10-sistema-de-reservas.md) |
+| 126 | [Sistema de pagamentos](16-system-design/11-sistema-de-pagamentos.md) |
+| 127 | [Newsfeed ranking e recomendação](16-system-design/12-newsfeed-ranking-e-recomendacao.md) |
+| 128 | [Sistema de logs distribuído](16-system-design/13-sistema-de-logs-distribuido.md) |
+| 129 | [Top K trending (count-min sketch)](16-system-design/14-top-k-trending-count-min-sketch.md) |
 
 ---
 

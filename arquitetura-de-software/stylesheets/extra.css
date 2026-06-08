@@ -26,3 +26,446 @@
   height: auto;
   max-width: 100%;
 }
+
+/* --- Player de narração (áudio pré-gerado pelo OmniVoice) --------------- */
+/* (A leitura por voz do navegador foi removida; resta só o player de áudio.) */
+.tts-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--md-primary-fg-color);
+  border-radius: 0.4rem;
+  background: var(--md-code-bg-color);
+}
+
+.tts-narration-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--md-primary-fg-color);
+}
+
+.tts-narration .tts-audio {
+  width: 100%;
+  height: 2.2rem;
+}
+
+/* Mini-player por seção (mais compacto, logo abaixo do cabeçalho) */
+.tts-narration-sec {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.4rem 0 1rem;
+  padding: 0.35rem 0.6rem;
+  border-width: 1px;
+  border-left-width: 3px;
+}
+
+.tts-narration-sec .tts-narration-label {
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.tts-narration-sec .tts-audio {
+  height: 2rem;
+}
+
+/* ===========================================================================
+   Progresso de leitura (progress.js)
+   =========================================================================== */
+
+/* Barra de progresso genérica (usada em mini-barras e no dashboard). */
+.study-bar {
+  display: inline-block;
+  flex: 1;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--md-default-fg-color--lightest);
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.study-bar-lg {
+  height: 0.7rem;
+}
+
+.study-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--md-primary-fg-color);
+  transition: width 0.25s ease;
+}
+
+/* --- Toggle "marcar como estudado" no topo de cada conceito ------------- */
+.study-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  margin: 0 0 1.2rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.4rem;
+  background: var(--md-code-bg-color);
+}
+
+.study-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  border: 1px solid var(--md-primary-fg-color);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--md-primary-fg-color);
+  background: transparent;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.study-toggle-btn:hover {
+  background: var(--md-primary-fg-color--light);
+  color: var(--md-primary-bg-color);
+}
+
+.study-toggle-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.study-toggle.is-done .study-toggle-btn {
+  background: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color);
+}
+
+.study-toggle.is-done .study-toggle-mark {
+  border-color: var(--md-primary-bg-color);
+}
+
+/* Mini-barra do bloco atual, ao lado do toggle. */
+.study-block-mini {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex: 1 1 16rem;
+  min-width: 12rem;
+  font-size: 0.7rem;
+}
+
+.study-block-mini-label {
+  color: var(--md-default-fg-color--light);
+  white-space: nowrap;
+}
+
+.study-block-mini-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--md-default-fg-color--light);
+  white-space: nowrap;
+}
+
+/* --- Dashboard de progresso (página Início) ----------------------------- */
+#progress-dashboard {
+  margin: 1.5rem 0 2rem;
+}
+
+.study-dash-overall {
+  margin-bottom: 1.2rem;
+}
+
+.study-dash-overall-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.study-dash-overall-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.study-dash-overall-count {
+  font-size: 0.78rem;
+  color: var(--md-default-fg-color--light);
+  font-variant-numeric: tabular-nums;
+}
+
+.study-dash-blocks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.8rem 1.2rem;
+}
+
+.study-dash-block-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.78rem;
+}
+
+.study-dash-block-name {
+  font-weight: 600;
+}
+
+.study-dash-block.is-complete .study-dash-block-name {
+  color: var(--md-primary-fg-color);
+}
+
+.study-dash-block-count {
+  color: var(--md-default-fg-color--light);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.study-dash-actions {
+  margin-top: 1.2rem;
+}
+
+.study-dash-reset {
+  cursor: pointer;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 0.3rem;
+  background: transparent;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.72rem;
+  padding: 0.3rem 0.7rem;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.study-dash-reset:hover {
+  border-color: var(--md-primary-fg-color);
+  color: var(--md-primary-fg-color);
+}
+
+/* ===========================================================================
+   Zoom/pan de diagramas Mermaid (mermaid-zoom.js)
+   =========================================================================== */
+.md-typeset .mermaid.mz-enhanced {
+  position: relative;
+  cursor: zoom-in;
+}
+
+.mz-expand {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  cursor: zoom-in;
+  border: 1px solid var(--md-primary-fg-color);
+  border-radius: 0.3rem;
+  background: var(--md-default-bg-color);
+  color: var(--md-primary-fg-color);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.md-typeset .mermaid.mz-enhanced:hover .mz-expand,
+.mz-expand:focus {
+  opacity: 1;
+}
+
+html.mz-lock { overflow: hidden; }
+
+.mz-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: none;
+  background: rgba(0, 0, 0, 0.82);
+}
+.mz-overlay.is-open { display: block; }
+
+.mz-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+}
+.mz-stage.is-grabbing { cursor: grabbing; }
+
+.mz-holder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+.mz-holder > svg {
+  display: block;
+  /* Centraliza o ponto inicial do SVG no meio da tela. */
+  transform: translate(-50%, -50%);
+}
+
+.mz-toolbar {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  z-index: 2;
+  display: flex;
+  gap: 0.4rem;
+}
+.mz-btn {
+  cursor: pointer;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: none;
+  border-radius: 0.4rem;
+  background: rgba(255, 255, 255, 0.92);
+  color: #111;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.mz-btn:hover { background: #fff; }
+.mz-close { background: #ef5350; color: #fff; }
+
+.mz-hint {
+  position: absolute;
+  bottom: 0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.72rem;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+}
+
+/* ===========================================================================
+   Mapa de conceitos / grafo (graph.js)
+   =========================================================================== */
+.concept-graph {
+  margin: 1.2rem 0 1.5rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--md-default-bg-color);
+}
+
+.cg-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+.cg-search {
+  flex: 1 1 14rem;
+  min-width: 10rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 0.3rem;
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  font-size: 0.8rem;
+}
+.cg-btn {
+  cursor: pointer;
+  border: 1px solid var(--md-primary-fg-color);
+  border-radius: 0.3rem;
+  background: transparent;
+  color: var(--md-primary-fg-color);
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  white-space: nowrap;
+}
+.cg-btn:hover { background: var(--md-primary-fg-color); color: var(--md-primary-bg-color); }
+
+.cg-main {
+  display: flex;
+  flex-wrap: wrap;
+}
+.cg-canvas {
+  flex: 1 1 60%;
+  min-width: 18rem;
+  height: 68vh;
+  min-height: 28rem;
+}
+.cg-panel {
+  flex: 1 1 16rem;
+  max-width: 22rem;
+  border-left: 1px solid var(--md-default-fg-color--lightest);
+  padding: 0.9rem;
+  overflow-y: auto;
+  max-height: 68vh;
+  font-size: 0.82rem;
+}
+.cg-panel-empty { color: var(--md-default-fg-color--light); font-size: 0.8rem; }
+.cg-panel-head { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.3rem; }
+.cg-panel-block { font-size: 0.72rem; color: var(--md-default-fg-color--light); }
+.cg-panel-title { margin: 0.2rem 0 0.5rem; font-size: 0.95rem; line-height: 1.25; }
+.cg-open {
+  display: inline-block;
+  margin-bottom: 0.7rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+.cg-panel-sec h4 {
+  margin: 0.7rem 0 0.3rem;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--md-default-fg-color--light);
+}
+.cg-panel-sec ul { margin: 0; padding-left: 1rem; }
+.cg-panel-sec li { margin: 0.12rem 0; }
+.cg-blk {
+  font-size: 0.62rem;
+  color: var(--md-default-fg-color--light);
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 0.2rem;
+  padding: 0 0.2rem;
+}
+.cg-none { color: var(--md-default-fg-color--light); margin: 0.1rem 0; }
+
+.cg-dot {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.cg-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.7rem 0.8rem;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+.cg-chip {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--md-default-fg-color);
+  font-size: 0.68rem;
+  padding: 0.2rem 0.55rem;
+}
+.cg-chip.is-off { opacity: 0.4; text-decoration: line-through; }

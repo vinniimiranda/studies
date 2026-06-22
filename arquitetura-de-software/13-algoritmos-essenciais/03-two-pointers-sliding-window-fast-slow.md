@@ -228,6 +228,475 @@ permite(req, agora, T, limite):
 - Pegadinhas: two pointers em dados não-ordenados, sliding window com condição não-monotônica, esquecer de atualizar o estado ao contrair, e null-check do fast pointer.
 - Sliding window só vale para **subarrays/substrings contíguos**; subsequências não-contíguas são DP.
 
+## Implementação de referência em TypeScript
+
+As implementações dos padrões discutidos aqui (two pointers convergentes, sliding window de tamanho fixo e variável, fast & slow pointers em listas) estão no arquivo de Arrays e no de Linked List — ambos exemplificam os padrões em problemas clássicos.
+
+### Two pointers e sliding window (no arquivo de Arrays)
+
+```typescript
+/**
+ * Arrays — padrões clássicos de HackerRank / Codility / LeetCode.
+ *
+ * Complexidade das operações nativas:
+ *   acesso por índice ........ O(1)
+ *   push / pop ............... O(1) amortizado
+ *   unshift / shift / splice . O(n)
+ *   indexOf / includes ....... O(n)
+ *   sort ..................... O(n log n)
+ */
+
+
+
+// Utilitários compartilhados (inlinados para tornar o exemplo self-contained).
+function swap<T>(array: T[], i: number, j: number): void {
+  [array[i], array[j]] = [array[j], array[i]];
+}
+
+// ----------------------------------------------------------------------------
+// Two pointers — inverter array in-place. O(n) tempo, O(1) memória.
+// ----------------------------------------------------------------------------
+
+export function reverseInPlace<T>(items: T[]): T[] {
+  let left = 0;
+  let right = items.length - 1;
+
+  while (left < right) {
+    swap(items, left, right);
+    left++;
+    right--;
+  }
+  return items;
+}
+
+// ----------------------------------------------------------------------------
+// Two Sum em array ORDENADO — two pointers convergentes. O(n).
+// ----------------------------------------------------------------------------
+
+export type IndexPair = readonly [number, number];
+
+export function twoSumSorted(sortedNumbers: number[], target: number): IndexPair | null {
+  let left = 0;
+  let right = sortedNumbers.length - 1;
+
+  while (left < right) {
+    const currentSum = sortedNumbers[left] + sortedNumbers[right];
+    if (currentSum === target) return [left, right];
+    if (currentSum < target) left++;
+    else right--;
+  }
+  return null;
+}
+
+// ----------------------------------------------------------------------------
+// Two Sum em array NÃO ordenado — hash. O(n) tempo / O(n) memória.
+// ----------------------------------------------------------------------------
+
+export function twoSum(numbers: number[], target: number): IndexPair | null {
+  const indexByValue = new Map<number, number>();
+
+  for (let i = 0; i < numbers.length; i++) {
+    const complement = target - numbers[i];
+    const complementIndex = indexByValue.get(complement);
+    if (complementIndex !== undefined) return [complementIndex, i];
+    indexByValue.set(numbers[i], i);
+  }
+  return null;
+}
+
+// ----------------------------------------------------------------------------
+// Kadane — subarray contíguo de soma máxima. O(n).
+// Codility: MaxSliceSum / MaxProfit.
+// ----------------------------------------------------------------------------
+
+export function maxSubarraySum(numbers: number[]): number {
+  let bestSum = numbers[0];
+  let currentSum = numbers[0];
+
+  for (let i = 1; i < numbers.length; i++) {
+    currentSum = Math.max(numbers[i], currentSum + numbers[i]);
+    bestSum = Math.max(bestSum, currentSum);
+  }
+  return bestSum;
+}
+
+// ----------------------------------------------------------------------------
+// Sliding window (tamanho fixo) — média máxima de k consecutivos. O(n).
+// ----------------------------------------------------------------------------
+
+export function maxAverageOfWindow(numbers: number[], windowSize: number): number {
+  let windowSum = 0;
+  for (let i = 0; i < windowSize; i++) windowSum += numbers[i];
+
+  let bestSum = windowSum;
+  for (let i = windowSize; i < numbers.length; i++) {
+    windowSum += numbers[i] - numbers[i - windowSize];
+    bestSum = Math.max(bestSum, windowSum);
+  }
+  return bestSum / windowSize;
+}
+
+// ----------------------------------------------------------------------------
+// Sliding window (variável) — tamanho do menor subarray com soma >= target. O(n).
+// ----------------------------------------------------------------------------
+
+export function minSubarrayLengthForSum(target: number, numbers: number[]): number {
+  let windowStart = 0;
+  let windowSum = 0;
+  let bestLength = Infinity;
+
+  for (let windowEnd = 0; windowEnd < numbers.length; windowEnd++) {
+    windowSum += numbers[windowEnd];
+
+    while (windowSum >= target) {
+      bestLength = Math.min(bestLength, windowEnd - windowStart + 1);
+      windowSum -= numbers[windowStart];
+      windowStart++;
+    }
+  }
+  return bestLength === Infinity ? 0 : bestLength;
+}
+
+// ----------------------------------------------------------------------------
+// Prefix sum — soma de qualquer intervalo em O(1) após pré-processamento O(n).
+// ----------------------------------------------------------------------------
+
+export function buildPrefixSum(numbers: number[]): number[] {
+  const prefix = new Array<number>(numbers.length + 1).fill(0);
+  for (let i = 0; i < numbers.length; i++) {
+    prefix[i + 1] = prefix[i] + numbers[i];
+  }
+  return prefix;
+}
+
+/** Soma de numbers[left..right] inclusivo, dado o prefix sum pré-calculado. */
+export function rangeSum(prefix: number[], left: number, right: number): number {
+  return prefix[right + 1] - prefix[left];
+}
+
+// ----------------------------------------------------------------------------
+// Codility — MissingInteger: menor inteiro positivo ausente. O(n).
+// ----------------------------------------------------------------------------
+
+export function missingInteger(numbers: number[]): number {
+  const present = new Set(numbers);
+  for (let candidate = 1; candidate <= numbers.length + 1; candidate++) {
+    if (!present.has(candidate)) return candidate;
+  }
+  return 1;
+}
+
+// ----------------------------------------------------------------------------
+// Codility — TapeEquilibrium: minimizar |sum(left) - sum(right)|. O(n).
+// ----------------------------------------------------------------------------
+
+export function tapeEquilibrium(numbers: number[]): number {
+  const total = numbers.reduce((acc, value) => acc + value, 0);
+
+  let leftSum = 0;
+  let bestDifference = Infinity;
+
+  for (let i = 0; i < numbers.length - 1; i++) {
+    leftSum += numbers[i];
+    const rightSum = total - leftSum;
+    bestDifference = Math.min(bestDifference, Math.abs(leftSum - rightSum));
+  }
+  return bestDifference;
+}
+
+// ----------------------------------------------------------------------------
+// Codility — CyclicRotation: rotacionar K posições à direita. O(n).
+// ----------------------------------------------------------------------------
+
+export function rotateRight<T>(items: T[], shift: number): T[] {
+  if (items.length === 0) return items;
+  const normalizedShift = normalizeShift(shift, items.length);
+  return [...items.slice(items.length - normalizedShift), ...items.slice(0, items.length - normalizedShift)];
+}
+
+function normalizeShift(shift: number, length: number): number {
+  return ((shift % length) + length) % length;
+}
+
+// ----------------------------------------------------------------------------
+// Boyer-Moore Voting — elemento majoritário (> n/2). O(n) tempo, O(1) memória.
+// ----------------------------------------------------------------------------
+
+export function majorityElement(numbers: number[]): number | null {
+  const candidate = findMajorityCandidate(numbers);
+  return isMajority(numbers, candidate) ? candidate : null;
+}
+
+function findMajorityCandidate(numbers: number[]): number {
+  let candidate = numbers[0];
+  let count = 0;
+
+  for (const value of numbers) {
+    if (count === 0) candidate = value;
+    count += value === candidate ? 1 : -1;
+  }
+  return candidate;
+}
+
+function isMajority(numbers: number[], candidate: number): boolean {
+  const occurrences = numbers.filter(value => value === candidate).length;
+  return occurrences > numbers.length / 2;
+}
+
+// ----------------------------------------------------------------------------
+
+function runExamples(): void {
+  console.log('reverseInPlace:', reverseInPlace([1, 2, 3, 4, 5]));
+  console.log('twoSum:', twoSum([2, 7, 11, 15], 9));
+  console.log('maxSubarraySum:', maxSubarraySum([-2, 1, -3, 4, -1, 2, 1, -5, 4])); // 6
+  console.log('minSubarrayLengthForSum:', minSubarrayLengthForSum(7, [2, 3, 1, 2, 4, 3])); // 2
+  console.log('missingInteger:', missingInteger([1, 3, 6, 4, 1, 2])); // 5
+  console.log('tapeEquilibrium:', tapeEquilibrium([3, 1, 2, 4, 3])); // 1
+  console.log('rotateRight:', rotateRight([3, 8, 9, 7, 6], 3)); // [9,7,6,3,8]
+  console.log('majorityElement:', majorityElement([3, 2, 3]));
+}
+
+runExamples();
+```
+
+### Fast & slow pointers — Floyd cycle detection e middle node (no arquivo de Linked List)
+
+```typescript
+/**
+ * Linked List — Singly e Doubly.
+ *
+ * Vantagens vs Array:
+ *   - Inserção/remoção no início em O(1).
+ *   - Tamanho dinâmico sem realocação.
+ * Desvantagens:
+ *   - Acesso por índice em O(n).
+ *   - Péssima localidade de cache.
+ */
+
+
+// ============================================================================
+// Singly Linked List
+// ============================================================================
+
+export class ListNode<T> {
+  constructor(public value: T, public next: ListNode<T> | null = null) {}
+}
+
+export class LinkedList<T> {
+  private head: ListNode<T> | null = null;
+  private tail: ListNode<T> | null = null;
+  private length = 0;
+
+  get size(): number {
+    return this.length;
+  }
+
+  /** Adiciona no final. O(1). */
+  push(value: T): void {
+    const node = new ListNode(value);
+    if (this.tail === null) this.head = node;
+    else this.tail.next = node;
+    this.tail = node;
+    this.length++;
+  }
+
+  /** Adiciona no início. O(1). */
+  unshift(value: T): void {
+    this.head = new ListNode(value, this.head);
+    if (this.tail === null) this.tail = this.head;
+    this.length++;
+  }
+
+  /** Remove a primeira ocorrência do valor. O(n). */
+  remove(value: T): boolean {
+    if (this.head === null) return false;
+
+    if (this.head.value === value) {
+      this.removeHead();
+      return true;
+    }
+
+    const previous = this.findNodeBefore(value);
+    if (previous === null) return false;
+
+    this.removeAfter(previous);
+    return true;
+  }
+
+  toArray(): T[] {
+    const result: T[] = [];
+    for (let node = this.head; node !== null; node = node.next) {
+      result.push(node.value);
+    }
+    return result;
+  }
+
+  getHead(): ListNode<T> | null {
+    return this.head;
+  }
+
+  // ----- Helpers privados: cada um faz uma única coisa. -----
+
+  private removeHead(): void {
+    this.head = this.head!.next;
+    if (this.head === null) this.tail = null;
+    this.length--;
+  }
+
+  private findNodeBefore(value: T): ListNode<T> | null {
+    let previous = this.head;
+    while (previous !== null && previous.next !== null && previous.next.value !== value) {
+      previous = previous.next;
+    }
+    return previous !== null && previous.next !== null ? previous : null;
+  }
+
+  private removeAfter(previous: ListNode<T>): void {
+    previous.next = previous.next!.next;
+    if (previous.next === null) this.tail = previous;
+    this.length--;
+  }
+}
+
+// ============================================================================
+// Algoritmos clássicos sobre Singly Linked List
+// ============================================================================
+
+/** Inverte uma lista in-place. O(n) tempo / O(1) memória. */
+export function reverseList<T>(head: ListNode<T> | null): ListNode<T> | null {
+  let previous: ListNode<T> | null = null;
+  let current = head;
+
+  while (current !== null) {
+    const next: ListNode<T> | null = current.next;
+    current.next = previous;
+    previous = current;
+    current = next;
+  }
+  return previous;
+}
+
+/** Floyd's Tortoise & Hare — detecta ciclo. O(n) / O(1). */
+export function hasCycle<T>(head: ListNode<T> | null): boolean {
+  let slow = head;
+  let fast = head;
+
+  while (fast !== null && fast.next !== null) {
+    slow = slow!.next;
+    fast = fast.next.next;
+    if (slow === fast) return true;
+  }
+  return false;
+}
+
+/** Encontra o nó do meio (o segundo meio em listas de tamanho par). O(n) / O(1). */
+export function findMiddleNode<T>(head: ListNode<T> | null): ListNode<T> | null {
+  let slow = head;
+  let fast = head;
+
+  while (fast !== null && fast.next !== null) {
+    slow = slow!.next;
+    fast = fast.next.next;
+  }
+  return slow;
+}
+
+/** Merge de duas listas ordenadas. O(n + m). */
+export function mergeSortedLists(
+  first: ListNode<number> | null,
+  second: ListNode<number> | null,
+): ListNode<number> | null {
+  const sentinel = new ListNode<number>(0);
+  let tail = sentinel;
+
+  while (first !== null && second !== null) {
+    if (first.value <= second.value) {
+      tail.next = first;
+      first = first.next;
+    } else {
+      tail.next = second;
+      second = second.next;
+    }
+    tail = tail.next;
+  }
+  tail.next = first ?? second;
+  return sentinel.next;
+}
+
+/** Remove o N-ésimo nó a partir do fim. Uma passada com two-pointer. O(n). */
+export function removeNthFromEnd<T>(head: ListNode<T> | null, positionFromEnd: number): ListNode<T> | null {
+  const sentinel = new ListNode<T>(undefined as unknown as T, head);
+  let leading: ListNode<T> | null = sentinel;
+  let trailing: ListNode<T> | null = sentinel;
+
+  // Avança leading positionFromEnd + 1 passos à frente de trailing.
+  for (let step = 0; step <= positionFromEnd; step++) leading = leading!.next;
+
+  while (leading !== null) {
+    trailing = trailing!.next;
+    leading = leading.next;
+  }
+  trailing!.next = trailing!.next!.next;
+  return sentinel.next;
+}
+
+// ============================================================================
+// Doubly Linked List — útil para LRU Cache.
+// ============================================================================
+
+export class DoublyListNode<T> {
+  previous: DoublyListNode<T> | null = null;
+  next: DoublyListNode<T> | null = null;
+  constructor(public value: T) {}
+}
+
+export class DoublyLinkedList<T> {
+  head: DoublyListNode<T> | null = null;
+  tail: DoublyListNode<T> | null = null;
+  size = 0;
+
+  pushBack(value: T): DoublyListNode<T> {
+    const node = new DoublyListNode(value);
+    node.previous = this.tail;
+    if (this.tail !== null) this.tail.next = node;
+    else this.head = node;
+    this.tail = node;
+    this.size++;
+    return node;
+  }
+
+  remove(node: DoublyListNode<T>): void {
+    if (node.previous !== null) node.previous.next = node.next;
+    else this.head = node.next;
+
+    if (node.next !== null) node.next.previous = node.previous;
+    else this.tail = node.previous;
+
+    this.size--;
+  }
+}
+
+// ============================================================================
+
+function nodesToArray<T>(head: ListNode<T> | null): T[] {
+  const result: T[] = [];
+  for (let node = head; node !== null; node = node.next) result.push(node.value);
+  return result;
+}
+
+function runExamples(): void {
+  const list = new LinkedList<number>();
+  [1, 2, 3, 4, 5].forEach(value => list.push(value));
+  console.log('list:', list.toArray());
+
+  const reversed = reverseList(list.getHead());
+  console.log('reversed:', nodesToArray(reversed));
+  console.log('middle:', findMiddleNode(reversed)?.value);
+}
+
+runExamples();
+```
+
 ## Referências
 
 - [Linked List Cycle Detection (Fast & Slow) — NeetCode](https://neetcode.io/problems/linked-list-cycle-detection/question)
